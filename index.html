@@ -248,33 +248,54 @@
     </div>
 
     <script>
-        // ポータル表示用の設定データ
+        /**
+         * 階層型ポータル表示用の設定データ
+         * キーの形式は「#s/<学校コード>/<学年コード>/<クラスコード>」を想定。
+         * - 学校共通: #s/001/all
+         * - 学年共通: #s/001/g5/all
+         * - クラス専用: #s/001/g2/c2a
+         * - デフォルト: #default
+         */
         const portalData = {
-            // 1. 学校全体共通 (デフォルト表示)
-            'school': {
-                title: '📗 学校共通の扉',
+            // ----------------------------------------------------
+            // 共通デフォルト設定 (ハッシュがない場合)
+            'default': {
+                title: '💡 共通学習の扉',
                 links: [
                     { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" },
                     { name: "ドリルプラネット", url: "https://login.kobun.co.jp/student-login/?code=1134304" },
                     { name: "キーボー島 (タイピング)", url: "https://kb-kentei.net/" },
-                    { name: "くくはちじゅういち", url: "https://seipsg.main.jp/kuku81/" },
-                    { name: "全校共通のWebサイト", url: "#" },
-                    { name: "先生への質問フォーム", url: "#" },
+                    { name: "学校全体共通のWebサイト", url: "#" },
                 ]
             },
-            // 2. 5年生向け
-            'grade5': {
-                title: '✏️ 5年生 学年の扉',
+            
+            // ----------------------------------------------------
+            // 学校コード 001 (例: 〇〇市立中央小学校) 向け設定
+            // ----------------------------------------------------
+            's/001/all': {
+                title: '🏫 中央小学校 全校共通の扉',
+                links: [
+                    { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" },
+                    { name: "学校連絡事項 (掲示板)", url: "#" },
+                    { name: "先生への質問フォーム", url: "#" },
+                    { name: "プログラミング教材 (Scratch)", url: "#" },
+                ]
+            },
+            
+            // 学校 001 の 5年生 (g5) 向け
+            's/001/g5/all': {
+                title: '✏️ 中央小学校 5年生 学年の扉',
                 links: [
                     { name: "5年 算数ドリル", url: "#" },
                     { name: "5年 理科の観察記録", url: "#" },
-                    { name: "プログラミング教材", url: "#" },
-                    { name: "学年共通 課題提出", url: "#" },
+                    { name: "社会科見学Webサイト", url: "#" },
+                    { name: "5年 学年共通 課題提出", url: "#" },
                 ]
             },
-            // 3. 2年A組向け
-            'class2a': {
-                title: '🖍️ 2年A組 クラスの扉',
+            
+            // 学校 001 の 2年A組 (g2/c2a) 向け
+            's/001/g2/c2a': {
+                title: '🖍️ 中央小学校 2年A組 クラスの扉',
                 links: [
                     { name: "今日の学習計画", url: "#" },
                     { name: "クラス連絡帳", url: "#" },
@@ -282,8 +303,43 @@
                     { name: "先生のWebサイト", url: "#" },
                 ]
             },
-            // 4. 新しいクラス/学年のパターンを追加する際は、ここにキーとデータを追加してください。
-            // 'newgroup': { ... }
+
+            // ----------------------------------------------------
+            // 学校コード 002 (例: 〇〇市立東中学校) 向け設定
+            // ----------------------------------------------------
+            's/002/all': {
+                title: '🏫 東中学校 全校共通の扉',
+                links: [
+                    { name: "Office 365 Web", url: "https://portal.office.com/" },
+                    { name: "学習支援システム (LMS)", url: "#" },
+                    { name: "進路情報ポータル", url: "#" },
+                    { name: "体育館利用予約", url: "#" },
+                ]
+            },
+            
+            // 学校 002 の 3年生 (g3) 向け
+            's/002/g3/all': {
+                title: '🎓 東中学校 3年生 学年の扉',
+                links: [
+                    { name: "受験対策ドリル", url: "#" },
+                    { name: "進路面談予約フォーム", url: "#" },
+                    { name: "3年 学年共通 課題提出", url: "#" },
+                    { name: "卒業制作 Webサイト", url: "#" },
+                ]
+            },
+            
+            // 学校 002 の 3年B組 (g3/c3b) 向け
+            's/002/g3/c3b': {
+                title: '📚 東中学校 3年B組 クラスの扉',
+                links: [
+                    { name: "B組 担任からの連絡", url: "#" },
+                    { name: "B組 委員会の活動報告", url: "#" },
+                    { name: "B組 授業資料フォルダ", url: "#" },
+                ]
+            },
+            
+            // 新しいパターンを追加する際は、ここにキーとデータを追加してください。
+            // 例: 's/003/all': { ... }
         };
 
         const animationDuration = 500; // アニメーション時間 (ミリ秒)
@@ -291,18 +347,6 @@
         // ----------------------------------------------------
         // リンククリック時のアニメーションと別タブ遷移を制御する関数
         // ----------------------------------------------------
-        function attachAnimationListeners() {
-            const linkButtons = document.querySelectorAll('.link-button');
-            
-            linkButtons.forEach(button => {
-                // 既存のリスナーを削除 (renderPortalでリンクが再生成されるため)
-                button.removeEventListener('click', handleLinkClick); 
-                
-                // 新しいリスナーを追加
-                button.addEventListener('click', handleLinkClick);
-            });
-        }
-        
         function handleLinkClick(e) {
             // リンク先がプレースホルダーや空の場合はアニメーションせず終了
             if (this.href.endsWith('#') || this.href.includes('[') || this.href === '') {
@@ -328,20 +372,64 @@
             }, animationDuration + 50); 
         }
 
+        function attachAnimationListeners() {
+            const linkButtons = document.querySelectorAll('.link-button');
+            
+            linkButtons.forEach(button => {
+                // 既存のリスナーを削除 (renderPortalでリンクが再生成されるため)
+                button.removeEventListener('click', handleLinkClick); 
+                
+                // 新しいリスナーを追加
+                button.addEventListener('click', handleLinkClick);
+            });
+        }
+
         // ----------------------------------------------------
         // URLハッシュに基づいてポータルをレンダリングする関数
         // ----------------------------------------------------
         function renderPortal() {
-            // URLハッシュからキーを取得し、存在しない場合はデフォルト(school)を使用
+            // URLハッシュからキーを取得し、小文字化
             const hash = window.location.hash.substring(1).toLowerCase();
-            const currentKey = portalData[hash] ? hash : 'school';
-            const data = portalData[currentKey];
+            
+            // データを取得。ハッシュが存在しない、またはデータにキーがない場合は'default'を使用
+            let currentKey = hash;
+            let data = portalData[hash];
+
+            if (!data) {
+                // データを取得できない場合、ハッシュをパースしてフォールバックキーを試す
+                const parts = hash.split('/');
+                
+                // s/001/g5/c2a の場合 -> s/001/g5/all を試す
+                if (parts.length === 4) {
+                    const fallbackKey = `${parts[0]}/${parts[1]}/${parts[2]}/all`;
+                    if (portalData[fallbackKey]) {
+                        currentKey = fallbackKey;
+                        data = portalData[fallbackKey];
+                    }
+                }
+                
+                // s/001/g5/all の場合 -> s/001/all を試す
+                if (!data && parts.length >= 3) {
+                     const schoolFallbackKey = `${parts[0]}/${parts[1]}/all`;
+                     if (portalData[schoolFallbackKey]) {
+                        currentKey = schoolFallbackKey;
+                        data = portalData[schoolFallbackKey];
+                     }
+                }
+
+                // 最終的にデータが見つからなければ'default'を使用
+                if (!data) {
+                    currentKey = 'default';
+                    data = portalData[currentKey];
+                }
+            }
+
 
             const container = document.getElementById('link-container');
             const titleElement = document.getElementById('main-section-title');
 
             // タイトルを更新
-            titleElement.innerHTML = `${data.title} <span style="font-size: 0.8em; color: #888;">(Key: #${currentKey})</span>`;
+            titleElement.innerHTML = `${data.title} <span style="font-size: 0.8em; color: #888; display: block; margin-top: 5px;">(URL Key: #${currentKey})</span>`;
             
             // 既存のコンテンツをクリア
             container.innerHTML = '';
