@@ -4,113 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>学トビラ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* ------------------------------------- */
-        /* 共通スタイル */
-        /* ------------------------------------- */
+        /* Tailwind CSS 以外のカスタムスタイル */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 20px;
             background-color: #f4f7f6;
             color: #333;
-            text-align: center;
         }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #ffffff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-        }
-
-        h1 {
-            color: #0056b3;
-            margin-bottom: 5px;
-            font-size: 2.2em;
-            padding-top: 10px;
-        }
-
-        .subtitle {
-            color: #555;
-            margin-bottom: 25px;
-            font-size: 1.1em;
-            font-weight: bold;
-        }
-
-        /* ------------------------------------- */
-        /* ボタンとセクションのスタイル */
-        /* ------------------------------------- */
-        .section-title {
-            color: #0056b3;
-            border-bottom: 3px solid #0056b3;
-            padding-bottom: 5px;
-            margin-top: 30px;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-        }
-
-        .link-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .link-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px 15px;
-            background-color: #e9f0f8;
-            color: #0056b3;
-            text-decoration: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: bold;
-            transition: background-color 0.2s, transform 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            min-height: 80px;
-            text-align: left;
-            line-height: 1.3;
-            perspective: 1000px;
-        }
-
-        .link-button:hover {
-            background-color: #d0e0f0;
-            transform: translateY(-2px);
-        }
-
-        /* ------------------------------------- */
-        /* ドアアイコンのスタイル */
-        /* ------------------------------------- */
+        
+        /* ドアアイコンのアニメーション */
         .door-icon {
-            /* ドアの基本的な箱 */
             position: relative;
             width: 24px;
             height: 32px;
-            background-color: #a0522d; /* 茶色のドア */
+            background-color: #a0522d;
             border: 2px solid #8B4513;
             border-radius: 4px 4px 0 0;
             margin-right: 15px;
             box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
             flex-shrink: 0;
-            
-            /* アニメーションの基本設定 */
-            transform-origin: left center; /* 左端を軸に回転 */
+            transform-origin: left center;
             transition: transform 0.5s ease-out, opacity 0.5s ease-out; 
-            transform: rotateY(0deg); /* 初期状態 */
+            transform: rotateY(0deg);
         }
-        
-        /* === ドアが開くアニメーション === */
         .link-button.opening .door-icon {
             transform: rotateY(-110deg);
             opacity: 0;
         }
-
-        /* ドアの取っ手 */
         .door-icon::after {
             content: '';
             position: absolute;
@@ -118,256 +40,210 @@
             right: 5px;
             width: 4px;
             height: 4px;
-            background-color: #ffd700; /* ゴールドの取っ手 */
+            background-color: #ffd700;
             border-radius: 50%;
         }
-
-        .button-text {
-            flex-grow: 1;
-            text-align: center;
-        }
-
-        /* ------------------------------------- */
-        /* 緊急対応セクションの強調 */
-        /* ------------------------------------- */
-        .emergency-section {
-            margin-top: 40px;
-            padding: 20px;
-            border: 4px solid #cc0000;
-            background-color: #ffe6e6;
-            border-radius: 12px;
-        }
-
-        .emergency-section .section-title {
-            color: #cc0000;
-            border-bottom: 3px solid #cc0000;
-        }
         
-        .emergency-description {
-            color: #cc0000;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        /* 緊急ボタンのスタイル (赤色系のドア) */
-        .emergency-button {
-            background-color: #ff9900;
-            color: #333;
-            border: 3px solid #cc7a00;
-            font-size: 1.2em;
-            padding: 25px 15px;
-        }
-
-        .emergency-button:hover {
-            background-color: #ffc04d;
-            color: #000;
-        }
-        
-        /* 緊急ボタンのドアの色を警告色に */
+        /* 緊急ボタンのスタイル調整 */
         .emergency-button .door-icon {
             background-color: #cc3333; 
             border-color: #a00000;
         }
 
-        /* ------------------------------------- */
-        /* デモナビゲーションのスタイル */
-        /* ------------------------------------- */
-        .demo-nav {
-            margin: 20px 0 40px 0;
-            padding: 15px;
-            background-color: #e9e9f8;
-            border: 1px solid #c0c0d0;
-            border-radius: 10px;
-            text-align: left;
+        /* モーダルの背景 */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.6);
         }
-        .demo-nav:not(.visible) {
-             /* visibleクラスがない場合に非表示にする */
-            display: none;
+        
+        /* フォームの調整 */
+        .link-row {
+            transition: background-color 0.2s;
+        }
+        .link-row:hover {
+            background-color: #f0f4f8;
         }
 
-        .demo-nav h3 {
-            margin-top: 0;
-            color: #555;
-            font-size: 1.2em;
-            border-bottom: 1px dashed #c0c0d0;
-            padding-bottom: 5px;
-            margin-bottom: 10px;
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
         }
-        .demo-nav .nav-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 10px;
-        }
-        .demo-nav a {
-            display: block;
-            padding: 8px 12px;
-            background-color: #ffffff;
-            color: #0056b3;
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 0.9em;
-            font-weight: bold;
-            transition: background-color 0.1s;
-            text-align: center;
-            border: 1px solid #d0d0f0;
-        }
-        .demo-nav a:hover {
-            background-color: #d0e0f0;
-        }
-        .demo-nav .school-label {
-            grid-column: 1 / -1; /* 全幅を使う */
-            font-weight: bold;
-            color: #333;
-            margin-top: 10px;
-        }
-        .demo-nav .current-key {
-            font-weight: bold;
-            color: #cc0000;
-            display: block;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        /* ------------------------------------- */
-        /* フッター */
-        /* ------------------------------------- */
-        .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            font-size: 0.9em;
-            color: #777;
-        }
-
-        /* レスポンシブ対応 (モバイル向け) */
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            .container {
-                padding: 15px;
-            }
-            .link-button, .emergency-button {
-                min-height: 60px;
-                font-size: 1em;
-            }
-            .door-icon {
-                margin-right: 10px;
-                width: 20px;
-                height: 28px;
-            }
-            .demo-nav .nav-grid {
-                grid-template-columns: 1fr;
-            }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1><ruby>学<rt>ガク</rt></ruby>トビラ</h1>
-        <p class="subtitle">さあ、学習の扉を開こう！ (冬休み中の学習継続、トラブル時の復旧にご利用ください)</p>
+<body class="p-4 md:p-8">
+    <div class="container max-w-4xl mx-auto p-4 md:p-8 bg-white shadow-xl rounded-xl">
         
-        <!-- ------------------------------------- -->
-        <!-- デモナビゲーションエリア (追加) -->
-        <!-- ------------------------------------- -->
-        <div class="demo-nav" id="demo-nav-container">
-            <h3>デモナビゲーション（URLハッシュ切替）</h3>
-            <span class="current-key">現在のURLハッシュ: <span id="current-hash-display">#default</span></span>
-            <div class="nav-grid">
-                <span class="school-label">第一小学校 (01) - 小1/小6</span>
-                <a href="#s/01/all">全校共通</a>
-                <a href="#s/01/g1/all">1年生</a>
-                <a href="#s/01/g6/all">6年生</a>
-                
-                <span class="school-label">第二中学校 (12) - 中7/中9 (特別)</span>
-                <a href="#s/12/all">全校共通</a>
-                <a href="#s/12/g7/all">7年生</a>
-                <a href="#s/12/g9/all">9年生</a>
-                
-                <span class="school-label">雷塚小学校 (21) - 設定なし学年テスト</span>
-                <a href="#s/21/all">全校共通</a>
-                <a href="#s/21/g5/all">5年生 (→全校へFB)</a>
-                
-                <span class="school-label">初期/共通/テスト</span>
-                <a href="#default">初期/共通</a>
-                <a href="#s/999/g5/all">存在しない学校 (→共通へFB)</a>
+        <!-- ヘッダーと認証情報 -->
+        <header class="flex justify-between items-start mb-6 border-b pb-3">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-blue-700 tracking-tight"><ruby>学<rt class="text-gray-500 text-base font-normal">ガク</rt></ruby>トビラ</h1>
+                <p class="text-sm text-gray-500 mt-1">学習の扉を開こう！ (データはFirestoreに保存されます)</p>
+            </div>
+            
+            <div id="auth-status" class="text-right">
+                <p class="text-xs font-semibold" id="user-status-text">認証中...</p>
+                <button id="edit-button" class="mt-2 px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-bold rounded-lg shadow-md transition hidden" onclick="showEditModal()">
+                    <span id="current-portal-key-display" class="font-normal text-xs mr-1"></span> 編集モード
+                </button>
+            </div>
+        </header>
+
+        <!-- デモナビゲーションエリア (管理者用) -->
+        <div id="demo-nav-container" class="demo-nav p-4 bg-indigo-50 border border-indigo-200 rounded-lg mb-8 transition-all hidden">
+            <h3 class="text-lg font-semibold text-indigo-700 border-b border-indigo-300 pb-2 mb-3">デモナビゲーション（管理者モード: #admin で表示）</h3>
+            <span class="text-xs font-medium text-red-600 block mb-3">現在のポータルキー: <span id="current-hash-display">#default</span></span>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                <span class="col-span-full font-bold text-gray-700 mt-2">小学校 (01, 21)</span>
+                <a href="#s/01/all" class="p-2 bg-white rounded-md hover:bg-indigo-100 text-indigo-600 font-medium text-center shadow-sm">一小 全校</a>
+                <a href="#s/01/g1/all" class="p-2 bg-white rounded-md hover:bg-indigo-100 text-indigo-600 font-medium text-center shadow-sm">一小 1年生</a>
+                <a href="#s/21/g5/all" class="p-2 bg-white rounded-md hover:bg-indigo-100 text-indigo-600 font-medium text-center shadow-sm">雷塚 5年 (FB)</a>
+                <span class="col-span-full font-bold text-gray-700 mt-2">中学校 (12, 14)</span>
+                <a href="#s/12/all" class="p-2 bg-white rounded-md hover:bg-indigo-100 text-indigo-600 font-medium text-center shadow-sm">二中 全校</a>
+                <a href="#s/12/g7/all" class="p-2 bg-white rounded-md hover:bg-indigo-100 text-indigo-600 font-medium text-center shadow-sm">二中 7年生</a>
+                <a href="#s/14/all" class="p-2 bg-white rounded-md hover:bg-indigo-100 text-indigo-600 font-medium text-center shadow-sm">四中 全校</a>
+                <span class="col-span-full font-bold text-gray-700 mt-2">共通/テスト</span>
+                <a href="#default" class="p-2 bg-green-100 rounded-md hover:bg-green-200 text-green-700 font-medium text-center shadow-sm">#default</a>
+                <a href="#s/999/g5/all" class="p-2 bg-red-100 rounded-md hover:bg-red-200 text-red-700 font-medium text-center shadow-sm">#999 (FBテスト)</a>
+                <a href="#admin" class="p-2 bg-purple-100 rounded-md hover:bg-purple-200 text-purple-700 font-medium text-center shadow-sm">#admin (管理)</a>
             </div>
         </div>
 
-        <!-- ------------------------------------- -->
         <!-- 学習Webアプリセクション (メイン) -->
-        <!-- JSによって内容が動的に書き換えられる -->
-        <!-- ------------------------------------- -->
-        <h2 class="section-title" id="main-section-title">📗 いつもの学習の扉</h2>
-        
-        <div class="link-grid" id="link-container">
-            <!-- 動的にリンクが挿入されます -->
+        <div id="main-content">
+            <h2 class="text-2xl font-bold text-blue-700 border-b-4 border-blue-600 pb-2 mb-6" id="main-section-title">データロード中...</h2>
+            
+            <div id="link-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="col-span-full text-center py-10 text-gray-500">
+                    <div class="spinner mx-auto mb-3 border-blue-500 border-t-blue-700"></div>
+                    <p>ポータルデータをロードしています...</p>
+                </div>
+            </div>
         </div>
 
-
-        <!-- ------------------------------------- -->
         <!-- 緊急対応セクション (トラブル回避) -->
-        <!-- ------------------------------------- -->
-        <div class="emergency-section">
-            <h2 class="section-title">🚨 緊急対応の扉：サインインやデータ消失のトラブル時</h2>
-            <p class="emergency-description">
+        <div class="mt-10 p-5 border-4 border-red-600 bg-red-50 rounded-xl shadow-lg">
+            <h2 class="text-xl font-bold text-red-700 border-b-2 border-red-500 pb-2 mb-4">🚨 緊急対応の扉：サインインやデータ消失のトラブル時</h2>
+            <p class="text-red-600 font-bold mb-4 text-sm">
                 **【重要】** OneDriveフォルダやデスクトップアプリ(Teams/Office)にサインインできない場合は、**必ずこのリンク**からWebブラウザ版をご利用ください。
             </p>
             
-            <div class="link-grid">
-                <!-- Microsoft 365 ポータルにまとめて誘導 -->
-                <a href="https://portal.office.com/" class="link-button emergency-button">
-                    <span class="door-icon"></span><span class="button-text">Microsoftのスタートページ<br>(Web版 Office, Teams, OneDriveはこちら)</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="https://portal.office.com/" class="link-button emergency-button flex items-center justify-center p-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 rounded-lg font-bold shadow-md transition">
+                    <span class="door-icon"></span><span class="text-base text-center">Microsoftのスタートページ<br>(Web版 Office, Teams, OneDrive)</span>
                 </a>
 
-                <!-- サインイン手順書 (復旧マニュアル) -->
-                <a href="[サインイン手順書PDFのURLをここに記述]" class="link-button emergency-button">
-                    <span class="door-icon"></span><span class="button-text">サインイン復旧手順書<br>（トラブル解決マニュアル）</span>
+                <a href="[サインイン手順書PDFのURLをここに記述]" class="link-button emergency-button flex items-center justify-center p-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 rounded-lg font-bold shadow-md transition">
+                    <span class="door-icon"></span><span class="text-base text-center">サインイン復旧手順書<br>（トラブル解決マニュアル）</span>
                 </a>
             </div>
         </div>
 
-        <!-- ------------------------------------- -->
         <!-- フッター情報 -->
-        <!-- ------------------------------------- -->
-        <div class="footer">
-            <p>冬休み中のサポートについては、各学校からの連絡事項をご確認ください。<br>
-            QRコードの URL: [ポータルサイトのURLをここに記述]</p>
+        <div class="mt-10 pt-5 border-t border-gray-300 text-center text-sm text-gray-500">
+            <p>ポータルサイト設定はFirestoreに保存されます。</p>
+        </div>
+    </div>
+    
+    <!-- ------------------------------------- -->
+    <!-- リンク編集モーダル -->
+    <!-- ------------------------------------- -->
+    <div id="edit-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full p-6 m-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start border-b pb-3 mb-4">
+                <h3 id="modal-title" class="text-xl font-bold text-blue-700">リンク設定の編集</h3>
+                <button onclick="hideEditModal()" class="text-gray-400 hover:text-gray-600 transition" aria-label="閉じる">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <p class="text-sm text-gray-600 mb-4">
+                現在編集中のキー: <span id="editing-key-display" class="font-mono bg-gray-100 px-1 rounded text-red-600"></span>
+            </p>
+            
+            <div id="links-editor">
+                <!-- リンク入力フィールドがここに動的に追加される -->
+            </div>
+            
+            <div class="flex justify-end mt-6 space-x-3">
+                <button onclick="addLinkField()" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg transition shadow-md">
+                    リンクを追加
+                </button>
+                <button onclick="saveEditedLinks()" id="save-button" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition shadow-md">
+                    <span id="save-text">設定を保存</span>
+                    <div id="save-spinner" class="spinner border-t-white hidden"></div>
+                </button>
+            </div>
         </div>
     </div>
 
-    <script>
-        /**
-         * 階層型ポータル表示用の設定データ
-         * キーの形式は「#s/<学校コード>/<学年コード>/all」を想定。（クラス別指定なし）
-         * - 学校共通: #s/01/all
-         * - 学年共通: #s/01/g5/all
-         * - デフォルト: #default
-         *
-         * 学校コード割り当て：
-         * 小学校: 第一(01)〜第九(09)、第十(10)、雷塚(21)
-         * 中学校: 第一(11)〜第五(15)
-         */
+    <!-- ------------------------------------- -->
+    <!-- Firebase SDKのインポートと初期化 -->
+    <!-- ------------------------------------- -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, getDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
-        // 共通で利用するリンクセットを定義
-        const commonSchoolLinks = [
-            { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" },
-            { name: "学校からのお知らせ", url: "#" },
-            { name: "先生への質問・相談フォーム", url: "#" },
-            { name: "プログラミング教材 (Scratch)", url: "#" },
-        ];
+        // Firestoreログレベルをデバッグに設定 (開発用)
+        setLogLevel('debug');
 
-        const commonJHSLinks = [
-            { name: "Office 365 Web", url: "https://portal.office.com/" },
-            { name: "学習支援システム (LMS)", url: "#" },
-            { name: "進路情報ポータル", url: "#" },
-            { name: "生徒会 Webサイト", url: "#" },
-        ];
+        // グローバル変数 (Canvas環境から提供されるものを優先)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // ここにFirebaseプロジェクトのConfig情報を貼り付けることで、GitHub Pagesなどの環境で動作します。
+        // Canvas環境では __firebase_config が自動的に提供されます。
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { /* // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-        const portalData = {
-            // ----------------------------------------------------
-            // 共通デフォルト設定 (ハッシュがない場合 / 管理者用)
-            // ----------------------------------------------------
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCU6-hKFFa8dew_G_0_hDP8Q4eYqP0_7yU",
+  authDomain: "gigaportal-editor.firebaseapp.com",
+  projectId: "gigaportal-editor",
+  storageBucket: "gigaportal-editor.firebasestorage.app",
+  messagingSenderId: "969946487756",
+  appId: "1:969946487756:web:fa4c4347d72de0b2dc9b69"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig); */ };
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app;
+        let db;
+        let auth;
+        let userId = 'loading'; // ユーザーID
+        let isAuthReady = false; // 認証準備完了フラグ
+        let currentHash = 'default'; // 現在のポータルキー (URLハッシュから決定)
+
+        // ----------------------------------------------------
+        // データの永続化と取得に関する定数と関数
+        // ----------------------------------------------------
+
+        // Firestoreのパブリックコレクションパス (全ユーザーで共有・編集可能)
+        function getPortalConfigDocRef(docId) {
+            return doc(db, 'artifacts', appId, 'public', 'data', 'portal_configs', docId);
+        }
+
+        // URLハッシュ（例: s/01/g6/all）をFirestoreのドキュメントID（例: s_01_g6_all）に変換
+        function getDocIdFromHash(hash) {
+            return hash.replace(/^#/, '').replace(/\//g, '_');
+        }
+
+        /**
+         * 共通で利用するリンクセット (初期データとして使用)
+         * Firestoreにデータがない場合にこの初期値を保存します。
+         */
+        const initialPortalData = {
             'default': {
                 title: '💡 共通学習の扉',
                 links: [
@@ -377,222 +253,452 @@
                     { name: "教育委員会Webサイト", url: "#" },
                 ]
             },
-            
-            // ----------------------------------------------------
-            // 小学校データ (第一小学校: s/01 のみ詳細設定)
-            // ----------------------------------------------------
-            's/01/all': {
-                title: '🏫 第一小学校 全校共通の扉',
-                links: commonSchoolLinks,
-            },
-            's/01/g1/all': { 
-                title: '✏️ 第一小学校 1年生の扉', 
-                links: [ 
-                    { name: "1年 算数ドリル", url: "#" }, 
-                    { name: "ひらがな練習サイト", url: "#" }, 
-                    { name: "生活科 Webサイト", url: "#" }, 
-                    ...commonSchoolLinks.slice(0, 1) 
-                ] 
-            },
-            's/01/g6/all': { 
-                title: '✏️ 第一小学校 6年生の扉', 
-                links: [ 
-                    { name: "6年 卒業文集作成", url: "#" }, 
-                    { name: "6年 課題提出フォルダ", url: "#" }, 
-                    { name: "中学校生活紹介", url: "#" }, 
-                    ...commonSchoolLinks.slice(0, 1) 
-                ] 
-            },
-
-            // ----------------------------------------------------
-            // 中学校データ (第二中学校: s/12 のみ詳細設定 - 7, 8, 9年生)
-            // ----------------------------------------------------
-            's/12/all': {
-                title: '🏫 第二中学校 全校共通の扉',
-                links: commonJHSLinks,
-            },
-            's/12/g7/all': { 
-                title: '🎓 第二中学校 7年生の扉', 
-                links: [ 
-                    { name: "7年 英語学習サイト", url: "#" }, 
-                    { name: "7年 理科実験記録", url: "#" }, 
-                    { name: "学校生活オリエンテーション", url: "#" }, 
-                    ...commonJHSLinks.slice(0, 1) 
-                ] 
-            },
-            's/12/g9/all': { 
-                title: '🎓 第二中学校 9年生の扉', 
-                links: [ 
-                    { name: "9年 受験対策ドリル", url: "#" }, 
-                    { name: "9年 進路面談予約", url: "#" }, 
-                    { name: "卒業制作 発表サイト", url: "#" }, 
-                    ...commonJHSLinks.slice(0, 1) 
-                ] 
-            },
-
-            // ----------------------------------------------------
-            // その他の小学校 (全校共通設定のみ) - 必要に応じて学年別キーを追加
-            // ----------------------------------------------------
-            's/02/all': { title: '🏫 第二小学校 全校共通の扉', links: commonSchoolLinks },
-            's/03/all': { title: '🏫 第三小学校 全校共通の扉', links: commonSchoolLinks },
-            's/04/all': { title: '🏫 第四小学校 全校共通の扉', links: commonSchoolLinks },
-            's/07/all': { title: '🏫 第七小学校 全校共通の扉', links: commonSchoolLinks },
-            's/08/all': { title: '🏫 第八小学校 全校共通の扉', links: commonSchoolLinks },
-            's/09/all': { title: '🏫 第九小学校 全校共通の扉', links: commonSchoolLinks },
-            's/10/all': { title: '🏫 第十小学校 全校共通の扉', links: commonSchoolLinks },
-            's/21/all': { title: '🏫 雷塚小学校 全校共通の扉', links: commonSchoolLinks },
-            
-            // ----------------------------------------------------
-            // その他の中学校 (全校共通設定のみ) - 第二中学校以外は g1, g2, g3 を使用
-            // ----------------------------------------------------
-            's/11/all': { title: '🏫 第一中学校 全校共通の扉', links: commonJHSLinks },
-            // s/12 は上に定義済み
-            's/13/all': { title: '🏫 第三中学校 全校共通の扉', links: commonJHSLinks },
-            's/14/all': { title: '🏫 第四中学校 全校共通の扉', links: commonJHSLinks },
-            's/15/all': { title: '🏫 第五中学校 全校共通の扉', links: commonJHSLinks },
-            
-            // ----------------------------------------------------
-            // 管理者アクセス用 (デモナビゲーションを表示させるためのダミーエントリー)
-            // ----------------------------------------------------
-            'admin': {
-                title: '⚙️ ポータル管理アクセス',
-                links: []
-            }
+            's_01_all': { title: '🏫 第一小学校 全校共通の扉', links: [ { name: "一小-学校からのお知らせ", url: "#" }, { name: "一小-先生への質問フォーム", url: "#" }, { name: "一小-プログラミング教材", url: "#" } ] },
+            's_01_g1_all': { title: '✏️ 第一小学校 1年生の扉', links: [ { name: "1年 算数ドリル", url: "#" }, { name: "ひらがな練習サイト", url: "#" }, { name: "生活科 Webサイト", url: "#" } ] },
+            's_01_g6_all': { title: '✏️ 第一小学校 6年生の扉', links: [ { name: "6年 卒業文集作成", url: "#" }, { name: "6年 課題提出フォルダ", url: "#" }, { name: "中学校生活紹介", url: "#" } ] },
+            's_12_all': { title: '🏫 第二中学校 全校共通の扉', links: [ { name: "二中-学習支援システム (LMS)", url: "#" }, { name: "二中-進路情報ポータル", url: "#" }, { name: "二中-生徒会 Webサイト", url: "#" } ] },
+            's_12_g7_all': { title: '🎓 第二中学校 7年生の扉', links: [ { name: "7年 英語学習サイト", url: "#" }, { name: "7年 理科実験記録", url: "#" }, { name: "学校生活オリエンテーション", url: "#" } ] },
+            's_12_g9_all': { title: '🎓 第二中学校 9年生の扉', links: [ { name: "9年 受験対策ドリル", url: "#" }, { name: "9年 進路面談予約", url: "#" }, { name: "卒業制作 発表サイト", url: "#" } ] },
+            's_21_all': { title: '🏫 雷塚小学校 全校共通の扉', links: [ { name: "雷塚小-連絡事項", url: "#" }, { name: "雷塚小-Webドリル", url: "#" } ] },
         };
-
-        const animationDuration = 500; // アニメーション時間 (ミリ秒)
         
         // ----------------------------------------------------
-        // リンククリック時のアニメーションと別タブ遷移を制御する関数
+        // Firebase初期化と認証
         // ----------------------------------------------------
-        function handleLinkClick(e) {
-            // リンク先がプレースホルダーや空の場合はアニメーションせず終了
-            // '#' はフォールバック処理をスキップするため、アニメーションは実行する
-            if (this.href.includes('[')) { // [サインイン手順書PDFのURLをここに記述]のようなプレースホルダはスキップ
-                 return; 
-            }
-            if (this.href.endsWith('#') || this.href === '') {
-                 // '#' の場合はアニメーションを実行し、遷移を停止する (デモ用)
-                 e.preventDefault();
-            } else {
-                 e.preventDefault(); // デフォルトのリンク遷移を停止
-            }
-
-
-            const targetUrl = this.href;
-            
-            // アニメーションクラスを追加
-            this.classList.add('opening');
-
-            // アニメーション完了後に別タブで遷移を実行
-            setTimeout(() => {
-                if (!this.href.endsWith('#') && this.href !== '') {
-                    window.open(targetUrl, '_blank');
+        function initializeFirebase() {
+            try {
+                // Firebase Configが設定されているかチェック
+                if (!firebaseConfig || !firebaseConfig.projectId) {
+                    console.warn("Firebase Configが設定されていません。データは永続化されません。");
+                    document.getElementById('user-status-text').textContent = `Config未設定`;
+                    // Configがない場合、認証せずにローカルで処理を進めることも可能だが、ここではFirebaseを必須とする
+                    // isAuthReadyをfalseのままにし、UIを更新しない（ローディング状態のまま）
+                    return; 
                 }
-                
-                // 新しいタブを開いた後、元のボタンをリセットして再利用可能にする
-                setTimeout(() => {
-                     this.classList.remove('opening');
-                }, 100);
 
-            }, animationDuration + 50); 
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // 認証状態の監視
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        document.getElementById('user-status-text').textContent = `認証済み (ID: ${userId.substring(0, 8)}...)`;
+                        // 認証が完了したらポータルをレンダリング（データロード開始）
+                        isAuthReady = true;
+                        renderPortal();
+                        // 編集ボタンを表示
+                        document.getElementById('edit-button').classList.remove('hidden');
+                    } else {
+                        // 匿名サインインまたはカスタムトークンサインインを実行
+                        await handleSignIn();
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebaseの初期化に失敗しました:", error);
+                document.getElementById('user-status-text').textContent = `初期化エラー`;
+            }
+        }
+        
+        async function handleSignIn() {
+             try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("認証に失敗しました:", error);
+                document.getElementById('user-status-text').textContent = `サインイン失敗`;
+            }
         }
 
-        function attachAnimationListeners() {
-            const linkButtons = document.querySelectorAll('.link-button');
-            
-            linkButtons.forEach(button => {
-                // 既存のリスナーを削除 (renderPortalでリンクが再生成されるため)
-                button.removeEventListener('click', handleLinkClick); 
-                
-                // 新しいリスナーを追加
-                button.addEventListener('click', handleLinkClick);
+        // ----------------------------------------------------
+        // Firestoreからのデータロード (リアルタイムリスナー)
+        // ----------------------------------------------------
+        let unsubscribe = null; // onSnapshotのリスナーを保持する変数
+        let currentDocId = null; // 現在監視中のドキュメントID
+
+        async function loadLinks(hashKey) {
+            if (!isAuthReady) return;
+
+            const docId = getDocIdFromHash(hashKey);
+
+            // 現在監視中のドキュメントと異なれば、前のリスナーを解除
+            if (unsubscribe && currentDocId !== docId) {
+                unsubscribe();
+                unsubscribe = null;
+            }
+
+            currentDocId = docId;
+            const docRef = getPortalConfigDocRef(docId);
+
+            // リアルタイムリスナーを設定
+            unsubscribe = onSnapshot(docRef, async (docSnap) => {
+                let data = null;
+
+                if (docSnap.exists()) {
+                    // データが存在すればそれを使用
+                    data = docSnap.data();
+                    console.log(`Firestoreからデータを受信 (${docId})`);
+                } else {
+                    // データが存在しない場合、初期データを使用し、Firestoreに書き込む
+                    const initialData = initialPortalData[docId] || initialPortalData['default'];
+                    if (initialData) {
+                        data = initialData;
+                        console.warn(`Firestoreにデータなし。初期データ (${docId}) で保存します。`);
+                        // 初期データをFirestoreに書き込む
+                        await setDoc(docRef, initialData).catch(e => console.error("初期データ保存失敗:", e));
+                    }
+                }
+
+                if (data) {
+                    // 取得したデータでポータルUIを更新
+                    updatePortalUI(data, hashKey, docId);
+                } else {
+                    // 最終フォールバック
+                    updatePortalUI(initialPortalData['default'], hashKey, 'default');
+                    console.error("最終フォールバック: defaultデータを使用");
+                }
+            }, (error) => {
+                console.error("Firestore onSnapshot エラー:", error);
+                // エラー時も最終フォールバックを表示
+                updatePortalUI(initialPortalData['default'], hashKey, 'default');
             });
         }
-
+        
         // ----------------------------------------------------
-        // URLハッシュに基づいてポータルをレンダリングする関数
+        // ポータルUIの更新
         // ----------------------------------------------------
-        function renderPortal() {
-            // URLハッシュからキーを取得し、小文字化
-            const hash = window.location.hash.substring(1).toLowerCase();
-            const demoNavContainer = document.getElementById('demo-nav-container');
-
-            // 管理者モードの場合、デモナビゲーションを表示する
-            if (hash === 'admin') {
-                demoNavContainer.classList.add('visible');
-                // 管理者モードではリンクを表示しない（デモリンクのテストに専念）
-                const container = document.getElementById('link-container');
-                container.innerHTML = 'デモナビゲーションからリンクを選択してテストしてください。';
-                
-                const titleElement = document.getElementById('main-section-title');
-                titleElement.innerHTML = portalData['admin'].title;
-                document.getElementById('current-hash-display').textContent = `#admin`;
-                return;
-
-            } else {
-                // 通常モードの場合、デモナビゲーションを非表示にする
-                demoNavContainer.classList.remove('visible');
-            }
-            
-            let data = portalData[hash];
-            let actualKey = hash; // 最終的にデータが見つかったキー
-
-            // URLハッシュ表示を更新
-            document.getElementById('current-hash-display').textContent = hash ? `#${hash}` : '#default';
-
-
-            // データを取得。ハッシュが存在しない、またはデータにキーがない場合はフォールバック処理
-            if (!data) {
-                const parts = hash.split('/');
-                
-                // 1. 学年指定 -> 学校共通 へフォールバック
-                // ハッシュが s/<学校コード>/<学年コード>/all の形式で、データがない場合 (parts.length === 4)
-                if (parts.length === 4 && parts[3] === 'all') { 
-                     const schoolFallbackKey = `${parts[0]}/${parts[1]}/all`; // 例: s/21/g5/all がなければ s/21/all を試す
-                     if (portalData[schoolFallbackKey]) {
-                        actualKey = schoolFallbackKey;
-                        data = portalData[schoolFallbackKey];
-                     }
-                }
-
-                // 2. 最終的にデータが見つからなければ'default'を使用
-                // (例: s/999/all や s/21/all が見つからなかった場合)
-                if (!data) {
-                    actualKey = 'default';
-                    data = portalData[actualKey];
-                }
-            }
-
-
+        function updatePortalUI(data, originalHash, docId) {
             const container = document.getElementById('link-container');
             const titleElement = document.getElementById('main-section-title');
+            
+            // UI表示キーの更新
+            document.getElementById('current-portal-key-display').textContent = `#${originalHash}`;
 
-            // タイトルを更新。実際に使用されたキーを表示
-            const fallbackText = actualKey !== hash ? ` (→ #${actualKey} の設定を使用)` : '';
-            titleElement.innerHTML = `${data.title} <span style="font-size: 0.8em; color: #888; display: block; margin-top: 5px;">(URL Key: #${hash}${fallbackText})</span>`;
+            // タイトルを更新
+            const keyDisplay = docId !== getDocIdFromHash(originalHash) ? ` (FB: ${docId})` : '';
+            titleElement.innerHTML = `<span class="text-2xl font-bold text-blue-700">${data.title}</span> <span style="font-size: 0.7em; color: #888; display: block; margin-top: 5px;">(Key: #${originalHash}${keyDisplay})</span>`;
             
             // 既存のコンテンツをクリア
             container.innerHTML = '';
 
             // リンクを動的に生成
-            data.links.forEach(link => {
-                const linkElement = document.createElement('a');
-                linkElement.href = link.url;
-                linkElement.className = 'link-button';
-                
-                // HTML構造を構築
-                linkElement.innerHTML = `<span class="door-icon"></span><span class="button-text">${link.name}</span>`;
-                container.appendChild(linkElement);
-            });
-            
+            if (data.links && data.links.length > 0) {
+                 data.links.forEach(link => {
+                    const linkElement = document.createElement('a');
+                    linkElement.href = link.url;
+                    linkElement.className = 'link-button flex items-center p-4 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-lg font-bold shadow-md transition';
+                    
+                    linkElement.innerHTML = `<span class="door-icon"></span><span class="text-base text-left">${link.name}</span>`;
+                    container.appendChild(linkElement);
+                });
+            } else {
+                container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">このポータルにはまだリンクが設定されていません。「編集モード」で追加してください。</div>`;
+            }
+
             // 動的に生成されたリンクにアニメーションリスナーを再設定
             attachAnimationListeners();
         }
 
-        // ページロード時とハッシュ変更時にレンダリング
-        document.addEventListener('DOMContentLoaded', renderPortal);
-        window.addEventListener('hashchange', renderPortal); 
+        // ----------------------------------------------------
+        // URLハッシュ処理とフォールバックロジック
+        // ----------------------------------------------------
+        function renderPortal() {
+            // 認証がまだ完了していないか、Configが設定されていない場合は処理をスキップ
+            if (!isAuthReady) {
+                 console.log("認証待ち...");
+                 return;
+            }
+
+            // URLハッシュからキーを取得し、小文字化
+            const hash = window.location.hash.substring(1).toLowerCase();
+            const demoNavContainer = document.getElementById('demo-nav-container');
+
+            // 1. 管理者モードチェック
+            if (hash === 'admin') {
+                demoNavContainer.classList.remove('hidden');
+                document.getElementById('link-container').innerHTML = '<div class="col-span-full text-center py-10 text-gray-500">デモナビゲーションからリンクを選択してテストし、「編集モード」で設定を確認してください。</div>';
+                document.getElementById('main-section-title').innerHTML = `<span class="text-2xl font-bold text-blue-700">⚙️ ポータル管理アクセス</span>`;
+                document.getElementById('current-hash-display').textContent = `#admin`;
+                
+                // Firestoreリスナーを解除
+                if (unsubscribe) {
+                    unsubscribe();
+                    unsubscribe = null;
+                }
+                return;
+            } else {
+                // 通常モードの場合、デモナビゲーションを非表示にする
+                demoNavContainer.classList.add('hidden');
+            }
+            
+            // 2. フォールバックロジックを適用して最終的なキーを決定
+            let finalHash = hash || 'default';
+
+            // 学年指定 -> 学校共通へのフォールバックを試みる（Firestoreキーがなければ）
+            const parts = finalHash.split('/');
+            if (parts.length === 4 && parts[3] === 'all') { 
+                const schoolFallbackKey = `${parts[0]}/${parts[1]}/all`;
+                const schoolFallbackDocId = getDocIdFromHash(schoolFallbackKey);
+                
+                // ローカルの初期データに学校共通設定があれば、それを最終キーとして使用
+                if (initialPortalData[schoolFallbackDocId]) {
+                    finalHash = schoolFallbackKey;
+                }
+            }
+            
+            // 最終チェック: 初期データにキーがない場合、defaultを使用
+            const docId = getDocIdFromHash(finalHash);
+            if (!initialPortalData[docId]) {
+                finalHash = 'default';
+            }
+            
+            currentHash = finalHash; // グローバル変数に現在のハッシュを保存
+            
+            // URLハッシュ表示を更新
+            document.getElementById('current-hash-display').textContent = `#${currentHash}`;
+            
+            // 決定したキーでFirestoreからデータをロード
+            loadLinks(currentHash);
+        }
+
+        // ----------------------------------------------------
+        // UIアニメーション処理
+        // ----------------------------------------------------
+        const animationDuration = 500;
+        
+        function handleLinkClick(e) {
+            if (this.href.includes('[')) return; 
+            
+            if (this.href.endsWith('#') || this.href === '') {
+                 e.preventDefault();
+            } else {
+                 e.preventDefault();
+            }
+
+            const targetUrl = this.href;
+            this.classList.add('opening');
+
+            setTimeout(() => {
+                if (!this.href.endsWith('#') && this.href !== '') {
+                    window.open(targetUrl, '_blank');
+                }
+                setTimeout(() => {
+                     this.classList.remove('opening');
+                }, 100);
+            }, animationDuration + 50); 
+        }
+
+        function attachAnimationListeners() {
+            const linkButtons = document.querySelectorAll('.link-button');
+            linkButtons.forEach(button => {
+                button.removeEventListener('click', handleLinkClick); 
+                button.addEventListener('click', handleLinkClick);
+            });
+        }
+        
+        // ----------------------------------------------------
+        // 編集モーダル関連の関数
+        // ----------------------------------------------------
+        let editingLinksData = [];
+        let editingTitle = '';
+        
+        function showEditModal() {
+            document.getElementById('editing-key-display').textContent = `#${currentHash}`;
+            
+            // 現在表示されているリンクデータを取得
+            const docId = getDocIdFromHash(currentHash);
+            const docRef = getPortalConfigDocRef(docId);
+
+            // モーダル表示前に最新データを取得（onSnapshotのデータが最新のはずだが、念のため）
+            getDoc(docRef).then(docSnap => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    editingLinksData = data.links || [];
+                    editingTitle = data.title || '';
+                } else {
+                     // リンクが設定されていない場合は初期データを使用
+                    const initialData = initialPortalData[docId] || initialPortalData['default'];
+                    editingLinksData = initialData.links || [];
+                    editingTitle = initialData.title || '';
+                }
+                
+                // タイトルも編集可能にする
+                document.getElementById('modal-title').textContent = `リンク設定の編集 (${editingTitle})`;
+                
+                renderLinkEditor();
+                document.getElementById('edit-modal').classList.remove('hidden');
+            }).catch(e => {
+                console.error("編集データ取得失敗:", e);
+                // エラー時もモーダルは開くが、データは空または初期値
+                editingLinksData = [];
+                renderLinkEditor();
+                document.getElementById('edit-modal').classList.remove('hidden');
+            });
+        }
+
+        function hideEditModal() {
+            document.getElementById('edit-modal').classList.add('hidden');
+        }
+
+        function renderLinkEditor() {
+            const editor = document.getElementById('links-editor');
+            editor.innerHTML = `
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">ポータルタイトル (例: 1年生の扉)</label>
+                    <input id="edit-title" type="text" value="${editingTitle}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            `;
+
+            editingLinksData.forEach((link, index) => {
+                editor.appendChild(createLinkField(link, index));
+            });
+        }
+
+        function createLinkField(link, index) {
+            const div = document.createElement('div');
+            div.className = 'link-row flex space-x-2 items-center mb-3 p-2 border border-gray-200 rounded-md shadow-sm';
+            div.dataset.index = index;
+            
+            // リンク名入力
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.placeholder = 'リンク名';
+            nameInput.value = link.name;
+            nameInput.className = 'w-1/3 border border-gray-300 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500';
+            nameInput.dataset.field = 'name';
+            
+            // URL入力
+            const urlInput = document.createElement('input');
+            urlInput.type = 'url';
+            urlInput.placeholder = 'URL (https://...)';
+            urlInput.value = link.url;
+            urlInput.className = 'w-1/2 border border-gray-300 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500';
+            urlInput.dataset.field = 'url';
+            
+            // 削除ボタン
+            const deleteButton = document.createElement('button');
+            deleteButton.innerHTML = `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3m-4 0h12"></path></svg>`;
+            deleteButton.className = 'w-1/6 p-2 rounded-md hover:bg-red-100 transition';
+            deleteButton.onclick = () => removeLinkField(div);
+
+            div.appendChild(nameInput);
+            div.appendChild(urlInput);
+            div.appendChild(deleteButton);
+
+            // 入力変更時の処理をアタッチ
+            [nameInput, urlInput].forEach(input => {
+                input.addEventListener('input', updateLinkData);
+            });
+            
+            return div;
+        }
+
+        function addLinkField() {
+            const newLink = { name: '', url: '' };
+            editingLinksData.push(newLink);
+            const newIndex = editingLinksData.length - 1;
+            
+            const editor = document.getElementById('links-editor');
+            editor.appendChild(createLinkField(newLink, newIndex));
+        }
+
+        function updateLinkData(e) {
+            const row = e.target.closest('.link-row');
+            const index = parseInt(row.dataset.index);
+            const field = e.target.dataset.field;
+            
+            if (editingLinksData[index]) {
+                editingLinksData[index][field] = e.target.value;
+            }
+        }
+
+        function removeLinkField(rowElement) {
+            const indexToRemove = parseInt(rowElement.dataset.index);
+            
+            // データを削除
+            editingLinksData.splice(indexToRemove, 1);
+            
+            // UIから削除
+            rowElement.remove();
+            
+            // 残りの要素のインデックスを再構築（面倒だが確実な方法）
+            const editor = document.getElementById('links-editor');
+            editor.querySelectorAll('.link-row').forEach((row, newIndex) => {
+                row.dataset.index = newIndex;
+            });
+            // エディタを再レンダリングしても良いが、今回はシンプルに再インデックス
+        }
+
+        async function saveEditedLinks() {
+            const saveButton = document.getElementById('save-button');
+            const saveText = document.getElementById('save-text');
+            const saveSpinner = document.getElementById('save-spinner');
+
+            // UIをローディング状態に
+            saveText.classList.add('hidden');
+            saveSpinner.classList.remove('hidden');
+            saveButton.disabled = true;
+
+            try {
+                // タイトルとリンクデータを取得
+                const newTitle = document.getElementById('edit-title').value;
+                const newLinks = editingLinksData.filter(link => link.name.trim() !== '' || link.url.trim() !== '');
+
+                const dataToSave = {
+                    title: newTitle,
+                    links: newLinks
+                };
+
+                const docId = getDocIdFromHash(currentHash);
+                const docRef = getPortalConfigDocRef(docId);
+                
+                await setDoc(docRef, dataToSave);
+                
+                console.log(`設定をFirestoreに保存しました: ${docId}`);
+                
+                // 成功メッセージ表示
+                saveText.textContent = '保存完了！';
+                saveText.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    hideEditModal();
+                    // UIを元に戻す
+                    saveText.textContent = '設定を保存';
+                    saveSpinner.classList.add('hidden');
+                    saveButton.disabled = false;
+                }, 1000);
+
+            } catch (error) {
+                console.error("設定の保存に失敗しました:", error);
+                saveText.textContent = '保存失敗 (F12で確認)';
+                saveText.classList.remove('hidden');
+                
+                setTimeout(() => {
+                     // UIを元に戻す
+                    saveText.textContent = '設定を保存';
+                    saveSpinner.classList.add('hidden');
+                    saveButton.disabled = false;
+                }, 2000);
+            }
+        }
+
+
+        // ----------------------------------------------------
+        // メイン処理の開始
+        // ----------------------------------------------------
+        document.addEventListener('DOMContentLoaded', () => {
+             // Firebaseの初期化と認証を開始
+             initializeFirebase();
+             
+             // ハッシュ変更イベントリスナーの設定
+             window.addEventListener('hashchange', renderPortal);
+        });
+        
     </script>
 </body>
 </html>
