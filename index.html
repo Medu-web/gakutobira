@@ -170,6 +170,60 @@
         }
 
         /* ------------------------------------- */
+        /* デモナビゲーションのスタイル */
+        /* ------------------------------------- */
+        .demo-nav {
+            margin: 20px 0 40px 0;
+            padding: 15px;
+            background-color: #e9e9f8;
+            border: 1px solid #c0c0d0;
+            border-radius: 10px;
+            text-align: left;
+        }
+        .demo-nav h3 {
+            margin-top: 0;
+            color: #555;
+            font-size: 1.2em;
+            border-bottom: 1px dashed #c0c0d0;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        .demo-nav .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+        .demo-nav a {
+            display: block;
+            padding: 8px 12px;
+            background-color: #ffffff;
+            color: #0056b3;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: background-color 0.1s;
+            text-align: center;
+            border: 1px solid #d0d0f0;
+        }
+        .demo-nav a:hover {
+            background-color: #d0e0f0;
+        }
+        .demo-nav .school-label {
+            grid-column: 1 / -1; /* 全幅を使う */
+            font-weight: bold;
+            color: #333;
+            margin-top: 10px;
+        }
+        .demo-nav .current-key {
+            font-weight: bold;
+            color: #cc0000;
+            display: block;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* ------------------------------------- */
         /* フッター */
         /* ------------------------------------- */
         .footer {
@@ -197,6 +251,9 @@
                 width: 20px;
                 height: 28px;
             }
+            .demo-nav .nav-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -204,6 +261,33 @@
     <div class="container">
         <h1><ruby>学<rt>ガク</rt></ruby>トビラ</h1>
         <p class="subtitle">さあ、学習の扉を開こう！ (冬休み中の学習継続、トラブル時の復旧にご利用ください)</p>
+        
+        <!-- ------------------------------------- -->
+        <!-- デモナビゲーションエリア (追加) -->
+        <!-- ------------------------------------- -->
+        <div class="demo-nav">
+            <h3>デモナビゲーション（URLハッシュ切替）</h3>
+            <span class="current-key">現在のURLハッシュ: <span id="current-hash-display">#default</span></span>
+            <div class="nav-grid">
+                <span class="school-label">第一小学校 (01) - 小1/小6</span>
+                <a href="#s/01/all">全校共通</a>
+                <a href="#s/01/g1/all">1年生</a>
+                <a href="#s/01/g6/all">6年生</a>
+                
+                <span class="school-label">第二中学校 (12) - 中7/中9 (特別)</span>
+                <a href="#s/12/all">全校共通</a>
+                <a href="#s/12/g7/all">7年生</a>
+                <a href="#s/12/g9/all">9年生</a>
+                
+                <span class="school-label">雷塚小学校 (21) - 設定なし学年テスト</span>
+                <a href="#s/21/all">全校共通</a>
+                <a href="#s/21/g5/all">5年生 (→全校へFB)</a>
+                
+                <span class="school-label">初期/共通/テスト</span>
+                <a href="#default">初期/共通</a>
+                <a href="#s/999/g5/all">存在しない学校 (→共通へFB)</a>
+            </div>
+        </div>
 
         <!-- ------------------------------------- -->
         <!-- 学習Webアプリセクション (メイン) -->
@@ -250,96 +334,117 @@
     <script>
         /**
          * 階層型ポータル表示用の設定データ
-         * キーの形式は「#s/<学校コード>/<学年コード>/<クラスコード>」を想定。
-         * - 学校共通: #s/001/all
-         * - 学年共通: #s/001/g5/all
-         * - クラス専用: #s/001/g2/c2a
+         * キーの形式は「#s/<学校コード>/<学年コード>/all」を想定。（クラス別指定なし）
+         * - 学校共通: #s/01/all
+         * - 学年共通: #s/01/g5/all
          * - デフォルト: #default
+         *
+         * 学校コード割り当て：
+         * 小学校: 第一(01)〜第九(09)、第十(10)、雷塚(21)
+         * 中学校: 第一(11)〜第五(15)
          */
+        
+        // 共通で利用するリンクセットを定義
+        const commonSchoolLinks = [
+            { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" },
+            { name: "学校からのお知らせ", url: "#" },
+            { name: "先生への質問・相談フォーム", url: "#" },
+            { name: "プログラミング教材 (Scratch)", url: "#" },
+        ];
+
+        const commonJHSLinks = [
+            { name: "Office 365 Web", url: "https://portal.office.com/" },
+            { name: "学習支援システム (LMS)", url: "#" },
+            { name: "進路情報ポータル", url: "#" },
+            { name: "生徒会 Webサイト", url: "#" },
+        ];
+
         const portalData = {
             // ----------------------------------------------------
-            // 共通デフォルト設定 (ハッシュがない場合)
+            // 共通デフォルト設定 (ハッシュがない場合 / 管理者用)
+            // ----------------------------------------------------
             'default': {
                 title: '💡 共通学習の扉',
                 links: [
                     { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" },
                     { name: "ドリルプラネット", url: "https://login.kobun.co.jp/student-login/?code=1134304" },
                     { name: "キーボー島 (タイピング)", url: "https://kb-kentei.net/" },
-                    { name: "学校全体共通のWebサイト", url: "#" },
+                    { name: "教育委員会Webサイト", url: "#" },
                 ]
             },
             
             // ----------------------------------------------------
-            // 学校コード 001 (例: 〇〇市立中央小学校) 向け設定
+            // 小学校データ (第一小学校: s/01 のみ詳細設定)
             // ----------------------------------------------------
-            's/001/all': {
-                title: '🏫 中央小学校 全校共通の扉',
-                links: [
-                    { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" },
-                    { name: "学校連絡事項 (掲示板)", url: "#" },
-                    { name: "先生への質問フォーム", url: "#" },
-                    { name: "プログラミング教材 (Scratch)", url: "#" },
-                ]
+            's/01/all': {
+                title: '🏫 第一小学校 全校共通の扉',
+                links: commonSchoolLinks,
             },
-            
-            // 学校 001 の 5年生 (g5) 向け
-            's/001/g5/all': {
-                title: '✏️ 中央小学校 5年生 学年の扉',
-                links: [
-                    { name: "5年 算数ドリル", url: "#" },
-                    { name: "5年 理科の観察記録", url: "#" },
-                    { name: "社会科見学Webサイト", url: "#" },
-                    { name: "5年 学年共通 課題提出", url: "#" },
-                ]
+            's/01/g1/all': { 
+                title: '✏️ 第一小学校 1年生の扉', 
+                links: [ 
+                    { name: "1年 算数ドリル", url: "#" }, 
+                    { name: "ひらがな練習サイト", url: "#" }, 
+                    { name: "生活科 Webサイト", url: "#" }, 
+                    ...commonSchoolLinks.slice(0, 1) 
+                ] 
             },
-            
-            // 学校 001 の 2年A組 (g2/c2a) 向け
-            's/001/g2/c2a': {
-                title: '🖍️ 中央小学校 2年A組 クラスの扉',
-                links: [
-                    { name: "今日の学習計画", url: "#" },
-                    { name: "クラス連絡帳", url: "#" },
-                    { name: "国語の朗読用サイト", url: "#" },
-                    { name: "先生のWebサイト", url: "#" },
-                ]
+            's/01/g6/all': { 
+                title: '✏️ 第一小学校 6年生の扉', 
+                links: [ 
+                    { name: "6年 卒業文集作成", url: "#" }, 
+                    { name: "6年 課題提出フォルダ", url: "#" }, 
+                    { name: "中学校生活紹介", url: "#" }, 
+                    ...commonSchoolLinks.slice(0, 1) 
+                ] 
             },
 
             // ----------------------------------------------------
-            // 学校コード 002 (例: 〇〇市立東中学校) 向け設定
+            // 中学校データ (第二中学校: s/12 のみ詳細設定 - 7, 8, 9年生)
             // ----------------------------------------------------
-            's/002/all': {
-                title: '🏫 東中学校 全校共通の扉',
-                links: [
-                    { name: "Office 365 Web", url: "https://portal.office.com/" },
-                    { name: "学習支援システム (LMS)", url: "#" },
-                    { name: "進路情報ポータル", url: "#" },
-                    { name: "体育館利用予約", url: "#" },
-                ]
+            's/12/all': {
+                title: '🏫 第二中学校 全校共通の扉',
+                links: commonJHSLinks,
             },
-            
-            // 学校 002 の 3年生 (g3) 向け
-            's/002/g3/all': {
-                title: '🎓 東中学校 3年生 学年の扉',
-                links: [
-                    { name: "受験対策ドリル", url: "#" },
-                    { name: "進路面談予約フォーム", url: "#" },
-                    { name: "3年 学年共通 課題提出", url: "#" },
-                    { name: "卒業制作 Webサイト", url: "#" },
-                ]
+            's/12/g7/all': { 
+                title: '🎓 第二中学校 7年生の扉', 
+                links: [ 
+                    { name: "7年 英語学習サイト", url: "#" }, 
+                    { name: "7年 理科実験記録", url: "#" }, 
+                    { name: "学校生活オリエンテーション", url: "#" }, 
+                    ...commonJHSLinks.slice(0, 1) 
+                ] 
             },
-            
-            // 学校 002 の 3年B組 (g3/c3b) 向け
-            's/002/g3/c3b': {
-                title: '📚 東中学校 3年B組 クラスの扉',
-                links: [
-                    { name: "B組 担任からの連絡", url: "#" },
-                    { name: "B組 委員会の活動報告", url: "#" },
-                    { name: "B組 授業資料フォルダ", url: "#" },
-                ]
+            's/12/g9/all': { 
+                title: '🎓 第二中学校 9年生の扉', 
+                links: [ 
+                    { name: "9年 受験対策ドリル", url: "#" }, 
+                    { name: "9年 進路面談予約", url: "#" }, 
+                    { name: "卒業制作 発表サイト", url: "#" }, 
+                    ...commonJHSLinks.slice(0, 1) 
+                ] 
             },
+
+            // ----------------------------------------------------
+            // その他の小学校 (全校共通設定のみ) - 必要に応じて学年別キーを追加
+            // ----------------------------------------------------
+            's/02/all': { title: '🏫 第二小学校 全校共通の扉', links: commonSchoolLinks },
+            's/03/all': { title: '🏫 第三小学校 全校共通の扉', links: commonSchoolLinks },
+            's/04/all': { title: '🏫 第四小学校 全校共通の扉', links: commonSchoolLinks },
+            's/07/all': { title: '🏫 第七小学校 全校共通の扉', links: commonSchoolLinks },
+            's/08/all': { title: '🏫 第八小学校 全校共通の扉', links: commonSchoolLinks },
+            's/09/all': { title: '🏫 第九小学校 全校共通の扉', links: commonSchoolLinks },
+            's/10/all': { title: '🏫 第十小学校 全校共通の扉', links: commonSchoolLinks },
+            's/21/all': { title: '🏫 雷塚小学校 全校共通の扉', links: commonSchoolLinks },
             
-            // 新しいパターンを追加する際は、ここにキーとデータを追加してください。
-            // 例: 's/003/all': { ... }
+            // ----------------------------------------------------
+            // その他の中学校 (全校共通設定のみ) - 第二中学校以外は g1, g2, g3 を使用
+            // ----------------------------------------------------
+            's/11/all': { title: '🏫 第一中学校 全校共通の扉', links: commonJHSLinks },
+            // s/12 は上に定義済み
+            's/13/all': { title: '🏫 第三中学校 全校共通の扉', links: commonJHSLinks },
+            's/14/all': { title: '🏫 第四中学校 全校共通の扉', links: commonJHSLinks },
+            's/15/all': { title: '🏫 第五中学校 全校共通の扉', links: commonJHSLinks },
         };
 
         const animationDuration = 500; // アニメーション時間 (ミリ秒)
@@ -349,11 +454,17 @@
         // ----------------------------------------------------
         function handleLinkClick(e) {
             // リンク先がプレースホルダーや空の場合はアニメーションせず終了
-            if (this.href.endsWith('#') || this.href.includes('[') || this.href === '') {
-                return; 
+            // '#' はフォールバック処理をスキップするため、アニメーションは実行する
+            if (this.href.includes('[')) { // [サインイン手順書PDFのURLをここに記述]のようなプレースホルダはスキップ
+                 return; 
+            }
+            if (this.href.endsWith('#') || this.href === '') {
+                 // '#' の場合はアニメーションを実行し、遷移を停止する (デモ用)
+                 e.preventDefault();
+            } else {
+                 e.preventDefault(); // デフォルトのリンク遷移を停止
             }
 
-            e.preventDefault(); // デフォルトのリンク遷移を停止
 
             const targetUrl = this.href;
             
@@ -362,7 +473,9 @@
 
             // アニメーション完了後に別タブで遷移を実行
             setTimeout(() => {
-                window.open(targetUrl, '_blank');
+                if (!this.href.endsWith('#') && this.href !== '') {
+                    window.open(targetUrl, '_blank');
+                }
                 
                 // 新しいタブを開いた後、元のボタンをリセットして再利用可能にする
                 setTimeout(() => {
@@ -391,36 +504,32 @@
             // URLハッシュからキーを取得し、小文字化
             const hash = window.location.hash.substring(1).toLowerCase();
             
-            // データを取得。ハッシュが存在しない、またはデータにキーがない場合は'default'を使用
-            let currentKey = hash;
             let data = portalData[hash];
+            let actualKey = hash; // 最終的にデータが見つかったキー
 
+            // URLハッシュ表示を更新
+            document.getElementById('current-hash-display').textContent = hash ? `#${hash}` : '#default';
+
+
+            // データを取得。ハッシュが存在しない、またはデータにキーがない場合はフォールバック処理
             if (!data) {
-                // データを取得できない場合、ハッシュをパースしてフォールバックキーを試す
                 const parts = hash.split('/');
                 
-                // s/001/g5/c2a の場合 -> s/001/g5/all を試す
-                if (parts.length === 4) {
-                    const fallbackKey = `${parts[0]}/${parts[1]}/${parts[2]}/all`;
-                    if (portalData[fallbackKey]) {
-                        currentKey = fallbackKey;
-                        data = portalData[fallbackKey];
-                    }
-                }
-                
-                // s/001/g5/all の場合 -> s/001/all を試す
-                if (!data && parts.length >= 3) {
-                     const schoolFallbackKey = `${parts[0]}/${parts[1]}/all`;
+                // 1. 学年指定 -> 学校共通 へフォールバック
+                // ハッシュが s/<学校コード>/<学年コード>/all の形式で、データがない場合 (parts.length === 4)
+                if (parts.length === 4 && parts[3] === 'all') { 
+                     const schoolFallbackKey = `${parts[0]}/${parts[1]}/all`; // 例: s/21/g5/all がなければ s/21/all を試す
                      if (portalData[schoolFallbackKey]) {
-                        currentKey = schoolFallbackKey;
+                        actualKey = schoolFallbackKey;
                         data = portalData[schoolFallbackKey];
                      }
                 }
 
-                // 最終的にデータが見つからなければ'default'を使用
+                // 2. 最終的にデータが見つからなければ'default'を使用
+                // (例: s/999/all や s/21/all が見つからなかった場合)
                 if (!data) {
-                    currentKey = 'default';
-                    data = portalData[currentKey];
+                    actualKey = 'default';
+                    data = portalData[actualKey];
                 }
             }
 
@@ -428,8 +537,9 @@
             const container = document.getElementById('link-container');
             const titleElement = document.getElementById('main-section-title');
 
-            // タイトルを更新
-            titleElement.innerHTML = `${data.title} <span style="font-size: 0.8em; color: #888; display: block; margin-top: 5px;">(URL Key: #${currentKey})</span>`;
+            // タイトルを更新。実際に使用されたキーを表示
+            const fallbackText = actualKey !== hash ? ` (→ #${actualKey} の設定を使用)` : '';
+            titleElement.innerHTML = `${data.title} <span style="font-size: 0.8em; color: #888; display: block; margin-top: 5px;">(URL Key: #${hash}${fallbackText})</span>`;
             
             // 既存のコンテンツをクリア
             container.innerHTML = '';
