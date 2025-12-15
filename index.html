@@ -180,6 +180,11 @@
             border-radius: 10px;
             text-align: left;
         }
+        .demo-nav:not(.visible) {
+             /* visibleクラスがない場合に非表示にする */
+            display: none;
+        }
+
         .demo-nav h3 {
             margin-top: 0;
             color: #555;
@@ -265,7 +270,7 @@
         <!-- ------------------------------------- -->
         <!-- デモナビゲーションエリア (追加) -->
         <!-- ------------------------------------- -->
-        <div class="demo-nav">
+        <div class="demo-nav" id="demo-nav-container">
             <h3>デモナビゲーション（URLハッシュ切替）</h3>
             <span class="current-key">現在のURLハッシュ: <span id="current-hash-display">#default</span></span>
             <div class="nav-grid">
@@ -445,6 +450,14 @@
             's/13/all': { title: '🏫 第三中学校 全校共通の扉', links: commonJHSLinks },
             's/14/all': { title: '🏫 第四中学校 全校共通の扉', links: commonJHSLinks },
             's/15/all': { title: '🏫 第五中学校 全校共通の扉', links: commonJHSLinks },
+            
+            // ----------------------------------------------------
+            // 管理者アクセス用 (デモナビゲーションを表示させるためのダミーエントリー)
+            // ----------------------------------------------------
+            'admin': {
+                title: '⚙️ ポータル管理アクセス',
+                links: []
+            }
         };
 
         const animationDuration = 500; // アニメーション時間 (ミリ秒)
@@ -503,6 +516,24 @@
         function renderPortal() {
             // URLハッシュからキーを取得し、小文字化
             const hash = window.location.hash.substring(1).toLowerCase();
+            const demoNavContainer = document.getElementById('demo-nav-container');
+
+            // 管理者モードの場合、デモナビゲーションを表示する
+            if (hash === 'admin') {
+                demoNavContainer.classList.add('visible');
+                // 管理者モードではリンクを表示しない（デモリンクのテストに専念）
+                const container = document.getElementById('link-container');
+                container.innerHTML = 'デモナビゲーションからリンクを選択してテストしてください。';
+                
+                const titleElement = document.getElementById('main-section-title');
+                titleElement.innerHTML = portalData['admin'].title;
+                document.getElementById('current-hash-display').textContent = `#admin`;
+                return;
+
+            } else {
+                // 通常モードの場合、デモナビゲーションを非表示にする
+                demoNavContainer.classList.remove('visible');
+            }
             
             let data = portalData[hash];
             let actualKey = hash; // 最終的にデータが見つかったキー
