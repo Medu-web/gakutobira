@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学トビラ</title>
+    <style>
+        /* ------------------------------------- */
+        /* 共通スタイル */
+        /* ------------------------------------- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+
+        h1 {
+            color: #0056b3;
+            margin-bottom: 5px;
+            font-size: 2.2em;
+            padding-top: 10px;
+        }
+
+        .subtitle {
+            color: #555;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        /* ------------------------------------- */
+        /* ボタンとセクションのスタイル */
+        /* ------------------------------------- */
+        .section-title {
+            color: #0056b3;
+            border-bottom: 3px solid #0056b3;
+            padding-bottom: 5px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .link-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 15px;
+            background-color: #e9f0f8;
+            color: #0056b3;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            min-height: 80px;
+            text-align: left;
+            line-height: 1.3;
+            perspective: 1000px;
+        }
+
+        .link-button:hover {
+            background-color: #d0e0f0;
+            transform: translateY(-2px);
+        }
+
+        /* ------------------------------------- */
+        /* ドアアイコンのスタイル */
+        /* ------------------------------------- */
+        .door-icon {
+            /* ドアの基本的な箱 */
+            position: relative;
+            width: 24px;
+            height: 32px;
+            background-color: #a0522d; /* 茶色のドア */
+            border: 2px solid #8B4513;
+            border-radius: 4px 4px 0 0;
+            margin-right: 15px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+            
+            /* アニメーションの基本設定 */
+            transform-origin: left center; /* 左端を軸に回転 */
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out; 
+            transform: rotateY(0deg); /* 初期状態 */
+        }
+        
+        /* === ドアが開くアニメーション === */
+        .link-button.opening .door-icon {
+            transform: rotateY(-110deg);
+            opacity: 0;
+        }
+
+        /* ドアの取っ手 */
+        .door-icon::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 5px;
+            width: 4px;
+            height: 4px;
+            background-color: #ffd700; /* ゴールドの取っ手 */
+            border-radius: 50%;
+        }
+
+        .button-text {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        /* ------------------------------------- */
+        /* 緊急対応セクションの強調 */
+        /* ------------------------------------- */
+        .emergency-section {
+            margin-top: 40px;
+            padding: 20px;
+            border: 4px solid #cc0000;
+            background-color: #ffe6e6;
+            border-radius: 12px;
+        }
+
+        .emergency-section .section-title {
+            color: #cc0000;
+            border-bottom: 3px solid #cc0000;
+        }
+        
+        .emergency-description {
+            color: #cc0000;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* 緊急ボタンのスタイル (赤色系のドア) */
+        .emergency-button {
+            background-color: #ff9900;
+            color: #333;
+            border: 3px solid #cc7a00;
+            font-size: 1.2em;
+            padding: 25px 15px;
+        }
+
+        .emergency-button:hover {
+            background-color: #ffc04d;
+            color: #000;
+        }
+        
+        /* 緊急ボタンのドアの色を警告色に */
+        .emergency-button .door-icon {
+            background-color: #cc3333; 
+            border-color: #a00000;
+        }
+
+        /* ------------------------------------- */
+        /* フッター */
+        /* ------------------------------------- */
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        /* レスポンシブ対応 (モバイル向け) */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 15px;
+            }
+            .link-button, .emergency-button {
+                min-height: 60px;
+                font-size: 1em;
+            }
+            .door-icon {
+                margin-right: 10px;
+                width: 20px;
+                height: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><ruby>学<rt>ガク</rt></ruby>トビラ</h1>
+        <p class="subtitle">さあ、学習の扉を開こう！ (冬休み中の学習継続、トラブル時の復旧にご利用ください)</p>
+
+        <!-- ------------------------------------- -->
+        <!-- 学習Webアプリセクション (メイン) -->
+        <!-- JSによって内容が動的に書き換えられる -->
+        <!-- ------------------------------------- -->
+        <h2 class="section-title" id="main-section-title">📗 いつもの学習の扉</h2>
+        
+        <div class="link-grid" id="link-container">
+            <!-- 動的にリンクが挿入されます -->
+        </div>
+
+
+        <!-- ------------------------------------- -->
+        <!-- 緊急対応セクション (トラブル回避) -->
+        <!-- ------------------------------------- -->
+        <div class="emergency-section">
+            <h2 class="section-title">🚨 緊急対応の扉：サインインやデータ消失のトラブル時</h2>
+            <p class="emergency-description">
+                **【重要】** OneDriveフォルダやデスクトップアプリ(Teams/Office)にサインインできない場合は、**必ずこのリンク**からWebブラウザ版をご利用ください。
+            </p>
+            
+            <div class="link-grid">
+                <!-- Microsoft 365 ポータルにまとめて誘導 -->
+                <a href="https://portal.office.com/" class="link-button emergency-button">
+                    <span class="door-icon"></span><span class="button-text">Microsoftのスタートページ<br>(Web版 Office, Teams, OneDriveはこちら)</span>
+                </a>
+
+                <!-- サインイン手順書 (復旧マニュアル) -->
+                <a href="[サインイン手順書PDFのURLをここに記述]" class="link-button emergency-button">
+                    <span class="door-icon"></span><span class="button-text">サインイン復旧手順書<br>（トラブル解決マニュアル）</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- ------------------------------------- -->
+        <!-- フッター情報 -->
+        <!-- ------------------------------------- -->
+        <div class="footer">
+            <p>冬休み中のサポートについては、各学校からの連絡事項をご確認ください。<br>
+            QRコードの URL: [ポータルサイトのURLをここに記述]</p>
+        </div>
+    </div>
+
+    <script>
+        // ポータル表示用の設定データ
+        const portalData = {
+            // 1. 学校全体共通 (デフォルト表示)
+            'school': {
+                title: '📗 学校共通の扉',
+                links: [
+                    { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" },
+                    { name: "ドリルプラネット", url: "https://login.kobun.co.jp/student-login/?code=1134304" },
+                    { name: "キーボー島 (タイピング)", url: "https://kb-kentei.net/" },
+                    { name: "くくはちじゅういち", url: "https://seipsg.main.jp/kuku81/" },
+                    { name: "全校共通のWebサイト", url: "#" },
+                    { name: "先生への質問フォーム", url: "#" },
+                ]
+            },
+            // 2. 5年生向け
+            'grade5': {
+                title: '✏️ 5年生 学年の扉',
+                links: [
+                    { name: "5年 算数ドリル", url: "#" },
+                    { name: "5年 理科の観察記録", url: "#" },
+                    { name: "プログラミング教材", url: "#" },
+                    { name: "学年共通 課題提出", url: "#" },
+                ]
+            },
+            // 3. 2年A組向け
+            'class2a': {
+                title: '🖍️ 2年A組 クラスの扉',
+                links: [
+                    { name: "今日の学習計画", url: "#" },
+                    { name: "クラス連絡帳", url: "#" },
+                    { name: "国語の朗読用サイト", url: "#" },
+                    { name: "先生のWebサイト", url: "#" },
+                ]
+            },
+            // 4. 新しいクラス/学年のパターンを追加する際は、ここにキーとデータを追加してください。
+            // 'newgroup': { ... }
+        };
+
+        const animationDuration = 500; // アニメーション時間 (ミリ秒)
+        
+        // ----------------------------------------------------
+        // リンククリック時のアニメーションと別タブ遷移を制御する関数
+        // ----------------------------------------------------
+        function attachAnimationListeners() {
+            const linkButtons = document.querySelectorAll('.link-button');
+            
+            linkButtons.forEach(button => {
+                // 既存のリスナーを削除 (renderPortalでリンクが再生成されるため)
+                button.removeEventListener('click', handleLinkClick); 
+                
+                // 新しいリスナーを追加
+                button.addEventListener('click', handleLinkClick);
+            });
+        }
+        
+        function handleLinkClick(e) {
+            // リンク先がプレースホルダーや空の場合はアニメーションせず終了
+            if (this.href.endsWith('#') || this.href.includes('[') || this.href === '') {
+                return; 
+            }
+
+            e.preventDefault(); // デフォルトのリンク遷移を停止
+
+            const targetUrl = this.href;
+            
+            // アニメーションクラスを追加
+            this.classList.add('opening');
+
+            // アニメーション完了後に別タブで遷移を実行
+            setTimeout(() => {
+                window.open(targetUrl, '_blank');
+                
+                // 新しいタブを開いた後、元のボタンをリセットして再利用可能にする
+                setTimeout(() => {
+                     this.classList.remove('opening');
+                }, 100);
+
+            }, animationDuration + 50); 
+        }
+
+        // ----------------------------------------------------
+        // URLハッシュに基づいてポータルをレンダリングする関数
+        // ----------------------------------------------------
+        function renderPortal() {
+            // URLハッシュからキーを取得し、存在しない場合はデフォルト(school)を使用
+            const hash = window.location.hash.substring(1).toLowerCase();
+            const currentKey = portalData[hash] ? hash : 'school';
+            const data = portalData[currentKey];
+
+            const container = document.getElementById('link-container');
+            const titleElement = document.getElementById('main-section-title');
+
+            // タイトルを更新
+            titleElement.innerHTML = `${data.title} <span style="font-size: 0.8em; color: #888;">(Key: #${currentKey})</span>`;
+            
+            // 既存のコンテンツをクリア
+            container.innerHTML = '';
+
+            // リンクを動的に生成
+            data.links.forEach(link => {
+                const linkElement = document.createElement('a');
+                linkElement.href = link.url;
+                linkElement.className = 'link-button';
+                
+                // HTML構造を構築
+                linkElement.innerHTML = `<span class="door-icon"></span><span class="button-text">${link.name}</span>`;
+                container.appendChild(linkElement);
+            });
+            
+            // 動的に生成されたリンクにアニメーションリスナーを再設定
+            attachAnimationListeners();
+        }
+
+        // ページロード時とハッシュ変更時にレンダリング
+        document.addEventListener('DOMContentLoaded', renderPortal);
+        window.addEventListener('hashchange', renderPortal); 
+    </script>
+</body>
+</html>
