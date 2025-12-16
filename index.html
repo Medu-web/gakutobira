@@ -360,14 +360,22 @@
         const SCHOOL_PASSWORDS = {
             's/01-e': 'e01_portal', 
             's/04-e': 'e04_portal', 
-            's/07-e': 'e07_portal', 
+            's/07-e': 'e07_portal', // 例として残す
             's/11-j': 'j11_portal', 
         };
         
+        // 共通の基本リンク構造を定義 (デフォルトページの内容)
+        const defaultLinks = [
+            { name: 'eライブラリ', url: "https://ela.education.ne.jp/students/" },
+            { name: 'ドリルプラネット', url: "https://login.kobun.co.jp/student-login/?code=1134304" },
+            { name: 'NHK for School', url: "https://www.nhk.or.jp/school/" },
+            { name: '文科省 GIGAスクール関連情報', url: "https://www.mext.go.jp/a_menu/other/index_00001.htm" },
+        ];
+
+
         /**
          * 階層型ポータル表示用の設定データ (初期値)
-         * - すべてのナビゲーションリンク（#で始まるリンク）を削除し、
-         * コンテンツ（外部URLまたはプレースホルダー #）のみの構造に変更。
+         * ※ 以下の定義は、自動生成されるデータで上書きされないように、特殊な構成を持つページのみ残します。
          */
         const initialPortalData = {
             // ----------------------------------------------------
@@ -375,31 +383,26 @@
             // ----------------------------------------------------
             'default': { 
                 title: '学トビラ - 共通学習コンテンツ',
-                links: [
-                    { name: 'eライブラリ', url: "https://ela.education.ne.jp/students/" },
-                    { name: 'ドリルプラネット', url: "https://login.kobun.co.jp/student-login/?code=1134304" },
-                    { name: 'NHK for School', url: "https://www.nhk.or.jp/school/" },
-                    { name: '文科省 GIGAスクール関連情報', url: "https://www.mext.go.jp/a_menu/other/index_00001.htm" },
-                ]
+                links: defaultLinks
             },
             
             // ----------------------------------------------------
-            // 小学校ポータル (コード: s/01-e)
+            // 小学校ポータル (コード: s/01-e) - 階層構造を持つ詳細定義を保持
             // ----------------------------------------------------
             's/01-e': { 
                 title: '小学校ポータル (コード: 01)',
                 links: [
                     { name: '学校共通のお知らせ', url: 'https://example.com/01e-common' },
-                    { name: '1年生 算数コンテンツ', url: '#s/01-e/g1' }, // リンク先をサブページに変更
-                    { name: '2年生 国語コンテンツ', url: '#s/01-e/g2' }, // リンク先をサブページに変更
-                    { name: '3年生 理科・社会コンテンツ', url: '#s/01-e/g3' }, // リンク先をサブページに変更
-                    { name: '4年生 外国語学習サイト', url: '#s/01-e/g4' }, // リンク先をサブページに変更
-                    { name: '5年生 総合学習資料', url: '#s/01-e/g5' }, // リンク先をサブページに変更
-                    { name: '6年生 卒業制作資料', url: '#s/01-e/g6' }, // リンク先をサブページに変更
+                    { name: '1年生 算数コンテンツ (サブページ)', url: '#s/01-e/g1' },
+                    { name: '2年生 国語コンテンツ (サブページ)', url: '#s/01-e/g2' },
+                    { name: '3年生 理科・社会コンテンツ', url: '#s/01-e/g3' },
+                    { name: '4年生 外国語学習サイト', url: '#s/01-e/g4' },
+                    { name: '5年生 総合学習資料', url: '#s/01-e/g5' },
+                    { name: '6年生 卒業制作資料', url: '#s/01-e/g6' },
                 ]
             },
             
-            // 小学校 2年生の部屋 (学年固有コンテンツ)
+            // 小学校 2年生の部屋 (学年固有コンテンツ) - 詳細定義を保持
             's/01-e/g2': { 
                 title: '小学校 2年生の部屋 (コード: 01)',
                 links: [
@@ -411,20 +414,20 @@
             },
             
             // ----------------------------------------------------
-            // 中学校ポータル (コード: s/11-j)
+            // 中学校ポータル (コード: s/11-j) - 詳細定義を保持
             // ----------------------------------------------------
             's/11-j': { 
                 title: '中学校ポータル (コード: 11)',
                 links: [
                     { name: '学校共通のお知らせ', url: 'https://example.com/11j-common' },
-                    { name: '1年生 定期テスト対策', url: '#s/11-j/g1' }, // リンク先をサブページに変更
-                    { name: '2年生 職業体験資料', url: '#s/11-j/g2' }, // リンク先をサブページに変更
-                    { name: '3年生 進路情報ポータル', url: '#s/11-j/g3' }, // リンク先をサブページに変更
+                    { name: '1年生 定期テスト対策 (サブページ)', url: '#s/11-j/g1' },
+                    { name: '2年生 職業体験資料 (サブページ)', url: '#s/11-j/g2' },
+                    { name: '3年生 進路情報ポータル (サブページ)', url: '#s/11-j/g3' },
                     { name: '定期考査時間割', url: '#' },
                 ]
             },
             
-            // 中学校 3年生の部屋 (学年固有コンテンツ)
+            // 中学校 3年生の部屋 (学年固有コンテンツ) - 詳細定義を保持
             's/11-j/g3': { 
                 title: '中学校 3年生の部屋 (コード: 11)',
                 links: [
@@ -436,18 +439,18 @@
             },
             
             // ----------------------------------------------------
-            // その他の学校コード (プレースホルダー)
+            // その他の学校コード (プレースホルダー) - 詳細定義を保持
             // ----------------------------------------------------
             's/04-e': { 
                 title: '小学校ポータル (コード: 04)',
                 links: [
                     { name: '学校共通のお知らせ', url: 'https://example.com/04e-common' },
-                    { name: '1年 コンテンツ', url: '#s/04-e/g1' }, // リンク先をサブページに変更
-                    { name: '2年 コンテンツ', url: '#s/04-e/g2' }, // リンク先をサブページに変更
-                    { name: '3年 コンテンツ', url: '#s/04-e/g3' }, // リンク先をサブページに変更
-                    { name: '4年 コンテンツ', url: '#s/04-e/g4' }, // リンク先をサブページに変更
-                    { name: '5年 コンテンツ', url: '#s/04-e/g5' }, // リンク先をサブページに変更
-                    { name: '6年 コンテンツ', url: '#s/04-e/g6' }, // リンク先をサブページに変更
+                    { name: '1年 コンテンツ', url: '#s/04-e/g1' },
+                    { name: '2年 コンテンツ', url: '#s/04-e/g2' },
+                    { name: '3年 コンテンツ', url: '#s/04-e/g3' },
+                    { name: '4年 コンテンツ', url: '#s/04-e/g4' },
+                    { name: '5年 コンテンツ', url: '#s/04-e/g5' },
+                    { name: '6年 コンテンツ', url: '#s/04-e/g6' },
                 ]
             },
             's/04-e/g4': { 
@@ -459,7 +462,7 @@
                 ]
             },
             
-            // その他の学年ページは、コンテンツリンクのみのプレースホルダーとして残します
+            // その他のサブページも保持 (自動生成される一般コードで上書きされないように)
             's/01-e/g1': { title: '小学校 1年生の部屋 (コード: 01)', links: [{ name: '1年 担任からのメッセージ', url: '#' }] },
             's/01-e/g3': { title: '小学校 3年生の部屋 (コード: 01)', links: [{ name: '3年 社会科コンテンツ', url: '#' }] },
             's/01-e/g4': { title: '小学校 4年生の部屋 (コード: 01)', links: [{ name: '4年 音楽コンテンツ', url: '#' }] },
@@ -475,6 +478,45 @@
             's/04-e/g5': { title: '小学校 5年生の部屋 (コード: 04)', links: [{ name: '5年 社会科コンテンツ', url: '#' }] },
             's/04-e/g6': { title: '小学校 6年生の部屋 (コード: 04)', links: [{ name: '6年 理科コンテンツ', url: '#' }] },
         };
+        
+        // --- ここから自動生成ロジックを追加 ---
+
+        /**
+         * コード01から21までの学校ポータルデータ（-e/-j）を自動生成する。
+         * 既にinitialPortalDataに存在するキーは上書きしない。
+         * 自動生成されるページは、デフォルトページと同じリンクを初期値として持つ。
+         */
+        function pad(num) {
+            return num.toString().padStart(2, '0');
+        }
+
+        for (let i = 1; i <= 21; i++) {
+            const code = pad(i);
+            const elementaryKey = `s/${code}-e`;
+            const juniorKey = `s/${code}-j`;
+
+            // 小学校プレースホルダーを追加 (デフォルトリンクで初期化)
+            if (!initialPortalData[elementaryKey]) {
+                initialPortalData[elementaryKey] = {
+                    title: `小学校ポータル (コード: ${code})`, 
+                    // デフォルトページと同じリンクをコピーして初期化
+                    links: JSON.parse(JSON.stringify(defaultLinks)) 
+                };
+            }
+
+            // 中学校プレースホルダーを追加 (デフォルトリンクで初期化)
+            if (!initialPortalData[juniorKey]) {
+                initialPortalData[juniorKey] = {
+                    title: `中学校ポータル (コード: ${code})`, 
+                    // デフォルトページと同じリンクをコピーして初期化
+                    links: JSON.parse(JSON.stringify(defaultLinks))
+                };
+            }
+            
+            // 注意: 学年別サブページの自動生成ロジックは削除し、基本形のみとします。
+        }
+
+        // --- 自動生成ロジックの追加終了 ---
 
         let editablePortalData = {}; 
         const animationDuration = 500; 
@@ -493,6 +535,7 @@
                 console.error("Error loading or parsing localStorage data. Using initial data as base.", e);
             }
 
+            // 初期データとローカルストレージのデータをマージ
             editablePortalData = { ...initialPortalData, ...storedData };
 
             savePortalData(editablePortalData);
@@ -569,7 +612,7 @@
             let currentKey = rawHash;
             let data = editablePortalData[rawHash];
             
-            // --- 新規追加: 短縮形 (例: #s/04) から正式コードへの解決 ---
+            // --- 短縮形 (例: #s/04) から正式コードへの解決 ---
             // ユーザーが s/XX の形式で入力した場合、s/XX-e, s/XX-j を試行する
             if (!data && rawHash.startsWith('s/') && rawHash.split('/').length === 2) {
                 const baseKey = rawHash;
@@ -681,8 +724,11 @@
             // 学校コードのプレフィックス (例: 's/01-e') を取得
             const keyParts = editingKey.split('/');
             // 編集対象のキーが 's/xx-e' または 's/xx-e/gy' の形式の場合
-            const schoolPrefix = (keyParts.length >= 2 && keyParts[0] === 's') ? `${keyParts[0]}/${keyParts[1]}` : null;
-            const isSchoolPage = !!schoolPrefix;
+            // 's/xx-e' または 's/xx-j' の形式が校種コード
+            const schoolPrefix = (keyParts.length >= 2 && keyParts[0] === 's' && keyParts[1].includes('-')) 
+                               ? `${keyParts[0]}/${keyParts[1]}` 
+                               : null;
+            const isSchoolPage = !!schoolPrefix && SCHOOL_PASSWORDS[schoolPrefix];
             
             const requiredPassword = isSchoolPage ? SCHOOL_PASSWORDS[schoolPrefix] : ADMIN_PASSWORD;
 
@@ -693,13 +739,13 @@
 
             if (isSchoolPage) {
                 // 学校固有のページの場合: 該当する学校固有パスワードとのみ一致しなければ編集不可
-                if (requiredPassword && password === requiredPassword) {
+                if (password === requiredPassword) {
                     authorized = true;
                 } else {
                     console.error(`所属校ポータル編集中 (${schoolPrefix}): パスワードが違います。所属校の固有パスワードが必要です。`);
                 }
             } else {
-                // デフォルトページの場合: 共通管理者パスワードとのみ一致しなければ編集不可
+                // デフォルトページやサブページの場合: 共通管理者パスワードとのみ一致しなければ編集不可
                 if (password === ADMIN_PASSWORD) {
                     authorized = true;
                 } else {
@@ -731,7 +777,9 @@
             
             modalTitle.textContent = `ポータルデータを編集: #${currentEditingKey}`;
             
-            editor.value = JSON.stringify(editablePortalData[currentEditingKey], null, 2);
+            // 編集対象のリンクデータをJSON形式で整形してエディタに表示
+            const dataToEdit = editablePortalData[currentEditingKey];
+            editor.value = JSON.stringify(dataToEdit, null, 2);
             
             editModal.style.display = 'flex';
         }
@@ -761,7 +809,23 @@
             }
 
             const updatedDataStore = { ...editablePortalData };
-            updatedDataStore[currentEditingKey] = newPortalData;
+            // newPortalDataがオブジェクトであることを確認し、キーの構造を保持
+            if (typeof newPortalData === 'object' && newPortalData !== null && newPortalData.hasOwnProperty('title') && newPortalData.hasOwnProperty('links')) {
+                 updatedDataStore[currentEditingKey] = newPortalData;
+            } else {
+                 // 編集対象の構造 (titleとlinksを持つオブジェクト) が崩れていた場合の警告
+                 console.error("保存されたJSONの構造が期待されていませんでした (title/linksが存在しない)。");
+                 const saveButton = document.querySelector('.modal-save');
+                 const originalText = saveButton.textContent;
+                 saveButton.textContent = "❌ 構造エラー: titleとlinksが必要です";
+                 saveButton.style.backgroundColor = '#cc0000';
+                 setTimeout(() => {
+                     saveButton.textContent = originalText;
+                     saveButton.style.backgroundColor = '#0056b3';
+                 }, 3000); 
+                 return;
+            }
+            
             savePortalData(updatedDataStore);
             
             closeEditModal();
