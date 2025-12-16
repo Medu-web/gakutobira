@@ -418,13 +418,21 @@
             return num.toString().padStart(2, '0');
         }
 
+        /**
+         * 学校番号(1-21)を漢字表記に変換するマッピング
+         */
+        const kanjiMap = {
+            1: '第一', 2: '第二', 3: '第三', 4: '第四', 5: '第五', 6: '第六', 7: '第七', 8: '第八', 9: '第九', 10: '第十',
+            11: '第十一', 12: '第十二', 13: '第十三', 14: '第十四', 15: '第十五', 16: '第十六', 17: '第十七', 18: '第十八', 19: '第十九', 20: '第二十', 21: '第二十一'
+        };
+
         for (let i = 1; i <= 21; i++) {
             const code = pad(i);
-            const titlePrefix = '学トビラ - ';
-            
+            const kanjiPrefix = kanjiMap[i] + '小学校'; // 例: '第四小学校'
+
             // 1. 基本ポータル (コードのみ: XX) を初期化
             initialPortalData[code] = {
-                title: `${titlePrefix}学校 ${code} (全学年共通)`,
+                title: `${kanjiPrefix} (全学年共通)`, // 例: '第四小学校 (全学年共通)'
                 links: JSON.parse(JSON.stringify(defaultLinks)),
                 infoHtml: `<h3 style="color: #0056b3;">学校${code}からのお知らせ</h3><p>ここに学校独自のリンクや情報を掲載できます。編集ボタンから内容を変更してください。</p>`
             };
@@ -433,7 +441,7 @@
             for (let g = 1; g <= 6; g++) {
                 const gradeKey = `${code}g${g}`;
                 initialPortalData[gradeKey] = {
-                    title: `${titlePrefix}学校 ${code} 第${g}学年`,
+                    title: `${kanjiPrefix} ${g}年生`, // 例: '第四小学校 2年生'
                     // 初期設定では、学年別ポータルも基本リンクをコピーしておく
                     links: JSON.parse(JSON.stringify(defaultLinks)),
                     infoHtml: `<h3 style="color: #008000;">第${g}学年より</h3><p>学年独自の課題や連絡事項などをこちらに表示します。</p>`
