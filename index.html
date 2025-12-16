@@ -4,118 +4,197 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>学トビラ</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS は使用していませんが、レスポンシブな基本デザインはCSSで実現しています -->
     <style>
         /* ------------------------------------- */
         /* 共通スタイル */
         /* ------------------------------------- */
         body {
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f0f4f8; /* ライトブルーの背景 */
-            color: #1e293b;
+            background-color: #f4f7f6;
+            color: #333;
             text-align: center;
         }
 
         .container {
             max-width: 900px;
             margin: 0 auto;
-            padding: 30px 20px;
+            padding: 20px;
             background-color: #ffffff;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
         }
 
         h1 {
-            color: #007bff; /* 主要な青 */
+            color: #0056b3;
             margin-bottom: 5px;
             font-size: 2.2em;
             padding-top: 10px;
-            font-weight: 800;
         }
 
         .subtitle {
-            color: #64748b;
-            margin-bottom: 30px;
+            color: #555;
+            margin-bottom: 25px;
             font-size: 1.1em;
-            font-weight: 500;
+            font-weight: bold;
         }
 
         /* ------------------------------------- */
         /* ボタンとセクションのスタイル */
         /* ------------------------------------- */
-        .link-container {
+        .section-title {
+            color: #0056b3;
+            border-bottom: 3px solid #0056b3;
+            padding-bottom: 5px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .link-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
             margin-top: 20px;
         }
 
         .link-button {
             display: flex;
             align-items: center;
-            justify-content: flex-start;
-            padding: 15px 25px;
-            background-color: #e0f2fe; /* 淡い青 */
-            color: #007bff;
+            justify-content: flex-start; /* 左寄せ */
+            padding: 20px 15px;
+            background-color: #e9f0f8;
+            color: #0056b3;
             text-decoration: none;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-            font-weight: 600;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            border: 2px solid transparent;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            min-height: 80px;
             text-align: left;
+            line-height: 1.3;
+            perspective: 1000px;
         }
 
         .link-button:hover {
-            background-color: #007bff;
-            color: #ffffff;
-            box-shadow: 0 8px 15px rgba(0, 123, 255, 0.3);
-            transform: translateY(-3px);
-            border-color: #0056b3;
+            background-color: #d0e0f0;
+            transform: translateY(-2px);
         }
 
-        .link-button:active {
-            transform: translateY(0);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
+        /* ------------------------------------- */
+        /* ドアアイコンのスタイル */
+        /* ------------------------------------- */
         .door-icon {
-            font-size: 1.5em;
+            position: relative;
+            width: 24px;
+            height: 32px;
+            background-color: #a0522d;
+            border: 2px solid #8B4513;
+            border-radius: 4px 4px 0 0;
             margin-right: 15px;
-            transition: transform 0.2s;
-            /* SVGや画像を使用しないため、ここではシンプルな記号やアイコンを使用 */
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+            transform-origin: left center;
+            transition: transform 0.5s ease-out, opacity 0.5s ease-out; 
+            transform: rotateY(0deg);
         }
         
-        .door-icon::before {
-            content: "🚪"; /* ドアの絵文字 */
+        .link-button.opening .door-icon {
+            transform: rotateY(-110deg);
+            opacity: 0;
         }
 
-        .link-button:hover .door-icon {
-            transform: rotate(5deg) scale(1.1);
+        .door-icon::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 5px;
+            width: 4px;
+            height: 4px;
+            background-color: #ffd700;
+            border-radius: 50%;
         }
 
+        .button-text {
+            flex-grow: 1;
+            text-align: left; /* 左寄せに戻す */
+        }
+
+        /* ------------------------------------- */
+        /* 緊急対応セクションの強調 */
+        /* ------------------------------------- */
+        .emergency-section {
+            margin-top: 40px;
+            padding: 20px;
+            border: 4px solid #cc0000;
+            background-color: #ffe6e6;
+            border-radius: 12px;
+        }
+
+        .emergency-section .section-title {
+            color: #cc0000;
+            border-bottom: 3px solid #cc0000;
+        }
+        
+        .emergency-description {
+            color: #cc0000;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .emergency-button {
+            background-color: #ff9900;
+            color: #333;
+            border: 3px solid #cc7a00;
+            font-size: 1.2em;
+            padding: 25px 15px;
+            justify-content: center; /* センターに戻す */
+            text-align: center;
+        }
+
+        .emergency-button:hover {
+            background-color: #ffc04d;
+            color: #000;
+        }
+        
+        .emergency-button .door-icon {
+            background-color: #cc3333; 
+            border-color: #a00000;
+        }
+
+        /* ------------------------------------- */
+        /* フッターとロード状態 */
+        /* ------------------------------------- */
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #777;
+        }
+        
         .loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(255, 255, 255, 0.9);
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
             z-index: 1000;
             font-size: 1.2em;
-            color: #007bff;
+            color: #0056b3;
         }
 
         .spinner {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #007bff;
+            border-top: 4px solid #0056b3;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -127,256 +206,355 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* レスポンシブ対応 (モバイル向け) */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 15px;
+            }
+            .link-button, .emergency-button {
+                min-height: 60px;
+                font-size: 1em;
+            }
+            .door-icon {
+                margin-right: 10px;
+                width: 20px;
+                height: 28px;
+            }
+        }
     </style>
 </head>
 <body>
     <div id="loading-overlay" class="loading-overlay">
         <div class="spinner"></div>
-        <span>データをロード中...</span>
+        <span>ポータルデータをロード中...</span>
         <span id="auth-status" class="text-sm mt-3 text-gray-600">認証待機中...</span>
     </div>
     
     <div class="container hidden" id="main-content">
-        <h1 class="text-gray-900">学トビラ</h1>
-        <p class="subtitle">学校・学園ごとのポータルリンク集</p>
+        <h1><ruby>学<rt>ガク</rt></ruby>トビラ</h1>
+        <p class="subtitle">さあ、学習の扉を開こう！ (ポータルデータはFirebaseからロードされます)</p>
 
-        <h2 id="main-section-title" class="text-xl font-bold text-gray-700 mb-6 border-b pb-2"></h2>
+        <!-- ------------------------------------- -->
+        <!-- 学習Webアプリセクション (メイン) -->
+        <!-- ------------------------------------- -->
+        <h2 class="section-title" id="main-section-title">📗 学習の扉</h2>
         
-        <div class="link-container" id="link-container">
-            <!-- リンクがここに動的に挿入されます -->
+        <div class="link-grid" id="link-container">
+            <!-- 動的にリンクが挿入されます -->
         </div>
 
-        <div id="user-info" class="mt-8 text-sm text-gray-500">
-            <p>現在のユーザーID (Firestore Private Path Key): <span id="display-user-id" class="font-mono text-xs bg-gray-100 p-1 rounded"></span></p>
+        <!-- ------------------------------------- -->
+        <!-- 緊急対応セクション (トラブル回避) -->
+        <!-- ------------------------------------- -->
+        <div class="emergency-section">
+            <h2 class="section-title">🚨 緊急対応の扉：サインインやデータ消失のトラブル時</h2>
+            <p class="emergency-description">
+                **【重要】** OneDriveフォルダやデスクトップアプリ(Teams/Office)にサインインできない場合は、**必ずこのリンク**からWebブラウザ版をご利用ください。
+            </p>
+            
+            <div class="link-grid">
+                <a href="https://portal.office.com/" class="link-button emergency-button">
+                    <span class="door-icon"></span><span class="button-text">Microsoftのスタートページ<br>(Web版 Office, Teams, OneDriveはこちら)</span>
+                </a>
+
+                <a href="https://placehold.co/100x100?text=Manual_PDF" class="link-button emergency-button">
+                    <span class="door-icon"></span><span class="button-text">サインイン復旧手順書<br>（トラブル解決マニュアル）</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- ------------------------------------- -->
+        <!-- フッター情報 -->
+        <!-- ------------------------------------- -->
+        <div class="footer">
+            <p>Portal Key: <span id="portal-key-display">default</span> | User ID: <span id="user-id-display">N/A</span></p>
         </div>
     </div>
 
-    <!-- Firebase SDKのインポート -->
+    <!-- Firebase SDKのインポートとスクリプト -->
     <script type="module">
-        // Firebaseのインポート
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, setDoc, getDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, setDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // グローバル変数
         let app, db, auth;
         let userId = null;
         let isAuthReady = false;
+        let unsubscribe = null;
 
         // Canvas環境変数
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        // ローカルステート
-        let portalData = null; // Firestoreから取得したデータを保持
-
+        // UI要素
         const loadingOverlay = document.getElementById('loading-overlay');
         const mainContent = document.getElementById('main-content');
         const authStatusElement = document.getElementById('auth-status');
-        const displayUserIdElement = document.getElementById('display-user-id');
-
+        const userIdDisplayElement = document.getElementById('user-id-display');
+        const portalKeyDisplayElement = document.getElementById('portal-key-display');
+        
         // ------------------------------------------
-        // データ構造とレンダリング
+        // 初期データ（Firestoreにデータがない場合に使用）
         // ------------------------------------------
-
-        /**
-         * 初期データまたはフォールバックデータを生成します。
-         * @returns {Object} ポータルデータの構造
-         */
-        function createDefaultPortalData() {
-            return {
-                'default': {
-                    title: 'ようこそ！デフォルトポータル',
-                    links: [
-                        { name: '設定とヘルプ', url: 'https://www.google.com/search?q=help+and+settings' },
-                        { name: 'フィードバックを送信', url: 'https://www.google.com/search?q=send+feedback' }
-                    ]
-                },
-                'A': {
-                    title: '学園A リンクポータル (デモ)',
-                    links: [
-                        { name: 'A-1: 授業スケジュール', url: 'https://placehold.co/100x100?text=A1' },
-                        { name: 'A-2: 成績確認システム', url: 'https://placehold.co/100x100?text=A2' }
-                    ]
-                },
-                'B': {
-                    title: '学園B リンクポータル (デモ)',
-                    links: [
-                        { name: 'B-1: 図書館検索', url: 'https://placehold.co/100x100?text=B1' },
-                        { name: 'B-2: クラブ活動情報', url: 'https://placehold.co/100x100?text=B2' }
-                    ]
-                }
-            };
-        }
-
-        /**
-         * 現在のURLハッシュとローカルデータに基づいてUIを更新します。
-         */
-        function updateUIFromLocalData() {
-            if (!portalData) {
-                console.warn("portalDataがまだロードされていません。デフォルトデータを使用します。");
-                portalData = createDefaultPortalData();
-            }
-
-            let currentHash = window.location.hash.substring(1).toUpperCase();
-            let currentKey = currentHash || 'default';
-
-            let data = portalData[currentKey];
-
-            // データが見つからなかった場合のフォールバックロジック
-            if (!data) {
-                // ハッシュキーの最初の文字でフォールバック
-                let schoolFallbackKey = currentHash.length > 0 ? currentHash.charAt(0) : '';
-                if (schoolFallbackKey && portalData[schoolFallbackKey]) {
-                    currentKey = schoolFallbackKey;
-                    data = portalData[schoolFallbackKey];
-                }
-            }
-
-            // 最終的にデータが見つからなければ'default'を使用
-            if (!data) {
-                currentKey = 'default';
-                data = portalData[currentKey];
-            }
-
-
-            const container = document.getElementById('link-container');
-            const titleElement = document.getElementById('main-section-title');
-
-            // タイトルを更新
-            titleElement.innerHTML = `${data.title} <span style="font-size: 0.8em; color: #888; display: block; margin-top: 5px;">(URL Key: #${currentKey})</span>`;
+        const initialPortalData = {
+            // ----------------------------------------------------
+            // 共通デフォルト設定 (ハッシュがない場合)
+            'default': {
+                title: '💡 共通学習の扉',
+                links: [
+                    { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" },
+                    { name: "ドリルプラネット", url: "https://login.kobun.co.jp/student-login/?code=1134304" },
+                    { name: "キーボー島 (タイピング)", url: "https://kb-kentei.net/" },
+                    { name: "学校全体共通のWebサイト", url: "https://placehold.co/100x100?text=School_Web" },
+                ]
+            },
             
-            // 既存のコンテンツをクリア
-            container.innerHTML = '';
-
-            // リンクを動的に生成
-            data.links.forEach(link => {
-                const linkElement = document.createElement('a');
-                linkElement.href = link.url;
-                linkElement.className = 'link-button';
-                
-                // HTML構造を構築
-                linkElement.innerHTML = `<span class="door-icon"></span><span class="button-text">${link.name}</span>`;
-                container.appendChild(linkElement);
-            });
+            // ----------------------------------------------------
+            // 学校コード 001 (例: 〇〇市立中央小学校) 向け設定
+            // ----------------------------------------------------
+            's_001_all': {
+                title: '🏫 中央小学校 全校共通の扉',
+                links: [
+                    { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" },
+                    { name: "学校連絡事項 (掲示板)", url: "https://placehold.co/100x100?text=Info" },
+                    { name: "先生への質問フォーム", url: "https://placehold.co/100x100?text=Q_Form" },
+                    { name: "プログラミング教材 (Scratch)", url: "https://placehold.co/100x100?text=Scratch" },
+                ]
+            },
             
-            // UIの表示
-            loadingOverlay.classList.add('hidden');
-            mainContent.classList.remove('hidden');
-
-            // ユーザーIDの表示
-            displayUserIdElement.textContent = userId || '未認証/認証エラー';
-        }
+            // 学校 001 の 5年生 (g5) 向け
+            's_001_g5_all': {
+                title: '✏️ 中央小学校 5年生 学年の扉',
+                links: [
+                    { name: "5年 算数ドリル", url: "https://placehold.co/100x100?text=Math_D" },
+                    { name: "5年 理科の観察記録", url: "https://placehold.co/100x100?text=Science_R" },
+                    { name: "社会科見学Webサイト", url: "https://placehold.co/100x100?text=Study_Tour" },
+                    { name: "5年 学年共通 課題提出", url: "https://placehold.co/100x100?text=Assignment_5G" },
+                ]
+            },
+        };
 
         // ------------------------------------------
-        // Firebase初期化と認証 (権限エラーの修正箇所)
+        // Firestoreパスとキーの処理
         // ------------------------------------------
 
         /**
-         * FirestoreのonSnapshotリスナーを設定します。
-         * これは認証が完了した後にのみ呼び出されます。
+         * URLハッシュをFirestoreのドキュメントIDに変換
+         * #s/001/g5/all -> s_001_g5_all
          */
-        function setupDataListener() {
-            if (!db || !userId) {
-                console.error("FirestoreまたはuserIdがリスナー設定に未準備です。");
-                return;
-            }
-
-            // プライベートデータ用の正しいFirestoreパス
-            // /artifacts/{appId}/users/{userId}/portal_data/links
-            const docRef = doc(db, `artifacts/${appId}/users/${userId}/portal_data/links`); 
-            console.log("Firestore onSnapshotリスナーを設定中。パス:", docRef.path);
-
-            // 1. データが存在しない場合に初期データをシード (セット) 
-            getDoc(docRef).then(docSnap => {
-                if (!docSnap.exists()) {
-                    console.log("データドキュメントが存在しません。初期データを設定します。");
-                    setDoc(docRef, createDefaultPortalData()).catch(e => console.error("初期データ設定エラー:", e));
-                }
-            }).catch(e => console.error("ドキュメント存在確認エラー:", e));
-
-
-            // 2. リアルタイムリスナー (onSnapshot) を設定
-            // これが権限エラーの主な原因だったため、認証後に実行するように修正
-            onSnapshot(docRef, (doc) => {
-                if (doc.exists()) {
-                    console.log("Firestoreからデータを受信しました。");
-                    // データをグローバル変数に格納
-                    portalData = doc.data();
-                } else {
-                    console.warn("このユーザーのFirestoreにポータルデータが見つかりませんでした。デフォルトデータを使用します。");
-                    portalData = createDefaultPortalData();
-                }
-                updateUIFromLocalData(); // データ変更時にUIを再レンダリング
-            }, (error) => {
-                // onSnapshotのエラーハンドラ: ここで権限エラーをキャッチ
-                console.error("Firestore onSnapshot エラー (修正済み):", error);
-                authStatusElement.textContent = `認証済み (エラー: ${error.code})`;
-                // 永続的なエラーの場合にフォールバックデータを使用
-                portalData = createDefaultPortalData(); 
-                updateUIFromLocalData();
-            });
+        function getDocIdFromHash(hash) {
+            if (!hash) return 'default';
+            // スラッシュをアンダースコアに変換
+            return hash.replace(/\//g, '_').toLowerCase();
         }
 
         /**
-         * Firebaseの初期化と認証を行い、データ取得を開始します。
+         * Firestoreのドキュメント参照を取得 (公開データ)
          */
-        async function setupFirebaseAndFetchData() {
-            console.log("Firebaseセットアップ開始...");
-            authStatusElement.textContent = '認証処理中...';
+        function getPortalDocRef(docId) {
+            // Firestore Path: /artifacts/{appId}/public/data/portals/{docId}
+            return doc(db, 'artifacts', appId, 'public', 'data', 'portals', docId);
+        }
+
+        // ------------------------------------------
+        // Firebase初期化と認証
+        // ------------------------------------------
+
+        async function initializeFirebase() {
+            setLogLevel('debug');
             
             try {
-                setLogLevel('debug'); // デバッグログを有効化
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
 
-                // 認証処理
+                // 認証処理を開始
                 if (initialAuthToken) {
                     await signInWithCustomToken(auth, initialAuthToken);
-                    console.log("カスタムトークンでサインインしました。");
                 } else {
                     await signInAnonymously(auth);
-                    console.log("匿名サインインしました。");
                 }
                 
-                authStatusElement.textContent = '認証完了。データ取得待機中...';
-                
-                // onAuthStateChangedでユーザーIDを取得し、リスナーを設定
-                // このリスナーがFireStore操作の前に確実に認証状態を確定させます。
-                const unsubscribe = onAuthStateChanged(auth, (user) => {
+                // 認証状態の変更を監視し、userIdを設定
+                onAuthStateChanged(auth, (user) => {
                     if (user) {
                         userId = user.uid;
                         isAuthReady = true;
-                        console.log("Auth状態が確定しました。userId:", userId);
-                        authStatusElement.textContent = `認証済み (UID: ${userId.substring(0, 8)}...)`;
-                        // 認証が完了した後にのみ、Firestoreのリスナーを設定 (権限エラー修正の核心)
-                        setupDataListener();
+                        userIdDisplayElement.textContent = `${userId.substring(0, 8)}...`;
+                        authStatusElement.textContent = '認証完了。データを取得しています...';
+                        console.log("Auth状態確定: userId =", userId);
+                        
+                        // 認証完了後、ポータルのデータ取得を開始
+                        loadPortalData();
                     } else {
-                        // 認証失敗時またはサインアウト時
-                        console.error("認証状態が解決しませんでした。");
-                        userId = crypto.randomUUID(); // Fallback ID
+                        // 認証失敗またはサインアウト（匿名認証が成功しているはずだが念のため）
+                        userId = 'anonymous';
                         isAuthReady = true;
-                        authStatusElement.textContent = `未認証 (フォールバックID)`;
-                        // 認証が不要な公開データの場合はここでリスナーを設定できますが、今回はプライベートパスのためエラーが出ます。
-                        // データ取得はsetupDataListener内で処理されます。
+                        userIdDisplayElement.textContent = userId;
+                        authStatusElement.textContent = '匿名認証失敗。ローカルデータを使用します。';
+                        console.error("Auth状態未確定。ローカルデータを使用します。");
+                        
+                        // エラー時でもUIレンダリングを試みる
+                        renderPortalUI(initialPortalData['default'], 'default');
+                        loadingOverlay.classList.add('hidden');
+                        mainContent.classList.remove('hidden');
                     }
-                    unsubscribe(); // 状態変更の最初のイベント後にリスニングを停止
                 });
                 
             } catch (error) {
                 console.error("Firebase初期化/認証エラー:", error);
                 authStatusElement.textContent = `初期化エラー: ${error.message}`;
-                // 重大なエラーの場合、デフォルトデータでUIを更新
-                portalData = createDefaultPortalData();
-                updateUIFromLocalData();
+                // 致命的なエラーの場合、ローカルデフォルトデータで表示
+                renderPortalUI(initialPortalData['default'], 'default');
+                loadingOverlay.classList.add('hidden');
+                mainContent.classList.remove('hidden');
             }
         }
 
-        // ページロード時とハッシュ変更時にレンダリング
-        document.addEventListener('DOMContentLoaded', setupFirebaseAndFetchData);
-        window.addEventListener('hashchange', updateUIFromLocalData); 
+        // ------------------------------------------
+        // データロードとリスナー設定
+        // ------------------------------------------
+
+        function loadPortalData() {
+            if (!isAuthReady) {
+                console.log("認証完了を待機中...");
+                return;
+            }
+
+            // 既存のリスナーがあれば解除
+            if (unsubscribe) {
+                unsubscribe();
+            }
+
+            const currentHash = window.location.hash.substring(1);
+            const docId = getDocIdFromHash(currentHash);
+            const docRef = getPortalDocRef(docId);
+            
+            portalKeyDisplayElement.textContent = docId;
+
+            // リアルタイムリスナーを設定
+            unsubscribe = onSnapshot(docRef, async (docSnap) => {
+                let data;
+                let currentKey = docId;
+
+                if (docSnap.exists()) {
+                    // 1. データが存在する場合
+                    data = docSnap.data();
+                    authStatusElement.textContent = `データ受信: #${docId}`;
+                } else {
+                    // 2. データが存在しない場合
+                    
+                    // フォールバックロジック: 初期データからキーを探す
+                    data = initialPortalData[docId];
+
+                    if (!data) {
+                        // 最終フォールバック：'default'を使用
+                        data = initialPortalData['default'];
+                        currentKey = 'default';
+                        authStatusElement.textContent = `データなし。デフォルトを適用。`;
+                    } else {
+                        // 見つかった初期データをFirestoreにシード（書き込み）
+                        await setDoc(docRef, data).catch(e => console.error("初期データシード失敗 (権限確認):", e));
+                        authStatusElement.textContent = `初期データ設定: #${docId}`;
+                    }
+                }
+                
+                // UIを更新
+                renderPortalUI(data, currentKey);
+                loadingOverlay.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+
+            }, (error) => {
+                // Firestore onSnapshot エラーハンドリング (権限エラー修正の核心)
+                console.error("Firestore onSnapshot エラー:", error);
+                
+                // エラー時でもUIを更新し、ユーザーに情報を提供する
+                const fallbackData = initialPortalData['default'];
+                renderPortalUI(fallbackData, 'default (エラー時)');
+                
+                authStatusElement.textContent = `データ取得エラー: ${error.message.split('.')[0]}`;
+                loadingOverlay.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+            });
+        }
+        
+        // ------------------------------------------
+        // UIレンダリング
+        // ------------------------------------------
+
+        function renderPortalUI(data, currentKey) {
+            const container = document.getElementById('link-container');
+            const titleElement = document.getElementById('main-section-title');
+
+            // タイトルを更新
+            titleElement.innerHTML = `${data.title} <span style="font-size: 0.8em; color: #888; display: block; margin-top: 5px;">(Key: ${currentKey})</span>`;
+            
+            container.innerHTML = ''; // 既存のコンテンツをクリア
+
+            // リンクを動的に生成
+            if (data.links && Array.isArray(data.links)) {
+                data.links.forEach(link => {
+                    const linkElement = document.createElement('a');
+                    linkElement.href = link.url;
+                    linkElement.className = 'link-button';
+                    
+                    linkElement.innerHTML = `<span class="door-icon"></span><span class="button-text">${link.name}</span>`;
+                    container.appendChild(linkElement);
+                });
+            }
+            
+            // 動的に生成されたリンクにアニメーションリスナーを設定
+            attachAnimationListeners();
+        }
+
+        // ------------------------------------------
+        // UIアニメーションとイベントリスナー
+        // ------------------------------------------
+        const animationDuration = 500;
+        
+        function handleLinkClick(e) {
+            const targetUrl = this.href;
+            
+            // プレースホルダー（#またはplacehold.co）の場合は遷移をキャンセル
+            if (targetUrl.endsWith('#') || targetUrl.includes('placehold.co')) {
+                 e.preventDefault();
+                 return;
+            }
+
+            e.preventDefault(); // デフォルトのリンク遷移を停止
+            this.classList.add('opening');
+
+            setTimeout(() => {
+                window.open(targetUrl, '_blank');
+                
+                setTimeout(() => {
+                     this.classList.remove('opening');
+                }, 100);
+
+            }, animationDuration + 50); 
+        }
+
+        function attachAnimationListeners() {
+            const linkButtons = document.querySelectorAll('.link-button');
+            linkButtons.forEach(button => {
+                button.removeEventListener('click', handleLinkClick); 
+                button.addEventListener('click', handleLinkClick);
+            });
+        }
+
+        // ------------------------------------------
+        // 初期実行とハッシュ変更イベント
+        // ------------------------------------------
+        document.addEventListener('DOMContentLoaded', initializeFirebase);
+        
+        // ハッシュ変更時もポータルデータを再ロード
+        window.addEventListener('hashchange', loadPortalData); 
     </script>
 </body>
 </html>
