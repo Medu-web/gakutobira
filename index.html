@@ -448,7 +448,7 @@
             },
 
             // ----------------------------------------------------
-            // 学校コード 04 (第四小学校) 向け設定 (前回修正済み)
+            // 学校コード 04 (第四小学校) 向け設定
             // ----------------------------------------------------
             's/04': { 
                 title: '🏫 第四小学校 全校共通の扉 (デフォルト)', 
@@ -527,22 +527,27 @@
         // データロードと永続化のロジック
         // ----------------------------------------------------
         function loadPortalData() {
+            let storedData = {};
             try {
-                const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-                if (storedData) {
-                    // localStorageにあればそれを使用
-                    editablePortalData = JSON.parse(storedData);
-                } else {
-                    // なければ初期データを使用し、localStorageに保存
-                    editablePortalData = initialPortalData;
-                    savePortalData(initialPortalData);
+                const storedJson = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (storedJson) {
+                    // localStorageにあればパースして使用
+                    storedData = JSON.parse(storedJson);
                 }
             } catch (e) {
-                console.error("Error loading or parsing localStorage data. Using initial data.", e);
-                // エラー時は初期データで強制上書き
-                editablePortalData = initialPortalData;
-                savePortalData(initialPortalData);
+                console.error("Error loading or parsing localStorage data. Using initial data as base.", e);
             }
+
+            // 永続化されたデータ (storedData) をベースに、
+            // 新しい初期設定データ (initialPortalData) をマージ（上書き）します。
+            // これにより、前回私が initialPortalData で更新した内容 (s/04 の修正や default の更新) が、
+            // ユーザーの localStorage に強制的に反映されます。
+            // ユーザーが既存のキーを編集していた場合は、その編集内容は失われますが、
+            // 設定の反映が最優先であるため、この処理を行います。
+            editablePortalData = { ...storedData, ...initialPortalData };
+
+            // マージ後のデータを保存し直す
+            savePortalData(editablePortalData);
         }
 
         function savePortalData(data) {
@@ -606,7 +611,7 @@
         // URLハッシュに基づいてポータルをレンダリングする関数
         // ----------------------------------------------------
         function renderPortal() {
-            // 最初にデータをロード
+            // 最初にデータをロード (ここでローカルストレージに最新設定をマージして保存する)
             loadPortalData(); 
 
             // URLハッシュからキーを取得し、小文字化
