@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>学トビラ</title>
-    <!-- Tailwind CSS は使用していませんが、レスポンシブな基本デザインはCSSで実現しています -->
     <style>
         /* ------------------------------------- */
         /* 共通スタイル */
@@ -63,7 +62,7 @@
         .link-button {
             display: flex;
             align-items: center;
-            justify-content: flex-start; /* 左寄せ */
+            justify-content: center;
             padding: 20px 15px;
             background-color: #e9f0f8;
             color: #0056b3;
@@ -88,25 +87,30 @@
         /* ドアアイコンのスタイル */
         /* ------------------------------------- */
         .door-icon {
+            /* ドアの基本的な箱 */
             position: relative;
             width: 24px;
             height: 32px;
-            background-color: #a0522d;
+            background-color: #a0522d; /* 茶色のドア */
             border: 2px solid #8B4513;
             border-radius: 4px 4px 0 0;
             margin-right: 15px;
             box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
             flex-shrink: 0;
-            transform-origin: left center;
+            
+            /* アニメーションの基本設定 */
+            transform-origin: left center; /* 左端を軸に回転 */
             transition: transform 0.5s ease-out, opacity 0.5s ease-out; 
-            transform: rotateY(0deg);
+            transform: rotateY(0deg); /* 初期状態 */
         }
         
+        /* === ドアが開くアニメーション === */
         .link-button.opening .door-icon {
             transform: rotateY(-110deg);
             opacity: 0;
         }
 
+        /* ドアの取っ手 */
         .door-icon::after {
             content: '';
             position: absolute;
@@ -114,13 +118,13 @@
             right: 5px;
             width: 4px;
             height: 4px;
-            background-color: #ffd700;
+            background-color: #ffd700; /* ゴールドの取っ手 */
             border-radius: 50%;
         }
 
         .button-text {
             flex-grow: 1;
-            text-align: left; /* 左寄せに戻す */
+            text-align: center;
         }
 
         /* ------------------------------------- */
@@ -145,14 +149,13 @@
             margin-bottom: 20px;
         }
 
+        /* 緊急ボタンのスタイル (赤色系のドア) */
         .emergency-button {
             background-color: #ff9900;
             color: #333;
             border: 3px solid #cc7a00;
             font-size: 1.2em;
             padding: 25px 15px;
-            justify-content: center; /* センターに戻す */
-            text-align: center;
         }
 
         .emergency-button:hover {
@@ -160,13 +163,14 @@
             color: #000;
         }
         
+        /* 緊急ボタンのドアの色を警告色に */
         .emergency-button .door-icon {
             background-color: #cc3333; 
             border-color: #a00000;
         }
 
         /* ------------------------------------- */
-        /* フッターとロード状態 */
+        /* フッター */
         /* ------------------------------------- */
         .footer {
             margin-top: 40px;
@@ -175,36 +179,95 @@
             font-size: 0.9em;
             color: #777;
         }
+
+        /* ------------------------------------- */
+        /* 管理者機能のスタイル */
+        /* ------------------------------------- */
+        #edit-button {
+            background-color: #3cb371; /* Medium Sea Green */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            transition: background-color 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        #edit-button:hover {
+            background-color: #2e8b57; /* Sea Green */
+        }
         
-        .loading-overlay {
+        /* モーダルのスタイル */
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.9);
-            display: flex;
+            background: rgba(0, 0, 0, 0.7);
+            display: none; /* 初期は非表示 */
             justify-content: center;
             align-items: center;
-            flex-direction: column;
             z-index: 1000;
-            font-size: 1.2em;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content textarea {
+            width: 100%;
+            height: 300px;
+            min-height: 200px;
+            margin-top: 10px;
+            font-family: monospace;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .modal-buttons button {
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .modal-save {
+            background-color: #0056b3;
+            color: white;
+            border: none;
+        }
+        
+        .modal-cancel {
+            background-color: #ccc;
+            color: #333;
+            border: none;
+        }
+        
+        .modal-title {
+            font-size: 1.5em;
             color: #0056b3;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #0056b3;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
         }
 
         /* レスポンシブ対応 (モバイル向け) */
@@ -224,28 +287,31 @@
                 width: 20px;
                 height: 28px;
             }
+            .modal-content {
+                width: 95%;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="loading-overlay" class="loading-overlay">
-        <div class="spinner"></div>
-        <span>ポータルデータをロード中...</span>
-        <span id="auth-status" class="text-sm mt-3 text-gray-600">認証待機中...</span>
-    </div>
-    
-    <div class="container hidden" id="main-content">
+    <div class="container">
         <h1><ruby>学<rt>ガク</rt></ruby>トビラ</h1>
-        <p class="subtitle">さあ、学習の扉を開こう！ (ポータルデータはFirebaseからロードされます)</p>
+        <p class="subtitle">さあ、学習の扉を開こう！ (冬休み中の学習継続、トラブル時の復旧にご利用ください)</p>
+
+        <!-- 管理者編集ボタンを追加 -->
+        <!-- ?admin パラメータがある場合のみJSで表示されます -->
+        <button id="edit-button" class="hidden" onclick="handleEditClick()">ポータルを編集</button>
 
         <!-- ------------------------------------- -->
         <!-- 学習Webアプリセクション (メイン) -->
+        <!-- JSによって内容が動的に書き換えられる -->
         <!-- ------------------------------------- -->
-        <h2 class="section-title" id="main-section-title">📗 学習の扉</h2>
+        <h2 class="section-title" id="main-section-title">📗 いつもの学習の扉</h2>
         
         <div class="link-grid" id="link-container">
             <!-- 動的にリンクが挿入されます -->
         </div>
+
 
         <!-- ------------------------------------- -->
         <!-- 緊急対応セクション (トラブル回避) -->
@@ -257,11 +323,13 @@
             </p>
             
             <div class="link-grid">
+                <!-- Microsoft 365 ポータルにまとめて誘導 -->
                 <a href="https://portal.office.com/" class="link-button emergency-button">
                     <span class="door-icon"></span><span class="button-text">Microsoftのスタートページ<br>(Web版 Office, Teams, OneDriveはこちら)</span>
                 </a>
 
-                <a href="https://placehold.co/100x100?text=Manual_PDF" class="link-button emergency-button">
+                <!-- サインイン手順書 (復旧マニュアル) -->
+                <a href="[サインイン手順書PDFのURLをここに記述]" class="class="link-button emergency-button">
                     <span class="door-icon"></span><span class="button-text">サインイン復旧手順書<br>（トラブル解決マニュアル）</span>
                 </a>
             </div>
@@ -271,37 +339,40 @@
         <!-- フッター情報 -->
         <!-- ------------------------------------- -->
         <div class="footer">
-            <p>Portal Key: <span id="portal-key-display">default</span> | User ID: <span id="user-id-display">N/A</span></p>
+            <p>冬休み中のサポートについては、各学校からの連絡事項をご確認ください。<br>
+            QRコードの URL: [ポータルサイトのURLをここに記述]</p>
+        </div>
+    </div>
+    
+    <!-- ------------------------------------- -->
+    <!-- JSON編集モーダル (管理画面) -->
+    <!-- ------------------------------------- -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="modal-title" id="modal-title">ポータルデータを編集: #default</h3>
+            <p id="edit-warning" style="color: #cc0000; font-weight: bold; font-size: 0.9em;">
+                ⚠️ JSON形式（{"name": "...", "url": "..."} の配列）を崩さないでください。<br>
+                編集内容はブラウザ（ローカルストレージ）にのみ保存されます。
+            </p>
+            <textarea id="json-editor"></textarea>
+            <div class="modal-buttons">
+                <button class="modal-cancel" onclick="closeEditModal()">キャンセル</button>
+                <button class="modal-save" onclick="saveChanges()">保存して適用</button>
+            </div>
         </div>
     </div>
 
-    <!-- Firebase SDKのインポートとスクリプト -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, setDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // グローバル変数
-        let app, db, auth;
-        let userId = null;
-        let isAuthReady = false;
-        let unsubscribe = null;
-
-        // Canvas環境変数
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        // UI要素
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const mainContent = document.getElementById('main-content');
-        const authStatusElement = document.getElementById('auth-status');
-        const userIdDisplayElement = document.getElementById('user-id-display');
-        const portalKeyDisplayElement = document.getElementById('portal-key-display');
+    <script>
+        // ----------------------------------------------------
+        // データを永続化するためのローカルストレージキー
+        const LOCAL_STORAGE_KEY = 'gakuTobiraPortalData';
+        // 管理者パスワード (簡易版)
+        const ADMIN_PASSWORD = 'admin123';
         
-        // ------------------------------------------
-        // 初期データ（Firestoreにデータがない場合に使用）
-        // ------------------------------------------
+        /**
+         * 階層型ポータル表示用の設定データ (初期値)
+         * このデータは、ローカルストレージにデータがない場合に一度だけ使用されます。
+         */
         const initialPortalData = {
             // ----------------------------------------------------
             // 共通デフォルト設定 (ハッシュがない場合)
@@ -311,228 +382,136 @@
                     { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" },
                     { name: "ドリルプラネット", url: "https://login.kobun.co.jp/student-login/?code=1134304" },
                     { name: "キーボー島 (タイピング)", url: "https://kb-kentei.net/" },
-                    { name: "学校全体共通のWebサイト", url: "https://placehold.co/100x100?text=School_Web" },
+                    { name: "学校全体共通のWebサイト", url: "#" },
                 ]
             },
             
             // ----------------------------------------------------
             // 学校コード 001 (例: 〇〇市立中央小学校) 向け設定
             // ----------------------------------------------------
-            's_001_all': {
+            's/001/all': {
                 title: '🏫 中央小学校 全校共通の扉',
                 links: [
                     { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" },
-                    { name: "学校連絡事項 (掲示板)", url: "https://placehold.co/100x100?text=Info" },
-                    { name: "先生への質問フォーム", url: "https://placehold.co/100x100?text=Q_Form" },
-                    { name: "プログラミング教材 (Scratch)", url: "https://placehold.co/100x100?text=Scratch" },
+                    { name: "学校連絡事項 (掲示板)", url: "#" },
+                    { name: "先生への質問フォーム", url: "#" },
+                    { name: "プログラミング教材 (Scratch)", url: "#" },
                 ]
             },
             
             // 学校 001 の 5年生 (g5) 向け
-            's_001_g5_all': {
+            's/001/g5/all': {
                 title: '✏️ 中央小学校 5年生 学年の扉',
                 links: [
-                    { name: "5年 算数ドリル", url: "https://placehold.co/100x100?text=Math_D" },
-                    { name: "5年 理科の観察記録", url: "https://placehold.co/100x100?text=Science_R" },
-                    { name: "社会科見学Webサイト", url: "https://placehold.co/100x100?text=Study_Tour" },
-                    { name: "5年 学年共通 課題提出", url: "https://placehold.co/100x100?text=Assignment_5G" },
+                    { name: "5年 算数ドリル", url: "#" },
+                    { name: "5年 理科の観察記録", url: "#" },
+                    { name: "社会科見学Webサイト", url: "#" },
+                    { name: "5年 学年共通 課題提出", url: "#" },
+                ]
+            },
+            
+            // 学校 001 の 2年A組 (g2/c2a) 向け
+            's/001/g2/c2a': {
+                title: '🖍️ 中央小学校 2年A組 クラスの扉',
+                links: [
+                    { name: "今日の学習計画", url: "#" },
+                    { name: "クラス連絡帳", url: "#" },
+                    { name: "国語の朗読用サイト", url: "#" },
+                    { name: "先生のWebサイト", url: "#" },
+                ]
+            },
+
+            // ----------------------------------------------------
+            // 学校コード 002 (例: 〇〇市立東中学校) 向け設定
+            // ----------------------------------------------------
+            's/002/all': {
+                title: '🏫 東中学校 全校共通の扉',
+                links: [
+                    { name: "Office 365 Web", url: "https://portal.office.com/" },
+                    { name: "学習支援システム (LMS)", url: "#" },
+                    { name: "進路情報ポータル", url: "#" },
+                    { name: "体育館利用予約", url: "#" },
+                ]
+            },
+            
+            // 学校 002 の 3年生 (g3) 向け
+            's/002/g3/all': {
+                title: '🎓 東中学校 3年生 学年の扉',
+                links: [
+                    { name: "受験対策ドリル", url: "#" },
+                    { name: "進路面談予約フォーム", url: "#" },
+                    { name: "3年 学年共通 課題提出", url: "#" },
+                    { name: "卒業制作 Webサイト", url: "#" },
+                ]
+            },
+            
+            // 学校 002 の 3年B組 (g3/c3b) 向け
+            's/002/g3/c3b': {
+                title: '📚 東中学校 3年B組 クラスの扉',
+                links: [
+                    { name: "B組 担任からの連絡", url: "#" },
+                    { name: "B組 委員会の活動報告", url: "#" },
+                    { name: "B組 授業資料フォルダ", url: "#" },
                 ]
             },
         };
 
-        // ------------------------------------------
-        // Firestoreパスとキーの処理
-        // ------------------------------------------
+        let editablePortalData = {}; // ローカルストレージからロードされる、編集可能なデータストア
+        const animationDuration = 500; // アニメーション時間 (ミリ秒)
 
-        /**
-         * URLハッシュをFirestoreのドキュメントIDに変換
-         * #s/001/g5/all -> s_001_g5_all
-         */
-        function getDocIdFromHash(hash) {
-            if (!hash) return 'default';
-            // スラッシュをアンダースコアに変換
-            return hash.replace(/\//g, '_').toLowerCase();
-        }
-
-        /**
-         * Firestoreのドキュメント参照を取得 (公開データ)
-         */
-        function getPortalDocRef(docId) {
-            // Firestore Path: /artifacts/{appId}/public/data/portals/{docId}
-            return doc(db, 'artifacts', appId, 'public', 'data', 'portals', docId);
-        }
-
-        // ------------------------------------------
-        // Firebase初期化と認証
-        // ------------------------------------------
-
-        async function initializeFirebase() {
-            setLogLevel('debug');
-            
-            try {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                // 認証処理を開始
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                
-                // 認証状態の変更を監視し、userIdを設定
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        isAuthReady = true;
-                        userIdDisplayElement.textContent = `${userId.substring(0, 8)}...`;
-                        authStatusElement.textContent = '認証完了。データを取得しています...';
-                        console.log("Auth状態確定: userId =", userId);
-                        
-                        // 認証完了後、ポータルのデータ取得を開始
-                        loadPortalData();
-                    } else {
-                        // 認証失敗またはサインアウト（匿名認証が成功しているはずだが念のため）
-                        userId = 'anonymous';
-                        isAuthReady = true;
-                        userIdDisplayElement.textContent = userId;
-                        authStatusElement.textContent = '匿名認証失敗。ローカルデータを使用します。';
-                        console.error("Auth状態未確定。ローカルデータを使用します。");
-                        
-                        // エラー時でもUIレンダリングを試みる
-                        renderPortalUI(initialPortalData['default'], 'default');
-                        loadingOverlay.classList.add('hidden');
-                        mainContent.classList.remove('hidden');
-                    }
-                });
-                
-            } catch (error) {
-                console.error("Firebase初期化/認証エラー:", error);
-                authStatusElement.textContent = `初期化エラー: ${error.message}`;
-                // 致命的なエラーの場合、ローカルデフォルトデータで表示
-                renderPortalUI(initialPortalData['default'], 'default');
-                loadingOverlay.classList.add('hidden');
-                mainContent.classList.remove('hidden');
-            }
-        }
-
-        // ------------------------------------------
-        // データロードとリスナー設定
-        // ------------------------------------------
-
+        // ----------------------------------------------------
+        // データロードと永続化のロジック
+        // ----------------------------------------------------
         function loadPortalData() {
-            if (!isAuthReady) {
-                console.log("認証完了を待機中...");
-                return;
-            }
-
-            // 既存のリスナーがあれば解除
-            if (unsubscribe) {
-                unsubscribe();
-            }
-
-            const currentHash = window.location.hash.substring(1);
-            const docId = getDocIdFromHash(currentHash);
-            const docRef = getPortalDocRef(docId);
-            
-            portalKeyDisplayElement.textContent = docId;
-
-            // リアルタイムリスナーを設定
-            unsubscribe = onSnapshot(docRef, async (docSnap) => {
-                let data;
-                let currentKey = docId;
-
-                if (docSnap.exists()) {
-                    // 1. データが存在する場合
-                    data = docSnap.data();
-                    authStatusElement.textContent = `データ受信: #${docId}`;
+            try {
+                const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (storedData) {
+                    // localStorageにあればそれを使用
+                    editablePortalData = JSON.parse(storedData);
                 } else {
-                    // 2. データが存在しない場合
-                    
-                    // フォールバックロジック: 初期データからキーを探す
-                    data = initialPortalData[docId];
-
-                    if (!data) {
-                        // 最終フォールバック：'default'を使用
-                        data = initialPortalData['default'];
-                        currentKey = 'default';
-                        authStatusElement.textContent = `データなし。デフォルトを適用。`;
-                    } else {
-                        // 見つかった初期データをFirestoreにシード（書き込み）
-                        await setDoc(docRef, data).catch(e => console.error("初期データシード失敗 (権限確認):", e));
-                        authStatusElement.textContent = `初期データ設定: #${docId}`;
-                    }
+                    // なければ初期データを使用し、localStorageに保存
+                    editablePortalData = initialPortalData;
+                    savePortalData(initialPortalData);
                 }
-                
-                // UIを更新
-                renderPortalUI(data, currentKey);
-                loadingOverlay.classList.add('hidden');
-                mainContent.classList.remove('hidden');
-
-            }, (error) => {
-                // Firestore onSnapshot エラーハンドリング (権限エラー修正の核心)
-                console.error("Firestore onSnapshot エラー:", error);
-                
-                // エラー時でもUIを更新し、ユーザーに情報を提供する
-                const fallbackData = initialPortalData['default'];
-                renderPortalUI(fallbackData, 'default (エラー時)');
-                
-                authStatusElement.textContent = `データ取得エラー: ${error.message.split('.')[0]}`;
-                loadingOverlay.classList.add('hidden');
-                mainContent.classList.remove('hidden');
-            });
-        }
-        
-        // ------------------------------------------
-        // UIレンダリング
-        // ------------------------------------------
-
-        function renderPortalUI(data, currentKey) {
-            const container = document.getElementById('link-container');
-            const titleElement = document.getElementById('main-section-title');
-
-            // タイトルを更新
-            titleElement.innerHTML = `${data.title} <span style="font-size: 0.8em; color: #888; display: block; margin-top: 5px;">(Key: ${currentKey})</span>`;
-            
-            container.innerHTML = ''; // 既存のコンテンツをクリア
-
-            // リンクを動的に生成
-            if (data.links && Array.isArray(data.links)) {
-                data.links.forEach(link => {
-                    const linkElement = document.createElement('a');
-                    linkElement.href = link.url;
-                    linkElement.className = 'link-button';
-                    
-                    linkElement.innerHTML = `<span class="door-icon"></span><span class="button-text">${link.name}</span>`;
-                    container.appendChild(linkElement);
-                });
+            } catch (e) {
+                console.error("Error loading or parsing localStorage data. Using initial data.", e);
+                // エラー時は初期データで強制上書き
+                editablePortalData = initialPortalData;
+                savePortalData(initialPortalData);
             }
-            
-            // 動的に生成されたリンクにアニメーションリスナーを設定
-            attachAnimationListeners();
         }
 
-        // ------------------------------------------
-        // UIアニメーションとイベントリスナー
-        // ------------------------------------------
-        const animationDuration = 500;
+        function savePortalData(data) {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+                editablePortalData = data; // メモリ上のデータも更新
+            } catch (e) {
+                console.error("Error saving data to localStorage:", e);
+                // 保存失敗時のエラー表示は、カスタムモーダルUIが必要です（今回はコンソールログのみ）
+            }
+        }
         
+        // ----------------------------------------------------
+        // リンククリック時のアニメーションと別タブ遷移を制御する関数
+        // ----------------------------------------------------
         function handleLinkClick(e) {
-            const targetUrl = this.href;
-            
-            // プレースホルダー（#またはplacehold.co）の場合は遷移をキャンセル
-            if (targetUrl.endsWith('#') || targetUrl.includes('placehold.co')) {
-                 e.preventDefault();
-                 return;
+            // リンク先がプレースホルダーや空の場合はアニメーションせず終了
+            if (this.href.endsWith('#') || this.href.includes('[') || this.href === '') {
+                return; 
             }
 
             e.preventDefault(); // デフォルトのリンク遷移を停止
+
+            const targetUrl = this.href;
+            
+            // アニメーションクラスを追加
             this.classList.add('opening');
 
+            // アニメーション完了後に別タブで遷移を実行
             setTimeout(() => {
                 window.open(targetUrl, '_blank');
                 
+                // 新しいタブを開いた後、元のボタンをリセットして再利用可能にする
                 setTimeout(() => {
                      this.classList.remove('opening');
                 }, 100);
@@ -542,19 +521,190 @@
 
         function attachAnimationListeners() {
             const linkButtons = document.querySelectorAll('.link-button');
+            
             linkButtons.forEach(button => {
+                // 既存のリスナーを削除 (renderPortalでリンクが再生成されるため)
                 button.removeEventListener('click', handleLinkClick); 
+                
+                // 新しいリスナーを追加
                 button.addEventListener('click', handleLinkClick);
             });
         }
 
-        // ------------------------------------------
-        // 初期実行とハッシュ変更イベント
-        // ------------------------------------------
-        document.addEventListener('DOMContentLoaded', initializeFirebase);
+        // ----------------------------------------------------
+        // URLハッシュに基づいてポータルをレンダリングする関数
+        // ----------------------------------------------------
+        function renderPortal() {
+            // 最初にデータをロード
+            loadPortalData(); 
+
+            // URLハッシュからキーを取得し、小文字化
+            const hash = window.location.hash.substring(1).toLowerCase();
+            
+            // URLパラメータをチェックし、管理者ボタンの表示を制御
+            const urlParams = new URLSearchParams(window.location.search);
+            const isAdmin = urlParams.has('admin');
+            
+            const editButton = document.getElementById('edit-button');
+            editButton.classList.toggle('hidden', !isAdmin);
+
+            // データを取得 (編集可能なデータストアから取得する)
+            let currentKey = hash;
+            let data = editablePortalData[hash];
+            
+            // ----------------------------------------------------
+            // データフォールバックロジック (editablePortalDataを使用)
+            // ----------------------------------------------------
+            if (!data) {
+                const parts = hash.split('/');
+                
+                // s/001/g5/c2a の場合 -> s/001/g5/all を試す
+                if (parts.length === 4) {
+                    const fallbackKey = `${parts[0]}/${parts[1]}/${parts[2]}/all`;
+                    if (editablePortalData[fallbackKey]) {
+                        currentKey = fallbackKey;
+                        data = editablePortalData[fallbackKey];
+                    }
+                }
+                
+                // s/001/g5/all の場合 -> s/001/all を試す
+                if (!data && parts.length >= 3) {
+                     const schoolFallbackKey = `${parts[0]}/${parts[1]}/all`;
+                     if (editablePortalData[schoolFallbackKey]) {
+                        currentKey = schoolFallbackKey;
+                        data = editablePortalData[schoolFallbackKey];
+                     }
+                }
+
+                // 最終的にデータが見つからなければ'default'を使用
+                if (!data) {
+                    currentKey = 'default';
+                    data = editablePortalData[currentKey];
+                }
+            }
+
+
+            const container = document.getElementById('link-container');
+            const titleElement = document.getElementById('main-section-title');
+
+            // タイトルを更新
+            titleElement.innerHTML = `${data.title} <span style="font-size: 0.8em; color: #888; display: block; margin-top: 5px;">(URL Key: #${currentKey})</span>`;
+            
+            // 既存のコンテンツをクリア
+            container.innerHTML = '';
+
+            // リンクを動的に生成
+            data.links.forEach(link => {
+                const linkElement = document.createElement('a');
+                linkElement.href = link.url;
+                linkElement.className = 'link-button';
+                
+                // HTML構造を構築
+                linkElement.innerHTML = `<span class="door-icon"></span><span class="button-text">${link.name}</span>`;
+                container.appendChild(linkElement);
+            });
+            
+            // 動的に生成されたリンクにアニメーションリスナーを再設定
+            attachAnimationListeners();
+        }
+
+        // ----------------------------------------------------
+        // 管理者編集機能 (パスワードとモーダル)
+        // ----------------------------------------------------
+        let currentEditingKey = null;
+
+        function handleEditClick() {
+            // 簡易パスワード認証には prompt() を使用
+            const password = prompt("ポータルを編集するにはパスワードを入力してください。（初期パスワード: admin123）");
+            
+            if (password === ADMIN_PASSWORD) {
+                // パスワードが正しい
+                showEditModal();
+            } else if (password !== null) {
+                // パスワードが間違っている
+                console.error("パスワードが違います。編集モードに入れませんでした。");
+                
+                // エラーを視覚的に通知 (alertは使えないため、ボタンの表示を一時的に変更)
+                const button = document.getElementById('edit-button');
+                const originalText = button.textContent;
+                button.textContent = "❌ パスワード不正";
+                button.style.backgroundColor = '#cc0000';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.backgroundColor = '#3cb371';
+                }, 1500);
+            }
+        }
         
-        // ハッシュ変更時もポータルデータを再ロード
-        window.addEventListener('hashchange', loadPortalData); 
+        function showEditModal() {
+            // 現在のURLハッシュを取得し、編集対象のキーを特定
+            const hash = window.location.hash.substring(1).toLowerCase();
+            // 現在表示されているキーが編集対象
+            currentEditingKey = hash || 'default';
+
+            // 編集対象のデータが存在しない場合は 'default' の JSON を読み込む
+            if (!editablePortalData[currentEditingKey]) {
+                currentEditingKey = 'default';
+            }
+            
+            const editor = document.getElementById('json-editor');
+            const modalTitle = document.getElementById('modal-title');
+            const editModal = document.getElementById('edit-modal');
+            
+            // 編集タイトルを更新
+            modalTitle.textContent = `ポータルデータを編集: #${currentEditingKey}`;
+            
+            // 現在のキーのデータを整形して表示
+            editor.value = JSON.stringify(editablePortalData[currentEditingKey], null, 2);
+            
+            editModal.style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+        }
+        
+        function saveChanges() {
+            const editor = document.getElementById('json-editor');
+            let newPortalData;
+            
+            try {
+                // 編集されたJSONをパース
+                newPortalData = JSON.parse(editor.value);
+            } catch (e) {
+                // JSON形式が不正な場合
+                console.error("JSON形式が不正です。保存できませんでした。", e);
+                
+                // エラーを視覚的に通知
+                const saveButton = document.querySelector('.modal-save');
+                const originalText = saveButton.textContent;
+                saveButton.textContent = "❌ JSONエラー";
+                saveButton.style.backgroundColor = '#cc0000';
+                setTimeout(() => {
+                    saveButton.textContent = originalText;
+                    saveButton.style.backgroundColor = '#0056b3';
+                }, 1500);
+                return;
+            }
+
+            // メモリ上のデータとLocalStorageを更新
+            const updatedDataStore = { ...editablePortalData };
+            updatedDataStore[currentEditingKey] = newPortalData;
+            savePortalData(updatedDataStore);
+            
+            // モーダルを閉じ、ポータルを再描画
+            closeEditModal();
+            renderPortal(); // データを再ロードして表示
+        }
+
+
+        // ページロード時とハッシュ変更時にレンダリング
+        document.addEventListener('DOMContentLoaded', () => {
+             // データをロードし、管理モードに応じてボタンを表示・非表示
+             loadPortalData();
+             renderPortal();
+        });
+        window.addEventListener('hashchange', renderPortal); 
     </script>
 </body>
 </html>
