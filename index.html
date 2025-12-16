@@ -403,7 +403,7 @@
 
             // 1. 基本ポータル (コードのみ: XX) を初期化
             initialPortalData[code] = {
-                title: `${titlePrefix}学校 ${code} ポータル (全学年共通)`,
+                title: `${titlePrefix}学校 ${code} (全学年共通)`,
                 links: JSON.parse(JSON.stringify(defaultLinks))
             };
 
@@ -411,7 +411,7 @@
             for (let g = 1; g <= 6; g++) {
                 const gradeKey = `${code}g${g}`;
                 initialPortalData[gradeKey] = {
-                    title: `${titlePrefix}学校 ${code} 第${g}学年 ポータル`,
+                    title: `${titlePrefix}学校 ${code} 第${g}学年`,
                     // 初期設定では、学年別ポータルも基本リンクをコピーしておく
                     links: JSON.parse(JSON.stringify(defaultLinks))
                 };
