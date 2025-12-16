@@ -165,6 +165,19 @@
         }
 
         /* ------------------------------------- */
+        /* 追加情報セクションのスタイル */
+        /* ------------------------------------- */
+        .info-section {
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px dashed #ccc;
+            text-align: left;
+            background-color: #f8f8f8;
+            border-radius: 8px;
+        }
+
+
+        /* ------------------------------------- */
         /* 管理者機能のスタイル */
         /* ------------------------------------- */
         #edit-button {
@@ -299,6 +312,13 @@
             <!-- 動的にリンクが挿入されます -->
         </div>
 
+        <!-- ------------------------------------- -->
+        <!-- 学校・学年独自の情報セクション -->
+        <!-- ------------------------------------- -->
+        <div class="info-section" id="info-section">
+            <!-- data.infoHtml の内容がここに挿入されます -->
+        </div>
+
 
         <!-- ------------------------------------- -->
         <!-- 緊急対応セクション (トラブル回避) - JSで表示/非表示を制御 -->
@@ -335,8 +355,8 @@
         <div class="modal-content">
             <h3 class="modal-title" id="modal-title">ポータルデータを編集: #default</h3>
             <p id="edit-warning" style="color: #cc0000; font-weight: bold; font-size: 0.9em;">
-                ⚠️ JSON形式（{"name": "...", "url": "..."} の配列）を崩さないでください。<br>
-                編集内容はブラウザ（ローカルストレージ）にのみ保存されます。
+                ⚠️ JSON形式（`{"title": "...", "links": [...], "infoHtml": "..."}`）を崩さないでください。<br>
+                編集内容はブラウザ（ローカルストレージ）にのみ保存されます。HTMLタグも直接記述可能です。
             </p>
             <textarea id="json-editor"></textarea>
             <div class="modal-buttons">
@@ -384,7 +404,8 @@
         // ----------------------------------------------------
         initialPortalData['default'] = { 
             title: '学トビラ - 共通学習コンテンツ',
-            links: defaultLinks
+            links: defaultLinks,
+            infoHtml: '<p style="text-align: center; color: #555; margin-top: 20px;">この共通ポータルは、全ての学校で利用可能な基本的な学習コンテンツを集約しています。</p>'
         };
         
         
@@ -400,11 +421,12 @@
         for (let i = 1; i <= 21; i++) {
             const code = pad(i);
             const titlePrefix = '学トビラ - ';
-
+            
             // 1. 基本ポータル (コードのみ: XX) を初期化
             initialPortalData[code] = {
                 title: `${titlePrefix}学校 ${code} (全学年共通)`,
-                links: JSON.parse(JSON.stringify(defaultLinks))
+                links: JSON.parse(JSON.stringify(defaultLinks)),
+                infoHtml: `<h3 style="color: #0056b3;">学校${code}からのお知らせ</h3><p>ここに学校独自のリンクや情報を掲載できます。編集ボタンから内容を変更してください。</p>`
             };
 
             // 2. 学年別ポータル (XXgY, 例: 04g2) - 1年から6年までを初期化
@@ -413,7 +435,8 @@
                 initialPortalData[gradeKey] = {
                     title: `${titlePrefix}学校 ${code} 第${g}学年`,
                     // 初期設定では、学年別ポータルも基本リンクをコピーしておく
-                    links: JSON.parse(JSON.stringify(defaultLinks))
+                    links: JSON.parse(JSON.stringify(defaultLinks)),
+                    infoHtml: `<h3 style="color: #008000;">第${g}学年より</h3><p>学年独自の課題や連絡事項などをこちらに表示します。</p>`
                 };
             }
         }
@@ -438,8 +461,15 @@
             }
 
             // 初期データ (自動生成された全キー) とローカルストレージのデータをマージ
-            editablePortalData = { ...initialPortalData, ...storedData };
+            // 新しいフィールド (infoHtml) を追加したため、既存の storedData に infoHtml がない場合も
+            // initialPortalData の値がマージされるようにします。
+            const mergedData = { ...initialPortalData };
+            for (const key in storedData) {
+                // storedDataのキーが存在しない場合は追加、存在する場合は上書き
+                mergedData[key] = { ...initialPortalData[key], ...storedData[key] };
+            }
 
+            editablePortalData = mergedData;
             savePortalData(editablePortalData);
         }
 
@@ -557,8 +587,12 @@
             // タイトルを更新
             document.getElementById('main-section-title').textContent = data.title;
             
-            const container = document.getElementById('link-container');
-            container.innerHTML = ''; // 既存のコンテンツをクリア
+            const linkContainer = document.getElementById('link-container');
+            linkContainer.innerHTML = ''; // 既存のコンテンツをクリア
+            
+            const infoSection = document.getElementById('info-section');
+            // infoHtml の内容を挿入 (HTMLタグがそのまま表示されるように innerHTML を使用)
+            infoSection.innerHTML = data.infoHtml || ''; 
 
             // リンクを動的に生成
             data.links.forEach(link => {
@@ -566,7 +600,7 @@
                 linkElement.href = link.url;
                 linkElement.className = 'link-button';
                 linkElement.innerHTML = `<span class="door-icon"></span><span class="button-text">${link.name}</span>`;
-                container.appendChild(linkElement);
+                linkContainer.appendChild(linkElement);
             });
             
             attachAnimationListeners();
@@ -674,13 +708,24 @@
             }
 
             const updatedDataStore = { ...editablePortalData };
-            if (typeof newPortalData === 'object' && newPortalData !== null && newPortalData.hasOwnProperty('title') && newPortalData.hasOwnProperty('links')) {
-                 updatedDataStore[currentEditingKey] = newPortalData;
+            // 必要なプロパティ (title, links, infoHtml) がすべて存在するかチェック
+            if (typeof newPortalData === 'object' && newPortalData !== null && 
+                newPortalData.hasOwnProperty('title') && Array.isArray(newPortalData.links) && newPortalData.hasOwnProperty('infoHtml')) {
+                 
+                 // 既存のデータと新しいデータをマージして、不足しているフィールド（将来的な追加フィールドなど）を保持する
+                 const existingData = updatedDataStore[currentEditingKey] || {};
+                 updatedDataStore[currentEditingKey] = {
+                     ...existingData, // 既存のフィールドを保持
+                     title: newPortalData.title,
+                     links: newPortalData.links,
+                     infoHtml: newPortalData.infoHtml
+                 };
+
             } else {
-                 console.error("保存されたJSONの構造が期待されていませんでした (title/linksが存在しない)。");
+                 console.error("保存されたJSONの構造が期待されていませんでした (title, links, infoHtmlのいずれかが不足)。");
                  const saveButton = document.querySelector('.modal-save');
                  const originalText = saveButton.textContent;
-                 saveButton.textContent = "❌ 構造エラー: titleとlinksが必要です";
+                 saveButton.textContent = "❌ 構造エラー: title, links, infoHtmlが必要です";
                  saveButton.style.backgroundColor = '#cc0000';
                  setTimeout(() => {
                      saveButton.textContent = originalText;
