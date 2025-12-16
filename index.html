@@ -469,12 +469,28 @@
             }
 
             // 初期データ (自動生成された全キー) とローカルストレージのデータをマージ
-            // 新しいフィールド (infoHtml) を追加したため、既存の storedData に infoHtml がない場合も
-            // initialPortalData の値がマージされるようにします。
             const mergedData = { ...initialPortalData };
+            
             for (const key in storedData) {
-                // storedDataのキーが存在しない場合は追加、存在する場合は上書き
-                mergedData[key] = { ...initialPortalData[key], ...storedData[key] };
+                const initial = initialPortalData[key];
+                const stored = storedData[key];
+
+                if (initial) {
+                    // **【タイトル命名規則の移行処理】**
+                    // 既存のローカルストレージのタイトルが古い自動生成パターン ("学トビラ - 学校 XX 第Y学年") に一致する場合、
+                    // initialPortalDataにある新しいタイトルを強制的に使用する。
+                    if (stored && stored.title && stored.title.startsWith('学トビラ - 学校')) {
+                        // storedDataの他のプロパティ（links, infoHtml）を保持しつつ、titleだけinitialで上書きする
+                        mergedData[key] = { ...initial, ...stored, title: initial.title };
+                    } else {
+                        // ユーザーが手動でタイトルを変更した場合や、変更がない場合はstoredDataを優先
+                        // {...initial}で新しいデフォルト構造を適用し、{...stored}で保存された値を上書きする
+                        mergedData[key] = { ...initial, ...stored };
+                    }
+                } else {
+                    // initialPortalDataにキーが存在しない場合（レガシーデータなど）はstoredDataをそのまま使用
+                    mergedData[key] = stored;
+                }
             }
 
             editablePortalData = mergedData;
