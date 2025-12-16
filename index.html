@@ -197,25 +197,20 @@
 
         // グローバル変数 (Canvas環境から提供されるものを優先)
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        // ここにFirebaseプロジェクトのConfig情報を貼り付けることで、GitHub Pagesなどの環境で動作します。
-        // Canvas環境では __firebase_config が自動的に提供されます。
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { /* // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyCU6-hKFFa8dew_G_0_hDP8Q4eYqP0_7yU",
-  authDomain: "gigaportal-editor.firebaseapp.com",
-  projectId: "gigaportal-editor",
-  storageBucket: "gigaportal-editor.firebasestorage.app",
-  messagingSenderId: "969946487756",
-  appId: "1:969946487756:web:fa4c4347d72de0b2dc9b69"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig); */ };
+        // ----------------------------------------------------------------------
+        // 【修正完了】Firebase Config
+        // コメントアウトを解除し、オブジェクト形式に修正しました
+        // ----------------------------------------------------------------------
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyCU6-hKFFa8dew_G_0_hDP8Q4eYqP0_7yU",
+            authDomain: "gigaportal-editor.firebaseapp.com",
+            projectId: "gigaportal-editor",
+            storageBucket: "gigaportal-editor.firebasestorage.app",
+            messagingSenderId: "969946487756",
+            appId: "1:969946487756:web:fa4c4347d72de0b2dc9b69"
+        };
+        
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         let app;
@@ -271,8 +266,6 @@ const app = initializeApp(firebaseConfig); */ };
                 if (!firebaseConfig || !firebaseConfig.projectId) {
                     console.warn("Firebase Configが設定されていません。データは永続化されません。");
                     document.getElementById('user-status-text').textContent = `Config未設定`;
-                    // Configがない場合、認証せずにローカルで処理を進めることも可能だが、ここではFirebaseを必須とする
-                    // isAuthReadyをfalseのままにし、UIを更新しない（ローディング状態のまま）
                     return; 
                 }
 
