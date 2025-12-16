@@ -44,238 +44,86 @@
         /* ボタンとセクションのスタイル */
         /* ------------------------------------- */
         .section-title {
-            color: #0056b3;
-            border-bottom: 3px solid #0056b3;
-            padding-bottom: 5px;
+            font-size: 1.8em;
+            color: #007bff;
             margin-top: 30px;
             margin-bottom: 20px;
-            font-size: 1.5em;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+            display: inline-block;
         }
 
-        .link-grid {
+        #link-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            padding-top: 10px;
         }
 
         .link-button {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px 15px;
-            background-color: #e9f0f8;
+            padding: 18px 25px;
+            background-color: #e9f7ff;
             color: #0056b3;
             text-decoration: none;
             border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
             font-size: 1.1em;
-            font-weight: bold;
-            transition: background-color 0.2s, transform 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            min-height: 80px;
-            text-align: left;
-            line-height: 1.3;
-            perspective: 1000px;
+            font-weight: 600;
+            border: 2px solid #b3e0ff;
         }
 
         .link-button:hover {
-            background-color: #d0e0f0;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+            background-color: #d9efff;
         }
 
-        /* ------------------------------------- */
-        /* ドアアイコンのスタイル */
-        /* ------------------------------------- */
+        /* アニメーション用クラス */
+        .animate-pop {
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
         .door-icon {
-            /* ドアの基本的な箱 */
+            /* ドアのアイコンの代わり（ここでは簡単なマークを使用） */
+            display: inline-block;
+            width: 1.2em;
+            height: 1.2em;
+            margin-right: 10px;
+            background-color: #007bff;
+            border-radius: 4px;
+            /* 扉の取っ手を模したデザイン */
             position: relative;
-            width: 24px;
-            height: 32px;
-            background-color: #a0522d; /* 茶色のドア */
-            border: 2px solid #8B4513;
-            border-radius: 4px 4px 0 0;
-            margin-right: 15px;
-            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-            flex-shrink: 0;
-            
-            /* アニメーションの基本設定 */
-            transform-origin: left center; /* 左端を軸に回転 */
-            transition: transform 0.5s ease-out, opacity 0.5s ease-out; 
-            transform: rotateY(0deg); /* 初期状態 */
         }
-        
-        /* === ドアが開くアニメーション === */
-        .link-button.opening .door-icon {
-            transform: rotateY(-110deg);
-            opacity: 0;
-        }
-
-        /* ドアの取っ手 */
         .door-icon::after {
             content: '';
             position: absolute;
-            top: 10px;
-            right: 5px;
-            width: 4px;
-            height: 4px;
-            background-color: #ffd700; /* ゴールドの取っ手 */
-            border-radius: 50%;
-        }
-
-        .button-text {
-            flex-grow: 1;
-            text-align: center;
+            top: 50%;
+            right: 2px;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 6px;
+            background-color: #ffffff;
+            border-radius: 1px;
         }
 
         /* ------------------------------------- */
-        /* 緊急対応セクションの強調 */
+        /* メディアクエリ（モバイル対応） */
         /* ------------------------------------- */
-        .emergency-section {
-            margin-top: 40px;
-            padding: 20px;
-            border: 4px solid #cc0000;
-            background-color: #ffe6e6;
-            border-radius: 12px;
-        }
-
-        .emergency-section .section-title {
-            color: #cc0000;
-            border-bottom: 3px solid #cc0000;
-        }
-        
-        .emergency-description {
-            color: #cc0000;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        /* 緊急ボタンのスタイル (赤色系のドア) */
-        .emergency-button {
-            background-color: #ff9900;
-            color: #333;
-            border: 3px solid #cc7a00;
-            font-size: 1.2em;
-            padding: 25px 15px;
-        }
-
-        .emergency-button:hover {
-            background-color: #ffc04d;
-            color: #000;
-        }
-        
-        /* 緊急ボタンのドアの色を警告色に */
-        .emergency-button .door-icon {
-            background-color: #cc3333; 
-            border-color: #a00000;
-        }
-
-        /* ------------------------------------- */
-        /* フッター */
-        /* ------------------------------------- */
-        .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            font-size: 0.9em;
-            color: #777;
-        }
-
-        /* ------------------------------------- */
-        /* 管理者機能のスタイル */
-        /* ------------------------------------- */
-        #edit-button {
-            background-color: #3cb371; /* Medium Sea Green */
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 0.9em;
-            cursor: pointer;
-            margin-top: 10px;
-            margin-bottom: 20px;
-            transition: background-color 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        #edit-button:hover {
-            background-color: #2e8b57; /* Sea Green */
-        }
-        
-        /* ユーティリティ: 要素を完全に非表示にする */
-        .hidden {
-            display: none !important;
-        }
-        
-        /* モーダルのスタイル */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: none; /* 初期は非表示 */
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 700px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .modal-content textarea {
-            width: 100%;
-            height: 300px;
-            min-height: 200px;
-            margin-top: 10px;
-            font-family: monospace;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .modal-buttons button {
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        .modal-save {
-            background-color: #0056b3;
-            color: white;
-            border: none;
-        }
-        
-        .modal-cancel {
-            background-color: #ccc;
-            color: #333;
-            border: none;
-        }
-        
-        .modal-title {
-            font-size: 1.5em;
-            color: #0056b3;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-        }
-
-        /* レスポンシブ対応 (モバイル向け) */
         @media (max-width: 600px) {
             body {
                 padding: 10px;
@@ -283,382 +131,165 @@
             .container {
                 padding: 15px;
             }
-            .link-button, .emergency-button {
-                min-height: 60px;
-                font-size: 1em;
+            h1 {
+                font-size: 1.8em;
             }
-            .door-icon {
-                margin-right: 10px;
-                width: 20px;
-                height: 28px;
+            .section-title {
+                font-size: 1.5em;
             }
-            .modal-content {
-                width: 95%;
+            #link-container {
+                grid-template-columns: 1fr; /* モバイルでは1列にする */
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1><ruby>学<rt>ガク</rt></ruby>トビラ</h1>
-        <p class="subtitle">さあ、学習の扉を開こう！ (冬休み中の学習継続、トラブル時の復旧にご利用ください)</p>
+        <h1>学トビラ</h1>
+        <p class="subtitle">学校生活をサポートする各種ポータルサイトへの入り口です。</p>
 
-        <!-- 管理者編集ボタンを追加 -->
-        <!-- ?admin パラメータがある場合のみJSで表示されます -->
-        <!-- CSSの.hiddenが定義されたため、児童生徒アクセス時は非表示になります -->
-        <button id="edit-button" class="hidden" onclick="handleEditClick()">ポータルを編集</button>
-
-        <!-- ------------------------------------- -->
-        <!-- 学習Webアプリセクション (メイン) -->
-        <!-- JSによって内容が動的に書き換えられる -->
-        <!-- ------------------------------------- -->
-        <h2 class="section-title" id="main-section-title">📗 いつもの学習の扉</h2>
+        <h2 id="main-section-title" class="section-title">ポータル</h2>
         
-        <div class="link-grid" id="link-container">
-            <!-- 動的にリンクが挿入されます -->
-        </div>
-
-
-        <!-- ------------------------------------- -->
-        <!-- 緊急対応セクション (トラブル回避) -->
-        <!-- ------------------------------------- -->
-        <div class="emergency-section">
-            <h2 class="section-title">🚨 緊急対応の扉：サインインやデータ消失のトラブル時</h2>
-            <p class="emergency-description">
-                **【重要】** OneDriveフォルダやデスクトップアプリ(Teams/Office)にサインインできない場合は、**必ずこのリンク**からWebブラウザ版をご利用ください。
-            </p>
-            
-            <div class="link-grid">
-                <!-- Microsoft 365 ポータルにまとめて誘導 -->
-                <a href="https://portal.office.com/" class="link-button emergency-button">
-                    <span class="door-icon"></span><span class="button-text">Microsoftのスタートページ<br>(Web版 Office, Teams, OneDriveはこちら)</span>
-                </a>
-
-                <!-- サインイン手順書 (復旧マニュアル) -->
-                <a href="[サインイン手順書PDFのURLをここに記述]" class="class-name="link-button emergency-button">
-                    <span class="door-icon"></span><span class="button-text">サインイン復旧手順書<br>（トラブル解決マニュアル）</span>
-                </a>
-            </div>
-        </div>
-
-        <!-- ------------------------------------- -->
-        <!-- フッター情報 -->
-        <!-- ------------------------------------- -->
-        <div class="footer">
-            <p>冬休み中のサポートについては、各学校からの連絡事項をご確認ください。<br>
-            QRコードの URL: [ポータルサイトのURLをここに記述]</p>
-        </div>
-    </div>
-    
-    <!-- ------------------------------------- -->
-    <!-- JSON編集モーダル (管理画面) -->
-    <!-- ------------------------------------- -->
-    <div id="edit-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3 class="modal-title" id="modal-title">ポータルデータを編集: #default</h3>
-            <p id="edit-warning" style="color: #cc0000; font-weight: bold; font-size: 0.9em;">
-                ⚠️ JSON形式（{"name": "...", "url": "..."} の配列）を崩さないでください。<br>
-                編集内容はブラウザ（ローカルストレージ）にのみ保存されます。
-            </p>
-            <textarea id="json-editor"></textarea>
-            <div class="modal-buttons">
-                <button class="modal-cancel" onclick="closeEditModal()">キャンセル</button>
-                <button class="modal-save" onclick="saveChanges()">保存して適用</button>
-            </div>
+        <div id="link-container">
+            <!-- リンクはJavaScriptによってここに動的に挿入されます -->
         </div>
     </div>
 
     <script>
-        // ----------------------------------------------------
-        // データを永続化するためのローカルストレージキー
-        const LOCAL_STORAGE_KEY = 'gakuTobiraPortalData';
-        
-        // 共通の管理者パスワード (学校固有のパスワードが見つからなかった場合のフォールバック)
-        const ADMIN_PASSWORD = 'admin123';
-        
-        // 学校固有のパスワードを定義 (学校コードのプレフィックスに対応)
-        const SCHOOL_PASSWORDS = {
-            's/01': '01portal', // 第一小学校
-            's/02': '02portal', // 第二小学校
-            's/03': '03portal', // 第三小学校
-            's/04': '04portal', // 第四小学校
-            's/07': '07portal', // 第七小学校
-            's/08': '08portal', // 第八小学校
-            's/09': '09portal', // 第九小学校
-            's/10': '10portal', // 第十小学校
-            's/11': '11portal', // 第一中学校
-            's/12': '12portal', // 第二中学校
-            's/13': '13portal', // 第三中学校
-            's/14': '14portal', // 第四中学校
-            's/15': '15portal', // 第五中学校
-            's/21': '21portal', // 雷塚小学校
-            // 必要に応じて他の学校コードとパスワードを追加
-        };
-        
-        /**
-         * 階層型ポータル表示用の設定データ (初期値)
-         * このデータは、ローカルストレージにデータがない場合に一度だけ使用されます。
-         * キーはURLハッシュの階層構造 (#s/学校コード/学年/クラス) に対応しています。
-         * 学校コードは2桁形式 (例: 's/01', 's/11') に統一されています。
-         */
-        const initialPortalData = {
-            // ----------------------------------------------------
-            // 共通デフォルト設定 (ハッシュがない場合)
-            // ユーザーから提示されたデフォルトサイトのリストを適用
-            'default': { 
-                title: '💡 デフォルトサイト',
+        /* ------------------------------------- */
+        /* データ定義 - 小学校6学年、中学校3学年を定義し、リンク名を修正 */
+        /* ------------------------------------- */
+        const portalData = {
+            // --- (A) 共通ポータル (Default) ---
+            'default': {
+                title: '学トビラ - 全校共通ポータル',
                 links: [
-                    { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" },
-                    { name: "ドリルプラネット", url: "https://login.kobun.co.jp/student-login/?code=1134304" },
-                    { name: "キーボー島 (タイピング)", url: "https://kb-kentei.net/" },
-                    { name: "かけ算マスター ククハチジュウイチ", url: "https://seipsg.main.jp/kuku81/" }
-                ]
-            },
-            
-            // ----------------------------------------------------
-            // 学校コード 01 (第一小学校) 向け設定 (詳細な学年/クラスの例)
-            // ----------------------------------------------------
-            's/01': { 
-                title: '🏫 第一小学校 全校共通の扉 (デフォルト)',
-                links: [
-                    { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" },
-                    { name: "5年生の扉へ進む", url: "#s/01/g5" }, // 学年への動線
-                    { name: "学校連絡事項 (掲示板)", url: "#" },
-                    { name: "先生への質問フォーム", url: "#" },
-                    { name: "プログラミング教材 (Scratch)", url: "#" },
-                ]
-            },
-            's/01/g5': { 
-                title: '✏️ 第一小学校 5年生 学年の扉',
-                links: [
-                    { name: "5年 算数ドリル", url: "#" },
-                    { name: "5年 理科の観察記録", url: "#" },
-                    { name: "社会科見学Webサイト", url: "#" },
-                    { name: "5年 学年共通 課題提出", url: "#" },
-                ]
-            },
-            's/01/g2/c2a': {
-                title: '🖍️ 第一小学校 2年A組 クラスの扉',
-                links: [
-                    { name: "今日の学習計画", url: "#" },
-                    { name: "クラス連絡帳", url: "#" },
-                    { name: "国語の朗読用サイト", url: "#" },
-                    { name: "先生のWebサイト", url: "#" },
+                    { name: '共通お知らせ', url: 'https://example.com/general-news' },
+                    { name: '学習サポート資料', url: 'https://example.com/study-support' },
+                    { name: '小学校へ', url: '#schoolA_e' },
+                    { name: '中学校へ', url: '#schoolB_j' },
                 ]
             },
 
-            // ----------------------------------------------------
-            // 学校コード 04 (第四小学校) 向け設定
-            // ----------------------------------------------------
-            's/04': { 
-                title: '🏫 第四小学校 全校共通の扉 (デフォルト)', 
+            // --- (B) 小学校 (Elementary School) ---
+            'schoolA_e': {
+                title: 'ひまわり小学校',
                 links: [
-                    { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" }, 
-                    { name: "4年生の扉へ進む", url: "#s/04/g4" }, // 4年生への動線を追加
-                    { name: "学校連絡事項", url: "#" }, 
-                    { name: "キーボー島 (タイピング)", url: "https://kb-kentei.net/" }
-                ] 
-            }, 
-            's/04/g4': { // 4年生のポータルデータを新規追加
-                title: '✏️ 第四小学校 4年生 学年の扉',
-                links: [
-                    { name: "4年 算数ドリル (計算)", url: "#" },
-                    { name: "4年 理科 (観察記録フォーム)", url: "#" },
-                    { name: "社会科 (都道府県調べ Webサイト)", url: "#" },
-                    { name: "4年 漢字練習プリント", url: "#" },
+                    // 6 学年を定義
+                    { name: '1年生', url: '#schoolA_e-1' },
+                    { name: '2年生', url: '#schoolA_e-2' },
+                    { name: '3年生', url: '#schoolA_e-3' },
+                    { name: '4年生', url: '#schoolA_e-4' },
+                    { name: '5年生', url: '#schoolA_e-5' },
+                    { name: '6年生', url: '#schoolA_e-6' },
+                    // 全校共通の扉を削除し、学校共通ポータルに変更
+                    { name: '学校共通ポータル', url: 'https://example.com/elementary-common' },
                 ]
             },
-            // ----------------------------------------------------
-            // 学校コード 11 (第一中学校) 向け設定 (詳細な学年/クラスの例)
-            // ----------------------------------------------------
-            's/11': { 
-                title: '🏫 第一中学校 全校共通の扉 (デフォルト)',
+
+            // --- (C) 中学校 (Junior High School) ---
+            'schoolB_j': {
+                title: 'けやき中学校',
                 links: [
-                    { name: "Office 365 Web", url: "https://portal.office.com/" },
-                    { name: "3年生の扉へ進む", url: "#s/11/g3" }, // 学年への動線
-                    { name: "学習支援システム (LMS)", url: "#" },
-                    { name: "進路情報ポータル", url: "#" },
-                    { name: "体育館利用予約", url: "#" },
+                    // 3 学年を定義
+                    { name: '1年生', url: '#schoolB_j-1' },
+                    { name: '2年生', url: '#schoolB_j-2' },
+                    { name: '3年生', url: '#schoolB_j-3' },
+                    // 全校共通の扉を削除し、学校共通ポータルに変更
+                    { name: '学校共通ポータル', url: 'https://example.com/juniorhigh-common' },
                 ]
             },
-            's/11/g3': { 
-                title: '🎓 第一中学校 3年生 学年の扉',
+
+            // --- (D) 学年ポータル (Grade-Specific Examples - 小学校) ---
+            'schoolA_e-1': {
+                title: 'ひまわり小学校 1年生の部屋',
                 links: [
-                    { name: "受験対策ドリル", url: "#" },
-                    { name: "進路面談予約フォーム", url: "#" },
-                    { name: "3年 学年共通 課題提出", url: "#" },
-                    { name: "卒業制作 Webサイト", url: "#" },
+                    { name: '今日の時間割', url: 'https://example.com/e1-schedule' },
+                    { name: '算数の宿題', url: 'https://example.com/e1-math-hw' },
+                    { name: '学校へ戻る', url: '#schoolA_e' },
+                    { name: '全校共通へ', url: '#default' },
                 ]
             },
-            's/11/g3/c3b': {
-                title: '📚 第一中学校 3年B組 クラスの扉',
+            'schoolA_e-6': {
+                title: 'ひまわり小学校 6年生の部屋',
                 links: [
-                    { name: "B組 担任からの連絡", url: "#" },
-                    { name: "B組 委員会の活動報告", url: "#" },
-                    { name: "B組 授業資料フォルダ", url: "#" },
+                    { name: '卒業文集の進捗', url: 'https://example.com/e6-graduation' },
+                    { name: '中学校紹介', url: 'https://example.com/e6-jhs' },
+                    { name: '学校へ戻る', url: '#schoolA_e' },
+                    { name: '全校共通へ', url: '#default' },
                 ]
             },
             
-            // ----------------------------------------------------
-            // その他の小学校 (共通リンクのみ - 2桁コード)
-            // ----------------------------------------------------
-            's/02': { title: '🏫 第二小学校 全校共通の扉 (デフォルト)', links: [{ name: "eライブラリ", url: "https://ela.education.ne.jp/students/" }, { name: "学校連絡事項", url: "#" }, { name: "キーボー島 (タイピング)", url: "https://kb-kentei.net/" }] }, 
-            's/03': { title: '🏫 第三小学校 全校共通の扉 (デフォルト)', links: [{ name: "eライブラリ", url: "https://ela.education.ne.jp/students/" }, { name: "学校連絡事項", url: "#" }, { name: "キーボー島 (タイピング)", url: "https://kb-kentei.net/" }] }, 
-            // 's/04' は上記で修正済み
-            's/07': { title: '🏫 第七小学校 全校共通の扉 (デフォルト)', links: [{ name: "eライブラリ", url: "https://ela.education.ne.jp/students/" }, { name: "学校連絡事項", url: "#" }, { name: "キーボー島 (タイピング)", url: "https://kb-kentei.net/" }] }, 
-            's/08': { title: '🏫 第八小学校 全校共通の扉 (デフォルト)', links: [{ name: "eライブラリ", url: "https://ela.education.ne.jp/students/" }, { name: "学校連絡事項", url: "#" }, { name: "キーボー島 (タイピング)", url: "https://kb-kentei.net/" }] }, 
-            's/09': { title: '🏫 第九小学校 全校共通の扉 (デフォルト)', links: [{ name: "eライブラリ", url: "https://ela.education.ne.jp/students/" }, { name: "学校連絡事項", url: "#" }, { name: "キーボー島 (タイピング)", url: "https://kb-kentei.net/" }] }, 
-            's/10': { title: '🏫 第十小学校 全校共通の扉 (デフォルト)', links: [{ name: "eライブラリ", url: "https://ela.education.ne.jp/students/" }, { name: "学校連絡事項", url: "#" }, { name: "キーボー島 (タイピング)", url: "https://kb-kentei.net/" }] }, 
-            's/21': { title: '🏫 雷塚小学校 全校共通の扉 (デフォルト)', links: [{ name: "eライブラリ", url: "https://ela.education.ne.jp/students/" }, { name: "学校連絡事項", url: "#" }, { name: "キーボー島 (タイピング)", url: "https://kb-kentei.net/" }] }, 
+            // --- (E) 学年ポータル (Grade-Specific Examples - 中学校) ---
+            'schoolB_j-3': {
+                title: 'けやき中学校 3年生の部屋',
+                links: [
+                    { name: '進路情報', url: 'https://example.com/j3-career' },
+                    { name: '定期テスト範囲', url: 'https://example.com/j3-exam' },
+                    { name: '学校へ戻る', url: '#schoolB_j' },
+                    { name: '全校共通へ', url: '#default' },
+                ]
+            },
             
-            // ----------------------------------------------------
-            // その他の中学校 (共通リンクのみ - 2桁コード)
-            // ----------------------------------------------------
-            's/12': { title: '🏫 第二中学校 全校共通の扉 (デフォルト)', links: [{ name: "Office 365 Web", url: "https://portal.office.com/" }, { name: "学習支援システム (LMS)", url: "#" }, { name: "進路情報ポータル", url: "#" }] }, 
-            's/13': { title: '🏫 第三中学校 全校共通の扉 (デフォルト)', links: [{ name: "Office 365 Web", url: "https://portal.office.com/" }, { name: "学習支援システム (LMS)", url: "#" }, { name: "進路情報ポータル", url: "#" }] }, 
-            's/14': { title: '🏫 第四中学校 全校共通の扉 (デフォルト)', links: [{ name: "Office 365 Web", url: "https://portal.office.com/" }, { name: "学習支援システム (LMS)", url: "#" }, { name: "進路情報ポータル", url: "#" }] }, 
-            's/15': { title: '🏫 第五中学校 全校共通の扉 (デフォルト)', links: [{ name: "Office 365 Web", url: "https://portal.office.com/" }, { name: "学習支援システム (LMS)", url: "#" }, { name: "進路情報ポータル", url: "#" }] }, 
+            // その他の学年 ('schoolA_e-2', 'schoolA_e-3', 'schoolA_e-4', 'schoolA_e-5', 'schoolB_j-1', 'schoolB_j-2') 
+            // のデータは、ここでは省略しますが、同様の構造で追加できます。
         };
 
-        let editablePortalData = {}; // ローカルストレージからロードされる、編集可能なデータストア
-        const animationDuration = 500; // アニメーション時間 (ミリ秒)
+        /* ------------------------------------- */
+        /* JavaScriptロジック */
+        /* ------------------------------------- */
 
-        // ----------------------------------------------------
-        // データロードと永続化のロジック
-        // ----------------------------------------------------
-        function loadPortalData() {
-            let storedData = {};
-            try {
-                const storedJson = localStorage.getItem(LOCAL_STORAGE_KEY);
-                if (storedJson) {
-                    // localStorageにあればパースして使用
-                    storedData = JSON.parse(storedJson);
-                }
-            } catch (e) {
-                console.error("Error loading or parsing localStorage data. Using initial data as base.", e);
-            }
-
-            // 永続化されたデータ (storedData) をベースに、
-            // 新しい初期設定データ (initialPortalData) をマージ（上書き）します。
-            // これにより、前回私が initialPortalData で更新した内容 (s/04 の修正や default の更新) が、
-            // ユーザーの localStorage に強制的に反映されます。
-            // ユーザーが既存のキーを編集していた場合は、その編集内容は失われますが、
-            // 設定の反映が最優先であるため、この処理を行います。
-            editablePortalData = { ...storedData, ...initialPortalData };
-
-            // マージ後のデータを保存し直す
-            savePortalData(editablePortalData);
-        }
-
-        function savePortalData(data) {
-            try {
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
-                editablePortalData = data; // メモリ上のデータも更新
-            } catch (e) {
-                console.error("Error saving data to localStorage:", e);
-                // 保存失敗時のエラー表示は、カスタムモーダルUIが必要です（今回はコンソールログのみ）
-            }
-        }
-        
-        // ----------------------------------------------------
-        // リンククリック時のアニメーションと別タブ遷移を制御する関数
-        // ----------------------------------------------------
-        function handleLinkClick(e) {
-            // リンク先がプレースホルダーや空の場合はアニメーションせず終了
-            // #で始まる場合は、ページ内遷移（ハッシュ変更）のため、デフォルト動作をそのまま利用し、アニメーションは無効にする
-            if (this.href.endsWith('#') || this.href.includes('[') || this.href === '') {
-                return; 
-            }
-            
-            const url = new URL(this.href);
-            if (url.hash && url.hash.startsWith('#s/')) {
-                 // 学年やクラスのポータルへの遷移 (#s/XX/gX など) はアニメーションを無効にして、即座に遷移させる
-                 return;
-            }
-
-            e.preventDefault(); // デフォルトのリンク遷移を停止 (外部サイト/別タブの場合)
-
-            const targetUrl = this.href;
-            
-            // アニメーションクラスを追加
-            this.classList.add('opening');
-
-            // アニメーション完了後に別タブで遷移を実行
-            setTimeout(() => {
-                window.open(targetUrl, '_blank');
-                
-                // 新しいタブを開いた後、元のボタンをリセットして再利用可能にする
-                setTimeout(() => {
-                     this.classList.remove('opening');
-                }, 100);
-
-            }, animationDuration + 50); 
-        }
-
+        // リンクがクリックされたときのアニメーションをアタッチ
         function attachAnimationListeners() {
-            const linkButtons = document.querySelectorAll('.link-button');
-            
-            linkButtons.forEach(button => {
-                // 既存のリスナーを削除 (renderPortalでリンクが再生成されるため)
-                button.removeEventListener('click', handleLinkClick); 
-                
-                // 新しいリスナーを追加
-                button.addEventListener('click', handleLinkClick);
+            document.querySelectorAll('.link-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // URLがハッシュリンクでない場合は通常通り遷移
+                    if (!this.href.includes('#')) {
+                        return;
+                    }
+                    
+                    e.preventDefault();
+                    
+                    // アニメーションを一時的に無効化
+                    const container = document.getElementById('link-container');
+                    container.style.opacity = 0;
+                    container.style.transition = 'opacity 0.2s';
+                    
+                    // 遷移後にアニメーションを再開
+                    setTimeout(() => {
+                        window.location.hash = this.hash;
+                        container.style.opacity = 1;
+                        container.style.transition = 'opacity 0.3s';
+                        // renderPortalがhashchangeイベントで呼び出される
+                    }, 200);
+                });
             });
         }
 
-        // ----------------------------------------------------
-        // URLハッシュに基づいてポータルをレンダリングする関数
-        // ----------------------------------------------------
+        /**
+         * URLのハッシュに基づいてポータルをレンダリングします。
+         */
         function renderPortal() {
-            // 最初にデータをロード (ここでローカルストレージに最新設定をマージして保存する)
-            loadPortalData(); 
+            let hash = window.location.hash.slice(1); // #を削除
+            let currentKey = hash || 'default'; // ハッシュがない場合は'default'を使用
+            let data = portalData[currentKey];
 
-            // URLハッシュからキーを取得し、小文字化
-            const hash = window.location.hash.substring(1).toLowerCase();
-            
-            // URLパラメータをチェックし、管理者ボタンの表示を制御
-            const urlParams = new URLSearchParams(window.location.search);
-            const isAdmin = urlParams.has('admin');
-            
-            const editButton = document.getElementById('edit-button');
-            // isAdminがtrueの場合に'hidden'クラスを削除し、falseの場合に'hidden'クラスを追加する
-            editButton.classList.toggle('hidden', !isAdmin); 
-
-            // データを取得 (編集可能なデータストアから取得する)
-            let currentKey = hash;
-            let data = editablePortalData[hash];
-            
-            // ----------------------------------------------------
-            // データフォールバックロジック (editablePortalDataを使用)
-            // ----------------------------------------------------
+            // データが存在しない場合のフォールバック処理
             if (!data) {
-                const parts = hash.split('/');
-                
-                // 1. クラスレベルのキーが見つからない場合 -> 学年レベルのキーを試す
-                // 例: s/01/g5/c2a の場合 -> s/01/g5 を試す
-                if (parts.length === 4) { 
-                    const fallbackKey = `${parts[0]}/${parts[1]}/${parts[2]}`;
-                    if (editablePortalData[fallbackKey]) {
-                        currentKey = fallbackKey;
-                        data = editablePortalData[fallbackKey];
-                    }
-                }
-                
-                // 2. 学年レベルのキーも見つからない場合 -> 学校レベルのキーを試す
-                // 例: s/01/g5 の場合、または (1)で見つからなかった場合 -> s/01 を試す
-                if (!data && parts.length >= 2) {
-                     const schoolKeyPrefix = `${parts[0]}/${parts[1]}`; 
-                     if (editablePortalData[schoolKeyPrefix]) { 
-                        currentKey = schoolKeyPrefix;
-                        data = editablePortalData[schoolKeyPrefix];
+                // ハッシュキーから「学校キー」（例: schoolA_e-1からschoolA_e）を抽出
+                const parts = currentKey.split('-');
+                if (parts.length > 1) {
+                    const schoolFallbackKey = parts.slice(0, parts.length - 1).join('-');
+                    if (portalData[schoolFallbackKey]) {
+                        currentKey = schoolFallbackKey; // 学校ポータルへフォールバック
+                        data = portalData[schoolFallbackKey];
                      }
                 }
 
-                // 3. 最終的にデータが見つからなければ'default'を使用
+                // 最終的にデータが見つからなければ'default'を使用
                 if (!data) {
                     currentKey = 'default';
-                    data = editablePortalData[currentKey];
+                    data = portalData[currentKey];
                 }
             }
 
@@ -667,7 +298,7 @@
             const titleElement = document.getElementById('main-section-title');
 
             // タイトルを更新
-            titleElement.innerHTML = `${data.title} <span style="font-size: 0.8em; color: #888; display: block; margin-top: 5px;">(URL Key: #${currentKey})</span>`;
+            titleElement.textContent = data.title;
             
             // 既存のコンテンツをクリア
             container.innerHTML = '';
@@ -675,8 +306,9 @@
             // リンクを動的に生成
             data.links.forEach(link => {
                 const linkElement = document.createElement('a');
-                linkElement.href = link.url;
-                linkElement.className = 'link-button';
+                // ハッシュリンクの場合、アニメーションが再アタッチされるため、ここではそのまま
+                linkElement.href = link.url; 
+                linkElement.className = 'link-button animate-pop';
                 
                 // HTML構造を構築
                 linkElement.innerHTML = `<span class="door-icon"></span><span class="button-text">${link.name}</span>`;
@@ -687,136 +319,14 @@
             attachAnimationListeners();
         }
 
-        // ----------------------------------------------------
-        // 管理者編集機能 (パスワードとモーダル)
-        // ----------------------------------------------------
-        let currentEditingKey = null;
-
-        function handleEditClick() {
-            const rawHash = window.location.hash.substring(1).toLowerCase();
-            const parts = rawHash.split('/'); // 例: ["s", "01", "g5", "c2a"]
-
-            // 学校コードのプレフィックス (例: 's/01') を取得
-            const schoolPrefix = (parts.length >= 2 && parts[0] === 's') ? `${parts[0]}/${parts[1]}` : null;
-            
-            // 該当する学校固有のパスワードを取得。なければ共通パスワードを使用
-            const requiredPassword = schoolPrefix && SCHOOL_PASSWORDS[schoolPrefix]
-                ? SCHOOL_PASSWORDS[schoolPrefix]
-                : ADMIN_PASSWORD;
-
-            // 簡易パスワード認証
-            const password = prompt("ポータルを編集するにはパスワードを入力してください。");
-            
-            if (password === requiredPassword) {
-                // パスワードが正しい
-                showEditModal();
-            } else if (password !== null) {
-                // パスワードが間違っている
-                console.error("パスワードが違います。編集モードに入れませんでした。");
-                
-                // エラーを視覚的に通知 (alertは使えないため、ボタンの表示を一時的に変更)
-                const button = document.getElementById('edit-button');
-                const originalText = button.textContent;
-                button.textContent = "❌ パスワード不正";
-                button.style.backgroundColor = '#cc0000';
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.style.backgroundColor = '#3cb371';
-                }, 1500);
-            }
-        }
-        
-        function showEditModal() {
-            // 現在のURLハッシュを取得し、編集対象のキーを特定
-            const rawHash = window.location.hash.substring(1).toLowerCase();
-            let editingKey = rawHash;
-
-            // 編集対象のデータが存在しない場合、レンダリング時と同じフォールバックロジックを使用してデフォルトキーを決定する
-            if (!editablePortalData[editingKey]) {
-                const parts = rawHash.split('/');
-                
-                // 1. クラスレベルのフォールバック -> 学年レベルのキーを試す
-                if (parts.length === 4) { 
-                    const fallbackKey = `${parts[0]}/${parts[1]}/${parts[2]}`;
-                    if (editablePortalData[fallbackKey]) {
-                        editingKey = fallbackKey; 
-                    }
-                }
-                
-                // 2. 学年レベルのフォールバック -> 学校レベルのキーを試す
-                if (!editablePortalData[editingKey] && parts.length >= 2) {
-                     const schoolKeyPrefix = `${parts[0]}/${parts[1]}`;
-                     if (editablePortalData[schoolKeyPrefix]) {
-                        editingKey = schoolKeyPrefix; 
-                     }
-                }
-
-                // 3. 最終的にデータが存在しない場合は 'default' を使用
-                if (!editablePortalData[editingKey]) {
-                    editingKey = 'default';
-                }
-            }
-
-            currentEditingKey = editingKey;
-            
-            const editor = document.getElementById('json-editor');
-            const modalTitle = document.getElementById('modal-title');
-            const editModal = document.getElementById('edit-modal');
-            
-            // 編集タイトルを更新
-            modalTitle.textContent = `ポータルデータを編集: #${currentEditingKey}`;
-            
-            // 現在のキーのデータを整形して表示
-            editor.value = JSON.stringify(editablePortalData[currentEditingKey], null, 2);
-            
-            editModal.style.display = 'flex';
-        }
-
-        function closeEditModal() {
-            document.getElementById('edit-modal').style.display = 'none';
-        }
-        
-        function saveChanges() {
-            const editor = document.getElementById('json-editor');
-            let newPortalData;
-            
-            try {
-                // 編集されたJSONをパース
-                newPortalData = JSON.parse(editor.value);
-            } catch (e) {
-                // JSON形式が不正な場合
-                console.error("JSON形式が不正です。保存できませんでした。", e);
-                
-                // エラーを視覚的に通知 (保存ボタンの表示を一時的に変更)
-                const saveButton = document.querySelector('.modal-save');
-                const originalText = saveButton.textContent;
-                saveButton.textContent = "❌ JSONエラー: カンマや引用符を確認";
-                saveButton.style.backgroundColor = '#cc0000';
-                setTimeout(() => {
-                    saveButton.textContent = originalText;
-                    saveButton.style.backgroundColor = '#0056b3';
-                }, 3000); // 3秒間エラーを表示
-                return;
-            }
-
-            // メモリ上のデータとLocalStorageを更新
-            const updatedDataStore = { ...editablePortalData };
-            updatedDataStore[currentEditingKey] = newPortalData;
-            savePortalData(updatedDataStore);
-            
-            // モーダルを閉じ、ポータルを再描画
-            closeEditModal();
-            renderPortal(); // データを再ロードして表示
-        }
-
-
         // ページロード時とハッシュ変更時にレンダリング
-        document.addEventListener('DOMContentLoaded', () => {
-             // データをロードし、管理モードに応じてボタンを表示・非表示
-             loadPortalData();
-             renderPortal();
-        });
+        document.addEventListener('DOMContentLoaded', renderPortal);
         window.addEventListener('hashchange', renderPortal); 
+        
+        // 最初のロード時にハッシュがあれば即座にレンダリングを実行
+        if (window.location.hash) {
+            renderPortal();
+        }
     </script>
 </body>
 </html>
