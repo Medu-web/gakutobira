@@ -390,12 +390,12 @@
                 title: '小学校ポータル (コード: 01)',
                 links: [
                     { name: '学校共通のお知らせ', url: 'https://example.com/01e-common' },
-                    { name: '1年生 算数コンテンツ', url: '#' },
-                    { name: '2年生 国語コンテンツ', url: '#' },
-                    { name: '3年生 理科・社会コンテンツ', url: '#' },
-                    { name: '4年生 外国語学習サイト', url: '#' },
-                    { name: '5年生 総合学習資料', url: '#' },
-                    { name: '6年生 卒業制作資料', url: '#' },
+                    { name: '1年生 算数コンテンツ', url: '#s/01-e/g1' }, // リンク先をサブページに変更
+                    { name: '2年生 国語コンテンツ', url: '#s/01-e/g2' }, // リンク先をサブページに変更
+                    { name: '3年生 理科・社会コンテンツ', url: '#s/01-e/g3' }, // リンク先をサブページに変更
+                    { name: '4年生 外国語学習サイト', url: '#s/01-e/g4' }, // リンク先をサブページに変更
+                    { name: '5年生 総合学習資料', url: '#s/01-e/g5' }, // リンク先をサブページに変更
+                    { name: '6年生 卒業制作資料', url: '#s/01-e/g6' }, // リンク先をサブページに変更
                 ]
             },
             
@@ -417,9 +417,9 @@
                 title: '中学校ポータル (コード: 11)',
                 links: [
                     { name: '学校共通のお知らせ', url: 'https://example.com/11j-common' },
-                    { name: '1年生 定期テスト対策', url: '#' },
-                    { name: '2年生 職業体験資料', url: '#' },
-                    { name: '3年生 進路情報ポータル', url: '#' },
+                    { name: '1年生 定期テスト対策', url: '#s/11-j/g1' }, // リンク先をサブページに変更
+                    { name: '2年生 職業体験資料', url: '#s/11-j/g2' }, // リンク先をサブページに変更
+                    { name: '3年生 進路情報ポータル', url: '#s/11-j/g3' }, // リンク先をサブページに変更
                     { name: '定期考査時間割', url: '#' },
                 ]
             },
@@ -442,12 +442,12 @@
                 title: '小学校ポータル (コード: 04)',
                 links: [
                     { name: '学校共通のお知らせ', url: 'https://example.com/04e-common' },
-                    { name: '1年 コンテンツ', url: '#' },
-                    { name: '2年 コンテンツ', url: '#' },
-                    { name: '3年 コンテンツ', url: '#' },
-                    { name: '4年 コンテンツ', url: '#' },
-                    { name: '5年 コンテンツ', url: '#' },
-                    { name: '6年 コンテンツ', url: '#' },
+                    { name: '1年 コンテンツ', url: '#s/04-e/g1' }, // リンク先をサブページに変更
+                    { name: '2年 コンテンツ', url: '#s/04-e/g2' }, // リンク先をサブページに変更
+                    { name: '3年 コンテンツ', url: '#s/04-e/g3' }, // リンク先をサブページに変更
+                    { name: '4年 コンテンツ', url: '#s/04-e/g4' }, // リンク先をサブページに変更
+                    { name: '5年 コンテンツ', url: '#s/04-e/g5' }, // リンク先をサブページに変更
+                    { name: '6年 コンテンツ', url: '#s/04-e/g6' }, // リンク先をサブページに変更
                 ]
             },
             's/04-e/g4': { 
@@ -553,7 +553,10 @@
         function renderPortal() {
             loadPortalData(); 
 
-            const rawHash = window.location.hash.substring(1).toLowerCase();
+            // 修正: ハッシュ文字列から先頭の'#'を取り、小文字にし、
+            // 末尾のスラッシュ( / )と空白を削除して正規化する。
+            const rawHash = window.location.hash.substring(1).toLowerCase().replace(/\/+$/, '').trim();
+            
             const urlParams = new URLSearchParams(window.location.search);
             const isAdmin = urlParams.has('admin');
             
@@ -566,17 +569,37 @@
             let currentKey = rawHash;
             let data = editablePortalData[rawHash];
             
+            // --- 新規追加: 短縮形 (例: #s/04) から正式コードへの解決 ---
+            // ユーザーが s/XX の形式で入力した場合、s/XX-e, s/XX-j を試行する
+            if (!data && rawHash.startsWith('s/') && rawHash.split('/').length === 2) {
+                const baseKey = rawHash;
+                
+                // 試行1: 小学校コードへの解決 (例: s/04 -> s/04-e)
+                if (editablePortalData[baseKey + '-e']) {
+                    currentKey = baseKey + '-e';
+                    data = editablePortalData[currentKey];
+                } 
+                // 試行2: 中学校コードへの解決 (例: s/11 -> s/11-j)
+                else if (editablePortalData[baseKey + '-j']) {
+                    currentKey = baseKey + '-j';
+                    data = editablePortalData[currentKey];
+                }
+            }
+            // ----------------------------------------------------------
+
             if (!data) {
                 const parts = rawHash.split('/');
                 
-                if (parts.length >= 3) { 
+                // 階層フォールバック (例: s/01-e/g2/sub -> s/01-e/g2)
+                if (parts.length >= 2) { 
                     const fallbackKey = parts.slice(0, parts.length - 1).join('/');
-                    if (editablePortalData[fallbackKey]) {
+                    if (editablePortalData[fallbackKey] && fallbackKey !== '') { // 空文字列へのフォールバックを防止
                         currentKey = fallbackKey;
                         data = editablePortalData[fallbackKey];
                     }
                 }
                 
+                // 最終フォールバック (データがない、または無効なキーの場合)
                 if (!data) {
                     currentKey = 'default';
                     data = editablePortalData[currentKey];
@@ -587,8 +610,8 @@
             const container = document.getElementById('link-container');
             const titleElement = document.getElementById('main-section-title');
             
-            // 緊急対応セクションの表示制御を修正
-            // ハッシュが空文字列 '' の場合のみ表示を許可する。
+            // 緊急対応セクションの表示制御
+            // 正規化されたハッシュ (rawHash) が完全に空の文字列 '' の場合のみ表示を許可する。
             const hashIsCompletelyEmpty = rawHash === '';
             emergencySection.classList.toggle('hidden', !hashIsCompletelyEmpty);
 
@@ -604,6 +627,11 @@
                 linkElement.href = link.url;
                 linkElement.className = 'link-button';
                 
+                // プレースホルダーリンクをサブページへのハッシュリンクに変更
+                if (!link.url.startsWith('http') && !link.url.includes('[')) {
+                    linkElement.href = link.url; // '#' または '#key'
+                }
+                
                 linkElement.innerHTML = `<span class="door-icon"></span><span class="button-text">${link.name}</span>`;
                 container.appendChild(linkElement);
             });
@@ -618,10 +646,21 @@
 
         function getCurrentEditingKey(rawHash) {
             let editingKey = rawHash || 'default';
+            
+            // 短縮形解決をここでも実行（ポータル編集対象キーの特定のため）
+            if (!editablePortalData[editingKey] && editingKey.startsWith('s/') && editingKey.split('/').length === 2) {
+                const baseKey = editingKey;
+                if (editablePortalData[baseKey + '-e']) {
+                    editingKey = baseKey + '-e';
+                } else if (editablePortalData[baseKey + '-j']) {
+                    editingKey = baseKey + '-j';
+                }
+            }
+
 
             if (!editablePortalData[editingKey]) {
                 const parts = editingKey.split('/');
-                if (parts.length >= 3) { 
+                if (parts.length >= 2) { 
                     const fallbackKey = parts.slice(0, parts.length - 1).join('/');
                     if (editablePortalData[fallbackKey]) {
                         editingKey = fallbackKey; 
@@ -635,8 +674,7 @@
         }
 
         function handleEditClick() {
-            const rawHash = window.location.hash.substring(1).toLowerCase();
-            const parts = rawHash.split('/'); 
+            const rawHash = window.location.hash.substring(1).toLowerCase().replace(/\/+$/, '').trim();
             
             const editingKey = getCurrentEditingKey(rawHash);
 
