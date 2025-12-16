@@ -200,6 +200,11 @@
             background-color: #2e8b57; /* Sea Green */
         }
         
+        /* ユーティリティ: 要素を完全に非表示にする */
+        .hidden {
+            display: none !important;
+        }
+        
         /* モーダルのスタイル */
         .modal-overlay {
             position: fixed;
@@ -300,6 +305,7 @@
 
         <!-- 管理者編集ボタンを追加 -->
         <!-- ?admin パラメータがある場合のみJSで表示されます -->
+        <!-- CSSの.hiddenが定義されたため、児童生徒アクセス時は非表示になります -->
         <button id="edit-button" class="hidden" onclick="handleEditClick()">ポータルを編集</button>
 
         <!-- ------------------------------------- -->
@@ -366,18 +372,27 @@
         // ----------------------------------------------------
         // データを永続化するためのローカルストレージキー
         const LOCAL_STORAGE_KEY = 'gakuTobiraPortalData';
-        // 管理者パスワード (簡易版)
+        
+        // 共通の管理者パスワード (学校固有のパスワードが見つからなかった場合のフォールバック)
         const ADMIN_PASSWORD = 'admin123';
+        
+        // 学校固有のパスワードを定義 (学校コードのプレフィックスに対応)
+        const SCHOOL_PASSWORDS = {
+            's/001': '01portal', // 中央小学校 (1小) 用の編集パスワード
+            's/002': '11portal', // 東中学校 (1中) 用の編集パスワード
+            // 必要に応じて他の学校コードとパスワードを追加
+        };
         
         /**
          * 階層型ポータル表示用の設定データ (初期値)
          * このデータは、ローカルストレージにデータがない場合に一度だけ使用されます。
+         * キーはURLハッシュの階層構造 (#s/学校コード/学年/クラス) に対応しています。
          */
         const initialPortalData = {
             // ----------------------------------------------------
             // 共通デフォルト設定 (ハッシュがない場合)
             'default': {
-                title: '💡 共通学習の扉',
+                title: '💡 共通学習の扉 (フォールバック)',
                 links: [
                     { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" },
                     { name: "ドリルプラネット", url: "https://login.kobun.co.jp/student-login/?code=1134304" },
@@ -387,10 +402,10 @@
             },
             
             // ----------------------------------------------------
-            // 学校コード 001 (例: 〇〇市立中央小学校) 向け設定
+            // 学校コード 001 (例: 〇〇市立中央小学校) 向け設定 (学校全体のデフォルト)
             // ----------------------------------------------------
-            's/001/all': {
-                title: '🏫 中央小学校 全校共通の扉',
+            's/001/all': { // #s/001/all に対応するキー
+                title: '🏫 中央小学校 全校共通の扉 (デフォルト)',
                 links: [
                     { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" },
                     { name: "学校連絡事項 (掲示板)", url: "#" },
@@ -422,10 +437,10 @@
             },
 
             // ----------------------------------------------------
-            // 学校コード 002 (例: 〇〇市立東中学校) 向け設定
+            // 学校コード 002 (例: 〇〇市立東中学校) 向け設定 (学校全体のデフォルト)
             // ----------------------------------------------------
-            's/002/all': {
-                title: '🏫 東中学校 全校共通の扉',
+            's/002/all': { // #s/002/all に対応するキー
+                title: '🏫 東中学校 全校共通の扉 (デフォルト)',
                 links: [
                     { name: "Office 365 Web", url: "https://portal.office.com/" },
                     { name: "学習支援システム (LMS)", url: "#" },
@@ -546,7 +561,8 @@
             const isAdmin = urlParams.has('admin');
             
             const editButton = document.getElementById('edit-button');
-            editButton.classList.toggle('hidden', !isAdmin);
+            // isAdminがtrueの場合に'hidden'クラスを削除し、falseの場合に'hidden'クラスを追加する
+            editButton.classList.toggle('hidden', !isAdmin); 
 
             // データを取得 (編集可能なデータストアから取得する)
             let currentKey = hash;
@@ -558,7 +574,8 @@
             if (!data) {
                 const parts = hash.split('/');
                 
-                // s/001/g5/c2a の場合 -> s/001/g5/all を試す
+                // 1. クラスレベルのキーが見つからない場合 -> 学年レベルの 'all' キーを試す
+                // 例: s/001/g5/c2a の場合 -> s/001/g5/all を試す
                 if (parts.length === 4) {
                     const fallbackKey = `${parts[0]}/${parts[1]}/${parts[2]}/all`;
                     if (editablePortalData[fallbackKey]) {
@@ -567,16 +584,18 @@
                     }
                 }
                 
-                // s/001/g5/all の場合 -> s/001/all を試す
-                if (!data && parts.length >= 3) {
-                     const schoolFallbackKey = `${parts[0]}/${parts[1]}/all`;
-                     if (editablePortalData[schoolFallbackKey]) {
-                        currentKey = schoolFallbackKey;
-                        data = editablePortalData[schoolFallbackKey];
+                // 2. 学年レベルの 'all' キーも見つからない場合 -> 学校レベルの 'all' キーを試す
+                // 例: s/001/g5/all の場合、または (1)で見つからなかった場合 -> s/001/all を試す
+                if (!data && parts.length >= 2) {
+                     const schoolKeyPrefix = `${parts[0]}/${parts[1]}`; // 例: 's/001'
+                     const schoolAllKey = `${schoolKeyPrefix}/all`; // 例: 's/001/all'
+                     if (editablePortalData[schoolAllKey]) {
+                        currentKey = schoolAllKey;
+                        data = editablePortalData[schoolAllKey];
                      }
                 }
 
-                // 最終的にデータが見つからなければ'default'を使用
+                // 3. 最終的にデータが見つからなければ'default'を使用
                 if (!data) {
                     currentKey = 'default';
                     data = editablePortalData[currentKey];
@@ -614,10 +633,21 @@
         let currentEditingKey = null;
 
         function handleEditClick() {
-            // 簡易パスワード認証には prompt() を使用
-            const password = prompt("ポータルを編集するにはパスワードを入力してください。（初期パスワード: admin123）");
+            const rawHash = window.location.hash.substring(1).toLowerCase();
+            const parts = rawHash.split('/'); // 例: ["s", "001", "g5", "all"]
+
+            // 学校コードのプレフィックス (例: 's/001') を取得
+            const schoolPrefix = (parts.length >= 2 && parts[0] === 's') ? `${parts[0]}/${parts[1]}` : null;
             
-            if (password === ADMIN_PASSWORD) {
+            // 該当する学校固有のパスワードを取得。なければ共通パスワードを使用
+            const requiredPassword = schoolPrefix && SCHOOL_PASSWORDS[schoolPrefix]
+                ? SCHOOL_PASSWORDS[schoolPrefix]
+                : ADMIN_PASSWORD;
+
+            // 簡易パスワード認証
+            const password = prompt("ポータルを編集するにはパスワードを入力してください。");
+            
+            if (password === requiredPassword) {
                 // パスワードが正しい
                 showEditModal();
             } else if (password !== null) {
@@ -638,14 +668,34 @@
         
         function showEditModal() {
             // 現在のURLハッシュを取得し、編集対象のキーを特定
-            const hash = window.location.hash.substring(1).toLowerCase();
-            // 現在表示されているキーが編集対象
-            currentEditingKey = hash || 'default';
+            const rawHash = window.location.hash.substring(1).toLowerCase();
+            let editingKey = rawHash;
 
-            // 編集対象のデータが存在しない場合は 'default' の JSON を読み込む
-            if (!editablePortalData[currentEditingKey]) {
-                currentEditingKey = 'default';
+            // 編集対象のデータが存在しない場合、レンダリング時と同じフォールバックロジックを使用してデフォルトキーを決定する
+            if (!editablePortalData[editingKey]) {
+                const parts = rawHash.split('/');
+                
+                // 1. クラスレベルのフォールバック -> 学年オールを試す
+                if (parts.length === 4) { 
+                    editingKey = `${parts[0]}/${parts[1]}/${parts[2]}/all`; 
+                }
+                
+                // 2. 学年レベルのフォールバック -> 学校オールを試す
+                if (!editablePortalData[editingKey] && parts.length >= 2) {
+                     const schoolKeyPrefix = `${parts[0]}/${parts[1]}`; 
+                     const schoolAllKey = `${schoolKeyPrefix}/all`;
+                     if (editablePortalData[schoolAllKey]) {
+                        editingKey = schoolAllKey; 
+                     }
+                }
+
+                // 3. 最終的にデータが存在しない場合は 'default' を使用
+                if (!editablePortalData[editingKey]) {
+                    editingKey = 'default';
+                }
             }
+
+            currentEditingKey = editingKey;
             
             const editor = document.getElementById('json-editor');
             const modalTitle = document.getElementById('modal-title');
