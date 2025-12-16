@@ -85,11 +85,12 @@
         <header class="flex justify-between items-start mb-6 border-b pb-3">
             <div>
                 <h1 class="text-3xl md:text-4xl font-extrabold text-blue-700 tracking-tight"><ruby>学<rt class="text-gray-500 text-base font-normal">ガク</rt></ruby>トビラ</h1>
-                <p class="text-sm text-gray-500 mt-1">学習の扉を開こう！ (データはFirestoreに保存されます)</p>
+                <p class="text-sm text-gray-500 mt-1">学習の扉を開こう！</p>
             </div>
             
             <div id="auth-status" class="text-right">
-                <p class="text-xs font-semibold" id="user-status-text">認証中...</p>
+                <!-- 通常時は非表示、認証完了後に編集ボタンだけ出す -->
+                <p class="text-xs font-semibold text-gray-400 hidden" id="user-status-text">認証完了</p>
                 <button id="edit-button" class="mt-2 px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-bold rounded-lg shadow-md transition hidden" onclick="showEditModal()">
                     <span id="current-portal-key-display" class="font-normal text-xs mr-1"></span> 編集モード
                 </button>
@@ -121,7 +122,7 @@
             <h2 class="text-2xl font-bold text-blue-700 border-b-4 border-blue-600 pb-2 mb-6" id="main-section-title">データロード中...</h2>
             
             <div id="link-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="col-span-full text-center py-10 text-gray-500">
+                <div class="col-span-full text-center py-10 text-gray-500" id="loading-message">
                     <div class="spinner mx-auto mb-3 border-blue-500 border-t-blue-700"></div>
                     <p>ポータルデータをロードしています...</p>
                 </div>
@@ -148,7 +149,7 @@
 
         <!-- フッター情報 -->
         <div class="mt-10 pt-5 border-t border-gray-300 text-center text-sm text-gray-500">
-            <p>ポータルサイト設定はFirestoreに保存されます。</p>
+            <p>Portal System Powered by Firebase.</p>
         </div>
     </div>
     
@@ -192,15 +193,11 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot, collection, getDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
-        // Firestoreログレベルをデバッグに設定 (開発用)
-        setLogLevel('debug');
-
         // グローバル変数 (Canvas環境から提供されるものを優先)
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         // ----------------------------------------------------------------------
-        // 【修正完了】Firebase Config
-        // コメントアウトを解除し、オブジェクト形式に修正しました
+        // Firebase Config
         // ----------------------------------------------------------------------
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyCU6-hKFFa8dew_G_0_hDP8Q4eYqP0_7yU",
@@ -262,10 +259,8 @@
         // ----------------------------------------------------
         function initializeFirebase() {
             try {
-                // Firebase Configが設定されているかチェック
                 if (!firebaseConfig || !firebaseConfig.projectId) {
-                    console.warn("Firebase Configが設定されていません。データは永続化されません。");
-                    document.getElementById('user-status-text').textContent = `Config未設定`;
+                    console.warn("Firebase Config未設定");
                     return; 
                 }
 
@@ -277,7 +272,6 @@
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         userId = user.uid;
-                        document.getElementById('user-status-text').textContent = `認証済み (ID: ${userId.substring(0, 8)}...)`;
                         // 認証が完了したらポータルをレンダリング（データロード開始）
                         isAuthReady = true;
                         renderPortal();
@@ -291,7 +285,6 @@
 
             } catch (error) {
                 console.error("Firebaseの初期化に失敗しました:", error);
-                document.getElementById('user-status-text').textContent = `初期化エラー`;
             }
         }
         
@@ -304,7 +297,6 @@
                 }
             } catch (error) {
                 console.error("認証に失敗しました:", error);
-                document.getElementById('user-status-text').textContent = `サインイン失敗`;
             }
         }
 
@@ -319,7 +311,6 @@
 
             const docId = getDocIdFromHash(hashKey);
 
-            // 現在監視中のドキュメントと異なれば、前のリスナーを解除
             if (unsubscribe && currentDocId !== docId) {
                 unsubscribe();
                 unsubscribe = null;
@@ -328,37 +319,29 @@
             currentDocId = docId;
             const docRef = getPortalConfigDocRef(docId);
 
-            // リアルタイムリスナーを設定
             unsubscribe = onSnapshot(docRef, async (docSnap) => {
                 let data = null;
 
                 if (docSnap.exists()) {
-                    // データが存在すればそれを使用
                     data = docSnap.data();
-                    console.log(`Firestoreからデータを受信 (${docId})`);
                 } else {
-                    // データが存在しない場合、初期データを使用し、Firestoreに書き込む
                     const initialData = initialPortalData[docId] || initialPortalData['default'];
                     if (initialData) {
                         data = initialData;
-                        console.warn(`Firestoreにデータなし。初期データ (${docId}) で保存します。`);
                         // 初期データをFirestoreに書き込む
                         await setDoc(docRef, initialData).catch(e => console.error("初期データ保存失敗:", e));
                     }
                 }
 
                 if (data) {
-                    // 取得したデータでポータルUIを更新
                     updatePortalUI(data, hashKey, docId);
                 } else {
-                    // 最終フォールバック
                     updatePortalUI(initialPortalData['default'], hashKey, 'default');
-                    console.error("最終フォールバック: defaultデータを使用");
                 }
             }, (error) => {
                 console.error("Firestore onSnapshot エラー:", error);
-                // エラー時も最終フォールバックを表示
-                updatePortalUI(initialPortalData['default'], hashKey, 'default');
+                const fallbackData = initialPortalData[docId] || initialPortalData['default'];
+                updatePortalUI(fallbackData, hashKey, 'default');
             });
         }
         
@@ -393,7 +376,6 @@
                 container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">このポータルにはまだリンクが設定されていません。「編集モード」で追加してください。</div>`;
             }
 
-            // 動的に生成されたリンクにアニメーションリスナーを再設定
             attachAnimationListeners();
         }
 
@@ -401,13 +383,8 @@
         // URLハッシュ処理とフォールバックロジック
         // ----------------------------------------------------
         function renderPortal() {
-            // 認証がまだ完了していないか、Configが設定されていない場合は処理をスキップ
-            if (!isAuthReady) {
-                 console.log("認証待ち...");
-                 return;
-            }
+            if (!isAuthReady) return;
 
-            // URLハッシュからキーを取得し、小文字化
             const hash = window.location.hash.substring(1).toLowerCase();
             const demoNavContainer = document.getElementById('demo-nav-container');
 
@@ -418,44 +395,35 @@
                 document.getElementById('main-section-title').innerHTML = `<span class="text-2xl font-bold text-blue-700">⚙️ ポータル管理アクセス</span>`;
                 document.getElementById('current-hash-display').textContent = `#admin`;
                 
-                // Firestoreリスナーを解除
                 if (unsubscribe) {
                     unsubscribe();
                     unsubscribe = null;
                 }
                 return;
             } else {
-                // 通常モードの場合、デモナビゲーションを非表示にする
                 demoNavContainer.classList.add('hidden');
             }
             
-            // 2. フォールバックロジックを適用して最終的なキーを決定
+            // 2. フォールバックロジック
             let finalHash = hash || 'default';
 
-            // 学年指定 -> 学校共通へのフォールバックを試みる（Firestoreキーがなければ）
             const parts = finalHash.split('/');
             if (parts.length === 4 && parts[3] === 'all') { 
                 const schoolFallbackKey = `${parts[0]}/${parts[1]}/all`;
                 const schoolFallbackDocId = getDocIdFromHash(schoolFallbackKey);
                 
-                // ローカルの初期データに学校共通設定があれば、それを最終キーとして使用
                 if (initialPortalData[schoolFallbackDocId]) {
                     finalHash = schoolFallbackKey;
                 }
             }
             
-            // 最終チェック: 初期データにキーがない場合、defaultを使用
             const docId = getDocIdFromHash(finalHash);
             if (!initialPortalData[docId]) {
                 finalHash = 'default';
             }
             
-            currentHash = finalHash; // グローバル変数に現在のハッシュを保存
-            
-            // URLハッシュ表示を更新
+            currentHash = finalHash; 
             document.getElementById('current-hash-display').textContent = `#${currentHash}`;
-            
-            // 決定したキーでFirestoreからデータをロード
             loadLinks(currentHash);
         }
 
@@ -503,31 +471,25 @@
         function showEditModal() {
             document.getElementById('editing-key-display').textContent = `#${currentHash}`;
             
-            // 現在表示されているリンクデータを取得
             const docId = getDocIdFromHash(currentHash);
             const docRef = getPortalConfigDocRef(docId);
 
-            // モーダル表示前に最新データを取得（onSnapshotのデータが最新のはずだが、念のため）
             getDoc(docRef).then(docSnap => {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     editingLinksData = data.links || [];
                     editingTitle = data.title || '';
                 } else {
-                     // リンクが設定されていない場合は初期データを使用
                     const initialData = initialPortalData[docId] || initialPortalData['default'];
                     editingLinksData = initialData.links || [];
                     editingTitle = initialData.title || '';
                 }
                 
-                // タイトルも編集可能にする
                 document.getElementById('modal-title').textContent = `リンク設定の編集 (${editingTitle})`;
-                
                 renderLinkEditor();
                 document.getElementById('edit-modal').classList.remove('hidden');
             }).catch(e => {
                 console.error("編集データ取得失敗:", e);
-                // エラー時もモーダルは開くが、データは空または初期値
                 editingLinksData = [];
                 renderLinkEditor();
                 document.getElementById('edit-modal').classList.remove('hidden');
@@ -557,7 +519,6 @@
             div.className = 'link-row flex space-x-2 items-center mb-3 p-2 border border-gray-200 rounded-md shadow-sm';
             div.dataset.index = index;
             
-            // リンク名入力
             const nameInput = document.createElement('input');
             nameInput.type = 'text';
             nameInput.placeholder = 'リンク名';
@@ -565,7 +526,6 @@
             nameInput.className = 'w-1/3 border border-gray-300 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500';
             nameInput.dataset.field = 'name';
             
-            // URL入力
             const urlInput = document.createElement('input');
             urlInput.type = 'url';
             urlInput.placeholder = 'URL (https://...)';
@@ -573,7 +533,6 @@
             urlInput.className = 'w-1/2 border border-gray-300 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500';
             urlInput.dataset.field = 'url';
             
-            // 削除ボタン
             const deleteButton = document.createElement('button');
             deleteButton.innerHTML = `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3m-4 0h12"></path></svg>`;
             deleteButton.className = 'w-1/6 p-2 rounded-md hover:bg-red-100 transition';
@@ -583,7 +542,6 @@
             div.appendChild(urlInput);
             div.appendChild(deleteButton);
 
-            // 入力変更時の処理をアタッチ
             [nameInput, urlInput].forEach(input => {
                 input.addEventListener('input', updateLinkData);
             });
@@ -612,19 +570,13 @@
 
         function removeLinkField(rowElement) {
             const indexToRemove = parseInt(rowElement.dataset.index);
-            
-            // データを削除
             editingLinksData.splice(indexToRemove, 1);
-            
-            // UIから削除
             rowElement.remove();
             
-            // 残りの要素のインデックスを再構築（面倒だが確実な方法）
             const editor = document.getElementById('links-editor');
             editor.querySelectorAll('.link-row').forEach((row, newIndex) => {
                 row.dataset.index = newIndex;
             });
-            // エディタを再レンダリングしても良いが、今回はシンプルに再インデックス
         }
 
         async function saveEditedLinks() {
@@ -632,13 +584,11 @@
             const saveText = document.getElementById('save-text');
             const saveSpinner = document.getElementById('save-spinner');
 
-            // UIをローディング状態に
             saveText.classList.add('hidden');
             saveSpinner.classList.remove('hidden');
             saveButton.disabled = true;
 
             try {
-                // タイトルとリンクデータを取得
                 const newTitle = document.getElementById('edit-title').value;
                 const newLinks = editingLinksData.filter(link => link.name.trim() !== '' || link.url.trim() !== '');
 
@@ -652,15 +602,11 @@
                 
                 await setDoc(docRef, dataToSave);
                 
-                console.log(`設定をFirestoreに保存しました: ${docId}`);
-                
-                // 成功メッセージ表示
                 saveText.textContent = '保存完了！';
                 saveText.classList.remove('hidden');
                 
                 setTimeout(() => {
                     hideEditModal();
-                    // UIを元に戻す
                     saveText.textContent = '設定を保存';
                     saveSpinner.classList.add('hidden');
                     saveButton.disabled = false;
@@ -672,7 +618,6 @@
                 saveText.classList.remove('hidden');
                 
                 setTimeout(() => {
-                     // UIを元に戻す
                     saveText.textContent = '設定を保存';
                     saveSpinner.classList.add('hidden');
                     saveButton.disabled = false;
@@ -680,15 +625,8 @@
             }
         }
 
-
-        // ----------------------------------------------------
-        // メイン処理の開始
-        // ----------------------------------------------------
         document.addEventListener('DOMContentLoaded', () => {
-             // Firebaseの初期化と認証を開始
              initializeFirebase();
-             
-             // ハッシュ変更イベントリスナーの設定
              window.addEventListener('hashchange', renderPortal);
         });
         
