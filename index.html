@@ -33,36 +33,7 @@
             transform: rotateY(-110deg);
             opacity: 0;
         }
-        .door-icon::after {
-            content: '';
-            position: absolute;
-            top: 10px;
-            right: 5px;
-            width: 4px;
-            height: 4px;
-            background-color: #ffd700;
-            border-radius: 50%;
-        }
         
-        /* 緊急ボタンのスタイル調整 */
-        .emergency-button .door-icon {
-            background-color: #cc3333; 
-            border-color: #a00000;
-        }
-
-        /* モーダルの背景 */
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.6);
-        }
-        
-        /* フォームの調整 */
-        .link-row {
-            transition: background-color 0.2s;
-        }
-        .link-row:hover {
-            background-color: #f0f4f8;
-        }
-
         /* Loading Spinner */
         .spinner {
             border: 4px solid rgba(255, 255, 255, 0.3);
@@ -76,6 +47,11 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* モーダルの背景 */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -88,36 +64,24 @@
                 <p class="text-sm text-gray-500 mt-1">学習の扉を開こう！</p>
             </div>
             
-            <div id="auth-status" class="text-right">
-                <!-- 通常時は非表示、認証完了後に編集ボタンだけ出す -->
-                <p class="text-xs font-semibold text-gray-400 hidden" id="user-status-text">認証完了</p>
-                <button id="edit-button" class="mt-2 px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-bold rounded-lg shadow-md transition hidden" onclick="showEditModal()">
-                    <span id="current-portal-key-display" class="font-normal text-xs mr-1"></span> 編集モード
-                </button>
+            <div id="auth-status" class="text-right flex flex-col items-end">
+                <p class="text-xs font-semibold text-gray-400" id="user-id-display">ユーザーID: ロード中...</p>
+                
+                <!-- 先生（編集者）向けのボタンコンテナ -->
+                <div id="editor-controls" class="mt-2 flex space-x-2 items-center hidden">
+                    <!-- 編集モードボタン (編集者のみ表示) -->
+                    <button id="edit-button" class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-bold rounded-lg shadow-lg transition hidden" onclick="showEditModal()">
+                        <span id="current-portal-key-display" class="font-normal text-xs mr-1">#default</span> **編集モード**
+                    </button>
+                    <!-- 編集ログイン/ログアウトボタン (admin時のみ表示) -->
+                    <button id="editor-login-button" class="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white text-sm font-bold rounded-lg shadow-lg transition" onclick="toggleEditorLogin()">
+                        編集ログイン
+                    </button>
+                </div>
             </div>
         </header>
 
-        <!-- デモナビゲーションエリア (管理者用) -->
-        <div id="demo-nav-container" class="demo-nav p-4 bg-indigo-50 border border-indigo-200 rounded-lg mb-8 transition-all hidden">
-            <h3 class="text-lg font-semibold text-indigo-700 border-b border-indigo-300 pb-2 mb-3">デモナビゲーション（管理者モード: #admin で表示）</h3>
-            <span class="text-xs font-medium text-red-600 block mb-3">現在のポータルキー: <span id="current-hash-display">#default</span></span>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                <span class="col-span-full font-bold text-gray-700 mt-2">小学校 (01, 21)</span>
-                <a href="#s/01/all" class="p-2 bg-white rounded-md hover:bg-indigo-100 text-indigo-600 font-medium text-center shadow-sm">一小 全校</a>
-                <a href="#s/01/g1/all" class="p-2 bg-white rounded-md hover:bg-indigo-100 text-indigo-600 font-medium text-center shadow-sm">一小 1年生</a>
-                <a href="#s/21/g5/all" class="p-2 bg-white rounded-md hover:bg-indigo-100 text-indigo-600 font-medium text-center shadow-sm">雷塚 5年 (FB)</a>
-                <span class="col-span-full font-bold text-gray-700 mt-2">中学校 (12, 14)</span>
-                <a href="#s/12/all" class="p-2 bg-white rounded-md hover:bg-indigo-100 text-indigo-600 font-medium text-center shadow-sm">二中 全校</a>
-                <a href="#s/12/g7/all" class="p-2 bg-white rounded-md hover:bg-indigo-100 text-indigo-600 font-medium text-center shadow-sm">二中 7年生</a>
-                <a href="#s/14/all" class="p-2 bg-white rounded-md hover:bg-indigo-100 text-indigo-600 font-medium text-center shadow-sm">四中 全校</a>
-                <span class="col-span-full font-bold text-gray-700 mt-2">共通/テスト</span>
-                <a href="#default" class="p-2 bg-green-100 rounded-md hover:bg-green-200 text-green-700 font-medium text-center shadow-sm">#default</a>
-                <a href="#s/999/g5/all" class="p-2 bg-red-100 rounded-md hover:bg-red-200 text-red-700 font-medium text-center shadow-sm">#999 (FBテスト)</a>
-                <a href="#admin" class="p-2 bg-purple-100 rounded-md hover:bg-purple-200 text-purple-700 font-medium text-center shadow-sm">#admin (管理)</a>
-            </div>
-        </div>
-
-        <!-- 学習Webアプリセクション (メイン) -->
+        <!-- メインコンテンツ -->
         <div id="main-content">
             <h2 class="text-2xl font-bold text-blue-700 border-b-4 border-blue-600 pb-2 mb-6" id="main-section-title">データロード中...</h2>
             
@@ -131,18 +95,13 @@
 
         <!-- 緊急対応セクション (トラブル回避) -->
         <div class="mt-10 p-5 border-4 border-red-600 bg-red-50 rounded-xl shadow-lg">
-            <h2 class="text-xl font-bold text-red-700 border-b-2 border-red-500 pb-2 mb-4">🚨 緊急対応の扉：サインインやデータ消失のトラブル時</h2>
-            <p class="text-red-600 font-bold mb-4 text-sm">
-                **【重要】** OneDriveフォルダやデスクトップアプリ(Teams/Office)にサインインできない場合は、**必ずこのリンク**からWebブラウザ版をご利用ください。
-            </p>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <a href="https://portal.office.com/" class="link-button emergency-button flex items-center justify-center p-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 rounded-lg font-bold shadow-md transition">
-                    <span class="door-icon"></span><span class="text-base text-center">Microsoftのスタートページ<br>(Web版 Office, Teams, OneDrive)</span>
+            <h2 class="text-xl font-bold text-red-700 border-b-2 border-red-500 pb-2 mb-4">🚨 緊急対応の扉</h2>
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="https://portal.office.com/" class="link-button flex items-center justify-center p-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 rounded-lg font-bold shadow-md transition">
+                    <span class="door-icon bg-red-700 border-red-900"></span><span class="text-base text-center">Microsoftのスタートページ<br>(Web版 Office, Teams, OneDrive)</span>
                 </a>
-
-                <a href="[サインイン手順書PDFのURLをここに記述]" class="link-button emergency-button flex items-center justify-center p-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 rounded-lg font-bold shadow-md transition">
-                    <span class="door-icon"></span><span class="text-base text-center">サインイン復旧手順書<br>（トラブル解決マニュアル）</span>
+                <a href="#" class="link-button flex items-center justify-center p-4 bg-yellow-500 hover:bg-yellow-600 text-gray-900 rounded-lg font-bold shadow-md transition">
+                    <span class="door-icon bg-red-700 border-red-900"></span><span class="text-base text-center">サインイン復旧手順書<br>（マニュアル）</span>
                 </a>
             </div>
         </div>
@@ -156,10 +115,10 @@
     <!-- ------------------------------------- -->
     <!-- リンク編集モーダル -->
     <!-- ------------------------------------- -->
-    <div id="edit-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div id="edit-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
         <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full p-6 m-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-start border-b pb-3 mb-4">
-                <h3 id="modal-title" class="text-xl font-bold text-blue-700">リンク設定の編集</h3>
+                <h3 id="edit-modal-title" class="text-xl font-bold text-blue-700">リンク設定の編集</h3>
                 <button onclick="hideEditModal()" class="text-gray-400 hover:text-gray-600 transition" aria-label="閉じる">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
@@ -184,15 +143,41 @@
             </div>
         </div>
     </div>
+    
+    <!-- ------------------------------------- -->
+    <!-- パスワード認証モーダル -->
+    <!-- ------------------------------------- -->
+    <div id="password-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden" role="dialog" aria-modal="true" aria-labelledby="password-modal-title">
+        <div class="bg-white rounded-lg shadow-2xl max-w-sm w-full p-6 m-4">
+            <h3 id="password-modal-title" class="text-xl font-bold text-blue-700 mb-4 border-b pb-2">編集パスワードの入力</h3>
+            <p class="text-sm text-gray-600 mb-4">先生用の共通パスワードを入力してください。</p>
+            
+            <input id="edit-password-input" type="password" placeholder="パスワード" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+            <p id="password-error" class="text-red-500 text-sm mt-2 hidden">パスワードが正しくありません。</p>
+            
+            <div class="flex justify-end mt-6 space-x-3">
+                <button onclick="hidePasswordModal()" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold rounded-lg transition shadow-md">
+                    キャンセル
+                </button>
+                <button onclick="attemptLogin()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition shadow-md">
+                    ログイン
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- ------------------------------------- -->
     <!-- Firebase SDKのインポートと初期化 -->
     <!-- ------------------------------------- -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, getDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
+        // 【重要】編集モードに入るための共通パスワード
+        const EDIT_PASSWORD = 'giga2025'; 
+        const EDITOR_FLAG_KEY = 'isEditorAuthenticated';
+
         // グローバル変数 (Canvas環境から提供されるものを優先)
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
@@ -200,7 +185,7 @@
         // Firebase Config
         // ----------------------------------------------------------------------
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "AIzaSyCU6-hKFFa8dew_G_0_hDP8Q4eYqP0_7yU",
+            apiKey: "YOUR_API_KEY",
             authDomain: "gigaportal-editor.firebaseapp.com",
             projectId: "gigaportal-editor",
             storageBucket: "gigaportal-editor.firebasestorage.app",
@@ -208,33 +193,36 @@
             appId: "1:969946487756:web:fa4c4347d72de0b2dc9b69"
         };
         
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
         let app;
         let db;
         let auth;
-        let userId = 'loading'; // ユーザーID
-        let isAuthReady = false; // 認証準備完了フラグ
-        let currentHash = 'default'; // 現在のポータルキー (URLハッシュから決定)
+        let userId = 'loading';
+        let isAuthReady = false; 
+        let isEditor = false; // パスワード認証とadminフラグで設定される
+        let currentHash = 'default';
+        let currentDataKey = 'default'; // Firestoreから取得するキー (adminを除外したもの)
 
         // ----------------------------------------------------
-        // データの永続化と取得に関する定数と関数
+        // Firestoreパス定義
         // ----------------------------------------------------
-
-        // Firestoreのパブリックコレクションパス (全ユーザーで共有・編集可能)
         function getPortalConfigDocRef(docId) {
             return doc(db, 'artifacts', appId, 'public', 'data', 'portal_configs', docId);
         }
 
-        // URLハッシュ（例: s/01/g6/all）をFirestoreのドキュメントID（例: s_01_g6_all）に変換
+        /**
+         * URLハッシュ（例: s/01/g6/admin）をFirestoreのドキュメントID（例: s_01_g6）に変換
+         * @param {string} hash - URLハッシュ（#を除く）
+         * @returns {string} - FirestoreドキュメントID
+         */
         function getDocIdFromHash(hash) {
-            return hash.replace(/^#/, '').replace(/\//g, '_');
+            const parts = hash.split('/');
+            // 最後の要素が 'admin' の場合は除外
+            if (parts[parts.length - 1].toLowerCase() === 'admin') {
+                parts.pop(); 
+            }
+            return parts.join('_');
         }
 
-        /**
-         * 共通で利用するリンクセット (初期データとして使用)
-         * Firestoreにデータがない場合にこの初期値を保存します。
-         */
         const initialPortalData = {
             'default': {
                 title: '💡 共通学習の扉',
@@ -242,16 +230,11 @@
                     { name: "eライブラリ", url: "https://ela.education.ne.jp/students/" },
                     { name: "ドリルプラネット", url: "https://login.kobun.co.jp/student-login/?code=1134304" },
                     { name: "キーボー島 (タイピング)", url: "https://kb-kentei.net/" },
-                    { name: "教育委員会Webサイト", url: "#" },
+                    { name: "教育委員会Webサイト", url: "https://example.com/edu-board" },
                 ]
             },
-            's_01_all': { title: '🏫 第一小学校 全校共通の扉', links: [ { name: "一小-学校からのお知らせ", url: "#" }, { name: "一小-先生への質問フォーム", url: "#" }, { name: "一小-プログラミング教材", url: "#" } ] },
-            's_01_g1_all': { title: '✏️ 第一小学校 1年生の扉', links: [ { name: "1年 算数ドリル", url: "#" }, { name: "ひらがな練習サイト", url: "#" }, { name: "生活科 Webサイト", url: "#" } ] },
-            's_01_g6_all': { title: '✏️ 第一小学校 6年生の扉', links: [ { name: "6年 卒業文集作成", url: "#" }, { name: "6年 課題提出フォルダ", url: "#" }, { name: "中学校生活紹介", url: "#" } ] },
-            's_12_all': { title: '🏫 第二中学校 全校共通の扉', links: [ { name: "二中-学習支援システム (LMS)", url: "#" }, { name: "二中-進路情報ポータル", url: "#" }, { name: "二中-生徒会 Webサイト", url: "#" } ] },
-            's_12_g7_all': { title: '🎓 第二中学校 7年生の扉', links: [ { name: "7年 英語学習サイト", url: "#" }, { name: "7年 理科実験記録", url: "#" }, { name: "学校生活オリエンテーション", url: "#" } ] },
-            's_12_g9_all': { title: '🎓 第二中学校 9年生の扉', links: [ { name: "9年 受験対策ドリル", url: "#" }, { name: "9年 進路面談予約", url: "#" }, { name: "卒業制作 発表サイト", url: "#" } ] },
-            's_21_all': { title: '🏫 雷塚小学校 全校共通の扉', links: [ { name: "雷塚小-連絡事項", url: "#" }, { name: "雷塚小-Webドリル", url: "#" } ] },
+            's_01_all': { title: '🏫 第一小学校 全校共通の扉', links: [ { name: "一小-学校からのお知らせ", url: "https://example.com/s01-info" }, { name: "一小-先生への質問フォーム", url: "https://forms.gle/s01-q-form" } ] },
+            's_12_g7': { title: '🎓 第二中学校 7年生の扉', links: [ { name: "7年 英語学習サイト", url: "https://example.com/jhs2-g7-english" }, { name: "7年 理科実験記録", url: "https://example.com/jhs2-g7-science" } ] },
         };
         
         // ----------------------------------------------------
@@ -267,18 +250,22 @@
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
-
-                // 認証状態の監視
+                
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         userId = user.uid;
-                        // 認証が完了したらポータルをレンダリング（データロード開始）
+                        // ユーザーIDは短縮して表示
+                        document.getElementById('user-id-display').textContent = `ユーザーID: ${userId.substring(0, 8)}...`;
+                        
                         isAuthReady = true;
+                        
+                        // 編集ステータスをチェック
+                        checkEditorStatus();
+
                         renderPortal();
-                        // 編集ボタンを表示
-                        document.getElementById('edit-button').classList.remove('hidden');
+                        
                     } else {
-                        // 匿名サインインまたはカスタムトークンサインインを実行
+                        // 匿名認証でアクセスを試行
                         await handleSignIn();
                     }
                 });
@@ -290,33 +277,104 @@
         
         async function handleSignIn() {
              try {
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                await signInAnonymously(auth);
             } catch (error) {
                 console.error("認証に失敗しました:", error);
+                document.getElementById('user-id-display').textContent = `認証エラー`;
+            }
+        }
+        
+        // ----------------------------------------------------
+        // パスワード認証ステータス管理
+        // ----------------------------------------------------
+        function checkEditorStatus() {
+            // localStorageにフラグが保存されているかチェック
+            isEditor = localStorage.getItem(EDITOR_FLAG_KEY) === 'true';
+            updateEditorUI();
+        }
+
+        function updateEditorUI() {
+            const editorControls = document.getElementById('editor-controls');
+            const editButton = document.getElementById('edit-button');
+            const loginButton = document.getElementById('editor-login-button');
+            
+            // adminパスが含まれている場合のみ、ログイン/ログアウトボタンを表示
+            const isAdminPath = window.location.hash.toLowerCase().endsWith('/admin');
+            
+            if (isAdminPath) {
+                editorControls.classList.remove('hidden');
+                if (isEditor) {
+                    // 編集者としてログイン済み
+                    editButton.classList.remove('hidden');
+                    loginButton.textContent = '編集ログアウト';
+                    loginButton.classList.remove('bg-gray-500');
+                    loginButton.classList.add('bg-red-500', 'hover:bg-red-600');
+                } else {
+                    // adminパスだが未ログイン
+                    editButton.classList.add('hidden');
+                    loginButton.textContent = '編集ログイン';
+                    loginButton.classList.add('bg-gray-500');
+                    loginButton.classList.remove('bg-red-500', 'hover:bg-red-600');
+                }
+            } else {
+                // adminパスではない場合（児童生徒向け画面）
+                editorControls.classList.add('hidden');
             }
         }
 
+        window.toggleEditorLogin = function() {
+            if (isEditor) {
+                // ログアウト処理
+                localStorage.removeItem(EDITOR_FLAG_KEY);
+                isEditor = false;
+                updateEditorUI();
+            } else {
+                // ログイン（パスワードモーダル表示）処理
+                showPasswordModal();
+            }
+        }
+        
+        window.showPasswordModal = function() {
+            document.getElementById('edit-password-input').value = '';
+            document.getElementById('password-error').classList.add('hidden');
+            document.getElementById('password-modal').classList.remove('hidden');
+        }
+
+        window.hidePasswordModal = function() {
+            document.getElementById('password-modal').classList.add('hidden');
+        }
+
+        window.attemptLogin = function() {
+            const input = document.getElementById('edit-password-input').value;
+            const errorElement = document.getElementById('password-error');
+            
+            if (input === EDIT_PASSWORD) {
+                localStorage.setItem(EDITOR_FLAG_KEY, 'true');
+                isEditor = true;
+                updateEditorUI();
+                hidePasswordModal();
+                // ログイン成功後、編集ボタンが自動表示され、押すことで編集モーダルが開く
+            } else {
+                errorElement.classList.remove('hidden');
+            }
+        }
+        
         // ----------------------------------------------------
         // Firestoreからのデータロード (リアルタイムリスナー)
         // ----------------------------------------------------
-        let unsubscribe = null; // onSnapshotのリスナーを保持する変数
-        let currentDocId = null; // 現在監視中のドキュメントID
+        let unsubscribe = null; 
 
-        async function loadLinks(hashKey) {
+        async function loadLinks(docId, originalHash) {
             if (!isAuthReady) return;
 
-            const docId = getDocIdFromHash(hashKey);
+            // 児童生徒が見るURLはoriginalHash、データ取得キーはdocId
+            currentDataKey = docId; 
 
-            if (unsubscribe && currentDocId !== docId) {
+            if (unsubscribe) {
                 unsubscribe();
                 unsubscribe = null;
             }
 
-            currentDocId = docId;
             const docRef = getPortalConfigDocRef(docId);
 
             unsubscribe = onSnapshot(docRef, async (docSnap) => {
@@ -325,23 +383,24 @@
                 if (docSnap.exists()) {
                     data = docSnap.data();
                 } else {
+                    // データがない場合は初期データを適用
                     const initialData = initialPortalData[docId] || initialPortalData['default'];
                     if (initialData) {
                         data = initialData;
-                        // 初期データをFirestoreに書き込む
-                        await setDoc(docRef, initialData).catch(e => console.error("初期データ保存失敗:", e));
+                        await setDoc(docRef, initialData, { merge: true }).catch(e => console.error("初期データ保存失敗:", e));
                     }
                 }
 
                 if (data) {
-                    updatePortalUI(data, hashKey, docId);
+                    updatePortalUI(data, originalHash, docId);
                 } else {
-                    updatePortalUI(initialPortalData['default'], hashKey, 'default');
+                    // 最終フォールバック
+                    updatePortalUI(initialPortalData['default'], originalHash, 'default');
                 }
             }, (error) => {
                 console.error("Firestore onSnapshot エラー:", error);
                 const fallbackData = initialPortalData[docId] || initialPortalData['default'];
-                updatePortalUI(fallbackData, hashKey, 'default');
+                updatePortalUI(fallbackData, originalHash, 'default');
             });
         }
         
@@ -352,17 +411,15 @@
             const container = document.getElementById('link-container');
             const titleElement = document.getElementById('main-section-title');
             
-            // UI表示キーの更新
-            document.getElementById('current-portal-key-display').textContent = `#${originalHash}`;
+            // 編集モードボタンに表示するキー（adminを除いたデータキー）
+            document.getElementById('current-portal-key-display').textContent = `#${docId.replace(/_/g, '/')}`;
 
-            // タイトルを更新
-            const keyDisplay = docId !== getDocIdFromHash(originalHash) ? ` (FB: ${docId})` : '';
+            // メインタイトルに表示するキー（児童生徒向けの元のURLハッシュ）
+            const keyDisplay = docId !== getDocIdFromHash(originalHash) ? ` (DB: ${docId.replace(/_/g, '/')})` : '';
             titleElement.innerHTML = `<span class="text-2xl font-bold text-blue-700">${data.title}</span> <span style="font-size: 0.7em; color: #888; display: block; margin-top: 5px;">(Key: #${originalHash}${keyDisplay})</span>`;
             
-            // 既存のコンテンツをクリア
             container.innerHTML = '';
 
-            // リンクを動的に生成
             if (data.links && data.links.length > 0) {
                  data.links.forEach(link => {
                     const linkElement = document.createElement('a');
@@ -385,46 +442,20 @@
         function renderPortal() {
             if (!isAuthReady) return;
 
+            // 1. URLハッシュの取得とadminチェック
             const hash = window.location.hash.substring(1).toLowerCase();
-            const demoNavContainer = document.getElementById('demo-nav-container');
-
-            // 1. 管理者モードチェック
-            if (hash === 'admin') {
-                demoNavContainer.classList.remove('hidden');
-                document.getElementById('link-container').innerHTML = '<div class="col-span-full text-center py-10 text-gray-500">デモナビゲーションからリンクを選択してテストし、「編集モード」で設定を確認してください。</div>';
-                document.getElementById('main-section-title').innerHTML = `<span class="text-2xl font-bold text-blue-700">⚙️ ポータル管理アクセス</span>`;
-                document.getElementById('current-hash-display').textContent = `#admin`;
-                
-                if (unsubscribe) {
-                    unsubscribe();
-                    unsubscribe = null;
-                }
-                return;
-            } else {
-                demoNavContainer.classList.add('hidden');
-            }
-            
-            // 2. フォールバックロジック
             let finalHash = hash || 'default';
-
-            const parts = finalHash.split('/');
-            if (parts.length === 4 && parts[3] === 'all') { 
-                const schoolFallbackKey = `${parts[0]}/${parts[1]}/all`;
-                const schoolFallbackDocId = getDocIdFromHash(schoolFallbackKey);
-                
-                if (initialPortalData[schoolFallbackDocId]) {
-                    finalHash = schoolFallbackKey;
-                }
-            }
             
+            // 2. データ取得用のキーを決定
             const docId = getDocIdFromHash(finalHash);
-            if (!initialPortalData[docId]) {
-                finalHash = 'default';
-            }
-            
+
             currentHash = finalHash; 
-            document.getElementById('current-hash-display').textContent = `#${currentHash}`;
-            loadLinks(currentHash);
+            
+            // 3. 編集UIを更新（adminパスかどうかをチェック）
+            updateEditorUI();
+            
+            // 4. データロード
+            loadLinks(docId, finalHash);
         }
 
         // ----------------------------------------------------
@@ -433,7 +464,11 @@
         const animationDuration = 500;
         
         function handleLinkClick(e) {
-            if (this.href.includes('[')) return; 
+            
+            if (this.href.includes('[')) { 
+                e.preventDefault();
+                return;
+            }
             
             if (this.href.endsWith('#') || this.href === '') {
                  e.preventDefault();
@@ -468,11 +503,12 @@
         let editingLinksData = [];
         let editingTitle = '';
         
-        function showEditModal() {
-            document.getElementById('editing-key-display').textContent = `#${currentHash}`;
+        window.showEditModal = function() {
+            if (!isEditor) return; 
+
+            document.getElementById('editing-key-display').textContent = `#${currentDataKey.replace(/_/g, '/')}`;
             
-            const docId = getDocIdFromHash(currentHash);
-            const docRef = getPortalConfigDocRef(docId);
+            const docRef = getPortalConfigDocRef(currentDataKey);
 
             getDoc(docRef).then(docSnap => {
                 if (docSnap.exists()) {
@@ -480,85 +516,70 @@
                     editingLinksData = data.links || [];
                     editingTitle = data.title || '';
                 } else {
-                    const initialData = initialPortalData[docId] || initialPortalData['default'];
+                    const initialData = initialPortalData[currentDataKey] || initialPortalData['default'];
                     editingLinksData = initialData.links || [];
                     editingTitle = initialData.title || '';
                 }
                 
-                document.getElementById('modal-title').textContent = `リンク設定の編集 (${editingTitle})`;
+                document.getElementById('edit-modal-title').textContent = `リンク設定の編集 (${editingTitle})`;
                 renderLinkEditor();
                 document.getElementById('edit-modal').classList.remove('hidden');
             }).catch(e => {
                 console.error("編集データ取得失敗:", e);
                 editingLinksData = [];
+                editingTitle = '新しいポータル';
                 renderLinkEditor();
                 document.getElementById('edit-modal').classList.remove('hidden');
             });
         }
 
-        function hideEditModal() {
+        window.hideEditModal = function() {
             document.getElementById('edit-modal').classList.add('hidden');
         }
 
         function renderLinkEditor() {
             const editor = document.getElementById('links-editor');
-            editor.innerHTML = `
+            const titleHtml = `
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700">ポータルタイトル (例: 1年生の扉)</label>
                     <input id="edit-title" type="text" value="${editingTitle}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
             `;
-
-            editingLinksData.forEach((link, index) => {
-                editor.appendChild(createLinkField(link, index));
-            });
+            let linksHtml = editingLinksData.map((link, index) => {
+                return `
+                    <div class="link-row flex space-x-2 items-center mb-3 p-2 border border-gray-200 rounded-md shadow-sm" data-index="${index}">
+                        <input type="text" placeholder="リンク名" value="${link.name}" class="w-1/3 border border-gray-300 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500" data-field="name" oninput="updateLinkData(event)">
+                        <input type="url" placeholder="URL (https://...)" value="${link.url}" class="w-1/2 border border-gray-300 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500" data-field="url" oninput="updateLinkData(event)">
+                        <button type="button" class="w-1/6 p-2 rounded-md hover:bg-red-100 transition" onclick="removeLinkField(this.closest('.link-row'))">
+                            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3m-4 0h12"></path></svg>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+            
+            editor.innerHTML = titleHtml + linksHtml;
         }
 
-        function createLinkField(link, index) {
-            const div = document.createElement('div');
-            div.className = 'link-row flex space-x-2 items-center mb-3 p-2 border border-gray-200 rounded-md shadow-sm';
-            div.dataset.index = index;
-            
-            const nameInput = document.createElement('input');
-            nameInput.type = 'text';
-            nameInput.placeholder = 'リンク名';
-            nameInput.value = link.name;
-            nameInput.className = 'w-1/3 border border-gray-300 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500';
-            nameInput.dataset.field = 'name';
-            
-            const urlInput = document.createElement('input');
-            urlInput.type = 'url';
-            urlInput.placeholder = 'URL (https://...)';
-            urlInput.value = link.url;
-            urlInput.className = 'w-1/2 border border-gray-300 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500';
-            urlInput.dataset.field = 'url';
-            
-            const deleteButton = document.createElement('button');
-            deleteButton.innerHTML = `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3m-4 0h12"></path></svg>`;
-            deleteButton.className = 'w-1/6 p-2 rounded-md hover:bg-red-100 transition';
-            deleteButton.onclick = () => removeLinkField(div);
-
-            div.appendChild(nameInput);
-            div.appendChild(urlInput);
-            div.appendChild(deleteButton);
-
-            [nameInput, urlInput].forEach(input => {
-                input.addEventListener('input', updateLinkData);
-            });
-            
-            return div;
-        }
-
-        function addLinkField() {
+        window.addLinkField = function() {
             const newLink = { name: '', url: '' };
             editingLinksData.push(newLink);
             const newIndex = editingLinksData.length - 1;
             
             const editor = document.getElementById('links-editor');
-            editor.appendChild(createLinkField(newLink, newIndex));
+            const newRow = document.createElement('div');
+            newRow.className = 'link-row flex space-x-2 items-center mb-3 p-2 border border-gray-200 rounded-md shadow-sm';
+            newRow.dataset.index = newIndex;
+            newRow.innerHTML = `
+                <input type="text" placeholder="リンク名" value="${newLink.name}" class="w-1/3 border border-gray-300 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500" data-field="name" oninput="updateLinkData(event)">
+                <input type="url" placeholder="URL (https://...)" value="${newLink.url}" class="w-1/2 border border-gray-300 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500" data-field="url" oninput="updateLinkData(event)">
+                <button type="button" class="w-1/6 p-2 rounded-md hover:bg-red-100 transition" onclick="removeLinkField(this.closest('.link-row'))">
+                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3m-4 0h12"></path></svg>
+                </button>
+            `;
+            editor.appendChild(newRow);
         }
 
-        function updateLinkData(e) {
+        window.updateLinkData = function(e) {
             const row = e.target.closest('.link-row');
             const index = parseInt(row.dataset.index);
             const field = e.target.dataset.field;
@@ -568,7 +589,7 @@
             }
         }
 
-        function removeLinkField(rowElement) {
+        window.removeLinkField = function(rowElement) {
             const indexToRemove = parseInt(rowElement.dataset.index);
             editingLinksData.splice(indexToRemove, 1);
             rowElement.remove();
@@ -579,7 +600,9 @@
             });
         }
 
-        async function saveEditedLinks() {
+        window.saveEditedLinks = async function() {
+            if (!isEditor) return; 
+
             const saveButton = document.getElementById('save-button');
             const saveText = document.getElementById('save-text');
             const saveSpinner = document.getElementById('save-spinner');
@@ -590,15 +613,14 @@
 
             try {
                 const newTitle = document.getElementById('edit-title').value;
-                const newLinks = editingLinksData.filter(link => link.name.trim() !== '' || link.url.trim() !== '');
+                const newLinks = editingLinksData.filter(link => link && (link.name?.trim() !== '' || link.url?.trim() !== ''));
 
                 const dataToSave = {
                     title: newTitle,
                     links: newLinks
                 };
 
-                const docId = getDocIdFromHash(currentHash);
-                const docRef = getPortalConfigDocRef(docId);
+                const docRef = getPortalConfigDocRef(currentDataKey);
                 
                 await setDoc(docRef, dataToSave);
                 
