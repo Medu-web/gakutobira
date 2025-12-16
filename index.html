@@ -349,15 +349,14 @@
     <script>
         // ----------------------------------------------------
         // データを永続化するためのローカルストレージキー
-        // キーから一切の符号を排除するため、キーバージョンを再更新します
-        const LOCAL_STORAGE_KEY = 'gakuTobiraPortalDataV6_NoSuffix'; 
+        // 学年指定に対応するため、キーバージョンを更新します。
+        const LOCAL_STORAGE_KEY = 'gakuTobiraPortalDataV7_GradeSupport'; 
         
         // 共通の管理者パスワード (デフォルトページ編集用)
         const ADMIN_PASSWORD = 'admin123';
         
         // 学校固有のパスワードを定義 (学校コードに対応)
-        // 01, 04, 07は小学校コード、11は中学校コードを想定していましたが、
-        // ユーザー様の指示に従い、コードのみで管理します。
+        // 学年別ポータルも、この学校コードのパスワードで編集可能とします。
         const SCHOOL_PASSWORDS = {
             '01': 'portal01', 
             '04': 'portal04', 
@@ -377,7 +376,6 @@
 
         /**
          * 階層型ポータル表示用の設定データ (初期値)
-         * 全ての学校コードが共通の defaultLinks に統一される
          */
         const initialPortalData = {};
         
@@ -390,11 +388,10 @@
         };
         
         
-        // --- ここから学校コードの自動生成と強制統一ロジック ---
+        // --- ここから学校コードと学年別コードの自動生成ロジック ---
 
         /**
-         * コード01から21までの学校ポータルデータ（コードのみ）を自動生成し、
-         * すべて defaultLinks に統一する。キーは "XX" 形式。
+         * 2桁のコードにパッドするユーティリティ
          */
         function pad(num) {
             return num.toString().padStart(2, '0');
@@ -402,14 +399,23 @@
 
         for (let i = 1; i <= 21; i++) {
             const code = pad(i);
-            const key = `${code}`; // キーに符号は含まない
             const titlePrefix = '学トビラ - ';
 
-            // ポータルデータ (デフォルトリンクで初期化)
-            initialPortalData[key] = {
-                title: `${titlePrefix}学校 ${code} ポータル`, 
-                links: JSON.parse(JSON.stringify(defaultLinks)) 
+            // 1. 基本ポータル (コードのみ: XX) を初期化
+            initialPortalData[code] = {
+                title: `${titlePrefix}学校 ${code} ポータル (全学年共通)`,
+                links: JSON.parse(JSON.stringify(defaultLinks))
             };
+
+            // 2. 学年別ポータル (XXgY, 例: 04g2) - 1年から6年までを初期化
+            for (let g = 1; g <= 6; g++) {
+                const gradeKey = `${code}g${g}`;
+                initialPortalData[gradeKey] = {
+                    title: `${titlePrefix}学校 ${code} 第${g}学年 ポータル`,
+                    // 初期設定では、学年別ポータルも基本リンクをコピーしておく
+                    links: JSON.parse(JSON.stringify(defaultLinks))
+                };
+            }
         }
 
         // --- 自動生成ロジックの追加終了 ---
@@ -431,7 +437,7 @@
                 console.error("Error loading or parsing localStorage data. Using initial data as base.", e);
             }
 
-            // 初期データ (自動生成で統一されたデータ) とローカルストレージのデータをマージ
+            // 初期データ (自動生成された全キー) とローカルストレージのデータをマージ
             editablePortalData = { ...initialPortalData, ...storedData };
 
             savePortalData(editablePortalData);
@@ -451,13 +457,10 @@
         // ----------------------------------------------------
         function handleLinkClick(e) {
             const url = new URL(this.href, window.location.href);
-            // ページ内ハッシュ遷移はそのまま許可
             if (url.hash && url.hash.startsWith('#')) {
                  return;
             }
             
-            // 外部URLまたはプレースホルダーの場合、アニメーション後に別タブで遷移
-            // '#' または URLに '[]' が含まれる場合 (未設定リンク) は遷移しない
             if (this.href.endsWith('#') || this.href.includes('[')) {
                 return; 
             }
@@ -469,7 +472,6 @@
             this.classList.add('opening');
 
             setTimeout(() => {
-                // リンク先が空の場合は遷移しない
                 if (targetUrl.length > 0 && targetUrl !== '#') {
                     window.open(targetUrl, '_blank');
                 }
@@ -491,16 +493,51 @@
         }
 
         // ----------------------------------------------------
+        // URLハッシュから対応するデータキーを解決する関数
+        // 優先順位: XXgY > XX > default
+        // ----------------------------------------------------
+        function resolveKey(rawHash) {
+            if (!rawHash) return 'default';
+            
+            // 1. XXgY 形式 (例: 04g2, 4g2) をチェック
+            // \d{1,2}g\d{1} の形式にマッチ
+            const matchXXgY = rawHash.match(/^(\d{1,2})g(\d{1})$/);
+            if (matchXXgY) {
+                const code = pad(parseInt(matchXXgY[1], 10)); // 学校コード (2桁)
+                const grade = matchXXgY[2]; // 学年 (1桁)
+                const gradeKey = `${code}g${grade}`; // 例: '04g2'
+                
+                // 学年別キーが存在すればそれを返す
+                if (editablePortalData[gradeKey]) {
+                    return gradeKey;
+                }
+                // 学年別キーがなければ、基本学校キー (XX) にフォールバック
+                if (editablePortalData[code]) {
+                    return code;
+                }
+            }
+
+            // 2. XX 形式 (例: 04, 4) をチェック
+            const matchXX = rawHash.match(/^(\d{1,2})$/);
+            if (matchXX) {
+                const code = pad(parseInt(rawHash, 10)); // 学校コード (2桁)
+                if (editablePortalData[code]) {
+                    return code;
+                }
+            }
+
+            // 3. 最終フォールバック
+            return 'default';
+        }
+
+
+        // ----------------------------------------------------
         // URLハッシュに基づいてポータルをレンダリングする関数
         // ----------------------------------------------------
         function renderPortal() {
-            // データロードと初期化を毎回実行し、最新の状態を保証
             loadPortalData(); 
 
-            // ハッシュ文字列から先頭の'#'を取り、小文字にし、
-            // 末尾のスラッシュ( / )と空白を削除して正規化する。
             const rawHash = window.location.hash.substring(1).toLowerCase().replace(/\/+$/, '').trim();
-            
             const urlParams = new URLSearchParams(window.location.search);
             const isAdmin = urlParams.has('admin');
             
@@ -509,49 +546,25 @@
             
             editButton.classList.toggle('hidden', !isAdmin); 
 
-            // データ取得とキーの解決 (今回は単純にハッシュをキーとして使用)
-            let currentKey = rawHash;
-            let data = editablePortalData[rawHash];
-            
-            // --- 短縮形 (例: #1, #4) から正式コードへの解決 ---
-            // ユーザーが #X の形式で入力した場合、#XX の形式に変換する
-            if (!data && rawHash.match(/^\d{1,2}$/)) {
-                const paddedCode = pad(parseInt(rawHash, 10));
-                
-                if (editablePortalData[paddedCode]) {
-                    currentKey = paddedCode;
-                    data = editablePortalData[currentKey];
-                }
-            }
-            // ----------------------------------------------------------
-            
-            // 最終フォールバック
-            if (!data || !data.links) {
-                currentKey = 'default';
-                data = editablePortalData[currentKey];
-            }
-
-
-            const container = document.getElementById('link-container');
-            const titleElement = document.getElementById('main-section-title');
+            // データキーの解決
+            const currentKey = resolveKey(rawHash);
+            const data = editablePortalData[currentKey];
             
             // 緊急対応セクションの表示制御
             const hashIsCompletelyEmpty = rawHash === '';
             emergencySection.classList.toggle('hidden', !hashIsCompletelyEmpty);
 
             // タイトルを更新
-            titleElement.textContent = data.title;
+            document.getElementById('main-section-title').textContent = data.title;
             
-            // 既存のコンテンツをクリア
-            container.innerHTML = '';
+            const container = document.getElementById('link-container');
+            container.innerHTML = ''; // 既存のコンテンツをクリア
 
             // リンクを動的に生成
             data.links.forEach(link => {
                 const linkElement = document.createElement('a');
                 linkElement.href = link.url;
                 linkElement.className = 'link-button';
-                
-                // リンクテキストを生成
                 linkElement.innerHTML = `<span class="door-icon"></span><span class="button-text">${link.name}</span>`;
                 container.appendChild(linkElement);
             });
@@ -564,36 +577,39 @@
         // ----------------------------------------------------
         let currentEditingKey = null;
 
+        /**
+         * 現在編集対象のポータルキーを特定する。
+         * XXgY の場合、認証にはベースの XX パスワードを使用する。
+         */
         function getCurrentEditingKey(rawHash) {
-            let editingKey = rawHash || 'default';
-            
-            // 短縮形 (例: #1) の解決をここでも実行 (キーを2桁にパッド)
-            if (editingKey.match(/^\d{1,2}$/)) {
-                const paddedCode = pad(parseInt(editingKey, 10));
-                if (editablePortalData[paddedCode]) {
-                    editingKey = paddedCode;
-                }
-            }
+            const key = resolveKey(rawHash);
+            // resolveKeyの結果をそのまま返す
+            return key;
+        }
 
-            // データが存在しない場合の最終フォールバック
-            if (!editablePortalData[editingKey]) {
-                editingKey = 'default';
+        /**
+         * 認証に必要な学校コード (XX) を取得する。
+         * XXgY のキーの場合、XX の部分を抜き出す。
+         */
+        function getAuthCode(editingKey) {
+            if (editingKey === 'default') {
+                return 'default'; // 共通ポータル用
             }
-            return editingKey;
+            // XXgY または XX の形式から XX (2桁の数字) を抽出
+            const match = editingKey.match(/^(\d{2})[g\d]*$/);
+            return match ? match[1] : null; 
         }
 
         function handleEditClick() {
             const rawHash = window.location.hash.substring(1).toLowerCase().replace(/\/+$/, '').trim();
             
             const editingKey = getCurrentEditingKey(rawHash);
-
-            // 編集対象のキーが学校コード (2桁数字) かチェック
-            const isSchoolPage = editingKey.match(/^\d{2}$/) && SCHOOL_PASSWORDS[editingKey];
+            const authCode = getAuthCode(editingKey);
             
-            // 該当するパスワードを取得
-            const requiredPassword = isSchoolPage ? SCHOOL_PASSWORDS[editingKey] : ADMIN_PASSWORD;
+            const isSchoolPage = authCode && authCode !== 'default' && SCHOOL_PASSWORDS[authCode];
+            
+            const requiredPassword = isSchoolPage ? SCHOOL_PASSWORDS[authCode] : ADMIN_PASSWORD;
 
-            // 簡易パスワード認証
             const password = prompt(`ポータルを編集するにはパスワードを入力してください。\n(対象キー: #${editingKey})`);
             
             let authorized = false;
@@ -601,7 +617,6 @@
             if (password === requiredPassword) {
                 authorized = true;
             } else if (password !== null) {
-                // パスワードが間違っている場合のフィードバック
                 console.error(`パスワードが違います。`);
             }
 
@@ -628,7 +643,6 @@
             
             modalTitle.textContent = `ポータルデータを編集: #${currentEditingKey}`;
             
-            // 編集対象のリンクデータをJSON形式で整形してエディタに表示
             const dataToEdit = editablePortalData[currentEditingKey];
             editor.value = JSON.stringify(dataToEdit, null, 2);
             
@@ -660,11 +674,9 @@
             }
 
             const updatedDataStore = { ...editablePortalData };
-            // newPortalDataがオブジェクトであることを確認し、キーの構造を保持
             if (typeof newPortalData === 'object' && newPortalData !== null && newPortalData.hasOwnProperty('title') && newPortalData.hasOwnProperty('links')) {
                  updatedDataStore[currentEditingKey] = newPortalData;
             } else {
-                 // 編集対象の構造 (titleとlinksを持つオブジェクト) が崩れていた場合の警告
                  console.error("保存されたJSONの構造が期待されていませんでした (title/linksが存在しない)。");
                  const saveButton = document.querySelector('.modal-save');
                  const originalText = saveButton.textContent;
