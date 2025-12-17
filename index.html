@@ -10,20 +10,22 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        // --- Firebase 設定 ---
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { 
-            apiKey: "", authDomain: "", projectId: "", storageBucket: "", messagingSenderId: "", appId: "" 
+        // --- Firebase 設定 (ご提示いただいた値を反映) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCU6-hKFFa8dew_G_0_hDP8Q4eYqP0_7yU",
+            authDomain: "gigaportal-editor.firebaseapp.com",
+            projectId: "gigaportal-editor",
+            storageBucket: "gigaportal-editor.firebasestorage.app",
+            messagingSenderId: "969946487756",
+            appId: "1:969946487756:web:fa4c4347d72de0b2dc9b69"
         };
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'gaku-tobira-app';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'gigaportal-editor';
 
-        // 初期化
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // --- グローバル変数 ---
+        let app, auth, db;
         let user = null;
         let portalData = {};
+        let unsubscribeListener = null;
+
         const SCHOOL_PASSWORDS = { '01': 'portal01', '04': 'portal04', '07': 'portal07', '11': 'portal11' };
         const ADMIN_PASSWORD = 'admin123';
         const defaultLinks = [
@@ -32,39 +34,46 @@
             { name: 'NHK for School', url: "https://www.nhk.or.jp/school/" }
         ];
 
-        // --- 1. 認証処理 (RULE 3) ---
-        const initAuth = async () => {
+        function setStatus(msg) {
+            console.log("Status:", msg);
+            document.getElementById('main-section-title').textContent = msg;
+        }
+
+        const startApp = async () => {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                setStatus("Firebase接続中...");
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                onAuthStateChanged(auth, (u) => {
+                    user = u;
+                    if (user) {
+                        setStatus("認証完了。データを取得中...");
+                        setupFirestoreListener();
+                    }
+                });
+
+                // 匿名認証の実行
+                await signInAnonymously(auth);
+                
             } catch (error) {
-                console.error("Auth failed:", error);
+                console.error("Firebase Init Error:", error);
+                setStatus("⚠️ 接続エラー: " + error.message);
             }
         };
 
-        onAuthStateChanged(auth, (u) => {
-            user = u;
-            if (user) {
-                setupFirestoreListener();
-            }
-        });
-
-        initAuth();
-
-        // --- 2. Firestore リスニング (RULE 1: パス階層を portals コレクション配下に設定) ---
         function setupFirestoreListener() {
-            if (!user) return;
-            
+            if (!user || !db) return;
+            if (unsubscribeListener) unsubscribeListener();
+
             const rawHash = window.location.hash.substring(1).toLowerCase().replace(/\/+$/, '').trim() || 'default';
             const currentKey = resolveKey(rawHash);
             
-            // パス構造: artifacts/{appId}/public/data/portals/{currentKey} (偶数セグメント)
+            // パス構造: artifacts/{appId}/public/data/portals/{currentKey} (偶数階層)
             const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'portals', currentKey);
             
-            onSnapshot(docRef, (docSnap) => {
+            unsubscribeListener = onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists()) {
                     portalData[currentKey] = docSnap.data();
                 } else {
@@ -72,26 +81,19 @@
                 }
                 renderPortal(currentKey);
             }, (error) => {
-                console.error("Firestore listen error:", error);
+                console.error("Firestore Error:", error);
                 portalData[currentKey] = generateInitialData(currentKey);
                 renderPortal(currentKey);
+                setStatus("⚠️ データ取得失敗（ルール設定を確認してください）");
             });
         }
 
-        // --- 3. データ保存処理 ---
         window.saveToCloud = async (key, newData) => {
-            if (!user) return;
+            if (!user || !db) return;
             const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'portals', key);
-            try {
-                await setDoc(docRef, newData);
-                console.log("Cloud Saved!");
-            } catch (e) {
-                console.error("Save error:", e);
-                throw e;
-            }
+            await setDoc(docRef, newData);
         };
 
-        // --- ヘルパー関数 ---
         function pad(num) { return num.toString().padStart(2, '0'); }
         const kanjiMap = { 1: '第一', 2: '第二', 3: '第三', 4: '第四', 5: '第五', 6: '第六', 7: '第七', 8: '第八', 9: '第九', 10: '第十', 11: '第十一', 12: '第十二', 13: '第十三', 14: '第十四', 15: '第十五', 16: '第十六', 17: '第十七', 18: '第十八', 19: '第十九', 20: '第二十', 21: '第二十一' };
 
@@ -108,7 +110,7 @@
             if (key === 'default') return { title: '学トビラ - 共通学習コンテンツ', links: defaultLinks, infoHtml: '共通ポータルです。' };
             const code = key.substring(0, 2);
             const num = parseInt(code, 10);
-            const name = kanjiMap[num] + "小学校";
+            const name = (kanjiMap[num] || code) + "小学校";
             if (key.includes('g')) {
                 const grade = key.split('g')[1];
                 return { title: `${name} ${grade}年生`, links: [...defaultLinks], infoHtml: `<p>${grade}年生のページです。</p>` };
@@ -182,24 +184,30 @@
                 const newData = JSON.parse(editor.value);
                 const saveBtn = document.querySelector('.modal-save');
                 saveBtn.textContent = "保存中...";
+                saveBtn.disabled = true;
                 await window.saveToCloud(key, newData);
                 closeEditModal();
                 saveBtn.textContent = "保存して適用";
+                saveBtn.disabled = false;
             } catch (e) {
-                alert("JSONエラーまたは通信エラーです。");
+                alert("エラー: " + e.message);
+                document.querySelector('.modal-save').disabled = false;
+                document.querySelector('.modal-save').textContent = "保存して適用";
             }
         };
 
         window.addEventListener('hashchange', () => {
             setupFirestoreListener();
         });
+
+        window.onload = startApp;
     </script>
 
     <style>
         body { font-family: sans-serif; margin: 0; padding: 20px; background: #f4f7f6; text-align: center; color: #333; }
         .container { max-width: 900px; margin: 0 auto; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         h1 { color: #0056b3; margin-bottom: 20px; }
-        .section-title { color: #0056b3; border-bottom: 3px solid #0056b3; padding-bottom: 5px; margin-top: 30px; }
+        .section-title { color: #0056b3; border-bottom: 3px solid #0056b3; padding-bottom: 5px; margin-top: 30px; min-height: 1.5em; }
         .link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px; }
         .link-button { display: flex; align-items: center; padding: 20px; background: #e9f0f8; color: #0056b3; text-decoration: none; border-radius: 10px; font-weight: bold; border: 2px solid #b3e0ff; transition: 0.2s; position: relative; }
         .link-button:hover { background: #d0e0f0; transform: translateY(-2px); }
@@ -214,6 +222,7 @@
         textarea { width: 100%; height: 300px; font-family: monospace; margin: 10px 0; padding: 10px; box-sizing: border-box; }
         .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; }
         .modal-save { background: #0056b3; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .modal-save:disabled { opacity: 0.5; cursor: not-allowed; }
         .modal-cancel { background: #ccc; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
         .emergency-section { margin-top: 40px; padding: 20px; border: 4px solid #cc0000; background: #ffe6e6; border-radius: 12px; }
     </style>
@@ -223,7 +232,7 @@
         <h1>学トビラ</h1>
         <button id="edit-button" class="hidden" onclick="handleEditClick()">ポータルを編集</button>
 
-        <h2 class="section-title" id="main-section-title">📗 読み込み中...</h2>
+        <h2 class="section-title" id="main-section-title">⌛ 初期化中...</h2>
         <div class="link-grid" id="link-container"></div>
         <div class="info-section" id="info-section"></div>
 
