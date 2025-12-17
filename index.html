@@ -54,17 +54,14 @@
 
         initAuth();
 
-        // --- 2. Firestore リスニング (RULE 1: セグメント数を偶数に修正) ---
+        // --- 2. Firestore リスニング (RULE 1: パス階層を portals コレクション配下に設定) ---
         function setupFirestoreListener() {
             if (!user) return;
             
             const rawHash = window.location.hash.substring(1).toLowerCase().replace(/\/+$/, '').trim() || 'default';
             const currentKey = resolveKey(rawHash);
             
-            // 修正箇所: 偶数セグメントのパスにするため、dataをコレクション、currentKeyをドキュメントIDとして指定
-            // 構造: artifacts (col) / appId (doc) / public (col) / data (doc) / pages (col) / currentKey (doc)
-            // または推奨の: artifacts (col) / appId (doc) / public (col) / data (doc) ではなく
-            // /artifacts/{appId}/public/data/{collectionName} -> ここでは collectionName を "portals" とし、documentId を currentKey にします
+            // パス構造: artifacts/{appId}/public/data/portals/{currentKey} (偶数セグメント)
             const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'portals', currentKey);
             
             onSnapshot(docRef, (docSnap) => {
@@ -201,7 +198,7 @@
     <style>
         body { font-family: sans-serif; margin: 0; padding: 20px; background: #f4f7f6; text-align: center; color: #333; }
         .container { max-width: 900px; margin: 0 auto; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        h1 { color: #0056b3; }
+        h1 { color: #0056b3; margin-bottom: 20px; }
         .section-title { color: #0056b3; border-bottom: 3px solid #0056b3; padding-bottom: 5px; margin-top: 30px; }
         .link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px; }
         .link-button { display: flex; align-items: center; padding: 20px; background: #e9f0f8; color: #0056b3; text-decoration: none; border-radius: 10px; font-weight: bold; border: 2px solid #b3e0ff; transition: 0.2s; position: relative; }
@@ -224,7 +221,6 @@
 <body>
     <div class="container">
         <h1>学トビラ</h1>
-        <p>クラウド同期で、みんなのポータルを最新に。</p>
         <button id="edit-button" class="hidden" onclick="handleEditClick()">ポータルを編集</button>
 
         <h2 class="section-title" id="main-section-title">📗 読み込み中...</h2>
