@@ -3,361 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>学トビラ</title>
-    <style>
-        /* ------------------------------------- */
-        /* 共通スタイル */
-        /* ------------------------------------- */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f7f6;
-            color: #333;
-            text-align: center;
-        }
+    <title>学トビラ - クラウド同期版</title>
+    <!-- Firebase SDK (Version 11.0.1) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #ffffff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border-radius: 12px;
-        }
+        // --- Firebase 設定 ---
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { 
+            apiKey: "", authDomain: "", projectId: "", storageBucket: "", messagingSenderId: "", appId: "" 
+        };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'gaku-tobira-app';
 
-        h1 {
-            color: #0056b3;
-            margin-bottom: 5px;
-            font-size: 2.2em;
-            padding-top: 10px;
-        }
+        // 初期化
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        /* ------------------------------------- */
-        /* ボタンとセクションのスタイル */
-        /* ------------------------------------- */
-        .section-title {
-            color: #0056b3;
-            border-bottom: 3px solid #0056b3;
-            padding-bottom: 5px;
-            margin-top: 30px;
-            margin-bottom: 20px;
-            font-size: 1.5em;
-        }
+        // --- グローバル変数 ---
+        let user = null;
+        let portalData = {};
+        const SCHOOL_PASSWORDS = { '01': 'portal01', '04': 'portal04', '07': 'portal07', '11': 'portal11' };
+        const ADMIN_PASSWORD = 'admin123';
+        const defaultLinks = [
+            { name: 'eライブラリ', url: "https://ela.education.ne.jp/students/" },
+            { name: 'ドリルプラネット', url: "https://login.kobun.co.jp/student-login/?code=1134304" },
+            { name: 'NHK for School', url: "https://www.nhk.or.jp/school/" }
+        ];
 
-        .link-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
+        // --- 1. 認証処理 (RULE 3) ---
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Auth failed:", error);
+            }
+        };
 
-        .link-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px 15px;
-            background-color: #e9f0f8;
-            color: #0056b3;
-            text-decoration: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: bold;
-            transition: background-color 0.2s, transform 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            min-height: 80px;
-            text-align: left;
-            line-height: 1.3;
-            perspective: 1000px;
-            border: 2px solid #b3e0ff;
-        }
+        onAuthStateChanged(auth, (u) => {
+            user = u;
+            if (user) {
+                setupFirestoreListener();
+            }
+        });
 
-        .link-button:hover {
-            background-color: #d0e0f0;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+        initAuth();
 
-        /* ------------------------------------- */
-        /* ドアアイコンのスタイル */
-        /* ------------------------------------- */
-        .door-icon {
-            /* ドアの基本的な箱 */
-            position: relative;
-            width: 24px;
-            height: 32px;
-            background-color: #a0522d; /* 茶色のドア */
-            border: 2px solid #8B4513;
-            border-radius: 4px 4px 0 0;
-            margin-right: 15px;
-            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-            flex-shrink: 0;
+        // --- 2. Firestore リスニング (RULE 1: セグメント数を偶数に修正) ---
+        function setupFirestoreListener() {
+            if (!user) return;
             
-            /* アニメーションの基本設定 */
-            transform-origin: left center; /* 左端を軸に回転 */
-            transition: transform 0.5s ease-out, opacity 0.5s ease-out; 
-            transform: rotateY(0deg); /* 初期状態 */
-        }
-        
-        /* === ドアが開くアニメーション === */
-        .link-button.opening .door-icon {
-            transform: rotateY(-110deg);
-            opacity: 0;
-        }
-
-        /* ドアの取っ手 */
-        .door-icon::after {
-            content: '';
-            position: absolute;
-            top: 10px;
-            right: 5px;
-            width: 4px;
-            height: 4px;
-            background-color: #ffd700; /* ゴールドの取っ手 */
-            border-radius: 50%;
-        }
-
-        .button-text {
-            flex-grow: 1;
-            text-align: center;
+            const rawHash = window.location.hash.substring(1).toLowerCase().replace(/\/+$/, '').trim() || 'default';
+            const currentKey = resolveKey(rawHash);
+            
+            // 修正箇所: 偶数セグメントのパスにするため、dataをコレクション、currentKeyをドキュメントIDとして指定
+            // 構造: artifacts (col) / appId (doc) / public (col) / data (doc) / pages (col) / currentKey (doc)
+            // または推奨の: artifacts (col) / appId (doc) / public (col) / data (doc) ではなく
+            // /artifacts/{appId}/public/data/{collectionName} -> ここでは collectionName を "portals" とし、documentId を currentKey にします
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'portals', currentKey);
+            
+            onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    portalData[currentKey] = docSnap.data();
+                } else {
+                    portalData[currentKey] = generateInitialData(currentKey);
+                }
+                renderPortal(currentKey);
+            }, (error) => {
+                console.error("Firestore listen error:", error);
+                portalData[currentKey] = generateInitialData(currentKey);
+                renderPortal(currentKey);
+            });
         }
 
-        /* ------------------------------------- */
-        /* 緊急対応セクションの強調 */
-        /* ------------------------------------- */
-        .emergency-section {
-            margin-top: 40px;
-            padding: 20px;
-            border: 4px solid #cc0000;
-            background-color: #ffe6e6;
-            border-radius: 12px;
-        }
-
-        .emergency-section .section-title {
-            color: #cc0000;
-            border-bottom: 3px solid #cc0000;
-        }
-        
-        .emergency-description {
-            color: #cc0000;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        /* 緊急ボタンのスタイル (赤色系のドア) */
-        .emergency-button {
-            background-color: #ff9900;
-            color: #333;
-            border: 3px solid #cc7a00;
-            font-size: 1.2em;
-            padding: 25px 15px;
-        }
-
-        .emergency-button:hover {
-            background-color: #ffc04d;
-            color: #000;
-        }
-        
-        /* 緊急ボタンのドアの色を警告色に */
-        .emergency-button .door-icon {
-            background-color: #cc3333; 
-            border-color: #a00000;
-        }
-
-        /* ------------------------------------- */
-        /* 追加情報セクションのスタイル */
-        /* ------------------------------------- */
-        .info-section {
-            margin-top: 40px;
-            padding: 20px;
-            border-top: 1px dashed #ccc;
-            text-align: left;
-            background-color: #f8f8f8;
-            border-radius: 8px;
-        }
-
-
-        /* ------------------------------------- */
-        /* 管理者機能のスタイル */
-        /* ------------------------------------- */
-        #edit-button {
-            background-color: #3cb371; /* Medium Sea Green */
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 0.9em;
-            cursor: pointer;
-            margin-top: 10px;
-            margin-bottom: 20px;
-            transition: background-color 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        #edit-button:hover {
-            background-color: #2e8b57; /* Sea Green */
-        }
-        
-        /* ユーティリティ: 要素を完全に非表示にする */
-        .hidden {
-            display: none !important;
-        }
-        
-        /* モーダルのスタイル */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: none; /* 初期は非表示 */
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 700px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .modal-content textarea {
-            width: 100%;
-            height: 300px;
-            min-height: 200px;
-            margin-top: 10px;
-            font-family: monospace;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .modal-buttons button {
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        .modal-save {
-            background-color: #0056b3;
-            color: white;
-            border: none;
-        }
-        
-        .modal-cancel {
-            background-color: #ccc;
-            color: #333;
-            border: none;
-        }
-        
-        .modal-title {
-            font-size: 1.5em;
-            color: #0056b3;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-        }
-
-        /* レスポンシブ対応 (モバイル向け) */
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
+        // --- 3. データ保存処理 ---
+        window.saveToCloud = async (key, newData) => {
+            if (!user) return;
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'portals', key);
+            try {
+                await setDoc(docRef, newData);
+                console.log("Cloud Saved!");
+            } catch (e) {
+                console.error("Save error:", e);
+                throw e;
             }
-            .container {
-                padding: 15px;
-            }
-            .link-button, .emergency-button {
-                min-height: 60px;
-                font-size: 1em;
-            }
-            .door-icon {
-                margin-right: 10px;
-                width: 20px;
-                height: 28px;
-            }
-            .modal-content {
-                width: 95%;
-            }
+        };
+
+        // --- ヘルパー関数 ---
+        function pad(num) { return num.toString().padStart(2, '0'); }
+        const kanjiMap = { 1: '第一', 2: '第二', 3: '第三', 4: '第四', 5: '第五', 6: '第六', 7: '第七', 8: '第八', 9: '第九', 10: '第十', 11: '第十一', 12: '第十二', 13: '第十三', 14: '第十四', 15: '第十五', 16: '第十六', 17: '第十七', 18: '第十八', 19: '第十九', 20: '第二十', 21: '第二十一' };
+
+        function resolveKey(rawHash) {
+            if (!rawHash || rawHash === 'default') return 'default';
+            const matchXXgY = rawHash.match(/^(\d{1,2})g(\d{1})$/);
+            if (matchXXgY) return `${pad(matchXXgY[1])}g${matchXXgY[2]}`;
+            const matchXX = rawHash.match(/^(\d{1,2})$/);
+            if (matchXX) return pad(matchXX[1]);
+            return 'default';
         }
+
+        function generateInitialData(key) {
+            if (key === 'default') return { title: '学トビラ - 共通学習コンテンツ', links: defaultLinks, infoHtml: '共通ポータルです。' };
+            const code = key.substring(0, 2);
+            const num = parseInt(code, 10);
+            const name = kanjiMap[num] + "小学校";
+            if (key.includes('g')) {
+                const grade = key.split('g')[1];
+                return { title: `${name} ${grade}年生`, links: [...defaultLinks], infoHtml: `<p>${grade}年生のページです。</p>` };
+            }
+            return { title: `${name} (全学年共通)`, links: [...defaultLinks], infoHtml: `<p>${name}の共通ページです。</p>` };
+        }
+
+        function renderPortal(key) {
+            const data = portalData[key] || generateInitialData(key);
+            document.getElementById('main-section-title').textContent = data.title;
+            document.getElementById('info-section').innerHTML = data.infoHtml || '';
+            
+            const container = document.getElementById('link-container');
+            container.innerHTML = '';
+            (data.links || []).forEach(link => {
+                const btn = document.createElement('a');
+                btn.href = link.url;
+                btn.className = 'link-button';
+                btn.innerHTML = `<span class="door-icon"></span><span class="button-text">${link.name}</span>`;
+                btn.onclick = handleLinkClick;
+                container.appendChild(btn);
+            });
+
+            const rawHash = window.location.hash.substring(1);
+            document.getElementById('emergency-section').classList.toggle('hidden', rawHash !== '');
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            document.getElementById('edit-button').classList.toggle('hidden', !urlParams.has('admin'));
+        }
+
+        function handleLinkClick(e) {
+            if (this.href.includes('#')) return;
+            e.preventDefault();
+            const target = this.href;
+            this.classList.add('opening');
+            setTimeout(() => {
+                window.open(target, '_blank');
+                setTimeout(() => this.classList.remove('opening'), 100);
+            }, 550);
+        }
+
+        window.handleEditClick = () => {
+            const rawHash = window.location.hash.substring(1).toLowerCase() || 'default';
+            const key = resolveKey(rawHash);
+            const authCode = key.substring(0, 2);
+            const required = (authCode === 'de') ? ADMIN_PASSWORD : (SCHOOL_PASSWORDS[authCode] || ADMIN_PASSWORD);
+
+            const pw = prompt(`パスワードを入力してください (#${key})`);
+            if (pw === required) {
+                showEditModal(key);
+            } else if (pw !== null) {
+                alert("パスワードが違います。");
+            }
+        };
+
+        function showEditModal(key) {
+            const modal = document.getElementById('edit-modal');
+            const editor = document.getElementById('json-editor');
+            document.getElementById('modal-title').textContent = `クラウド編集: #${key}`;
+            editor.value = JSON.stringify(portalData[key] || generateInitialData(key), null, 2);
+            modal.style.display = 'flex';
+        }
+
+        window.closeEditModal = () => document.getElementById('edit-modal').style.display = 'none';
+
+        window.saveChanges = async () => {
+            const editor = document.getElementById('json-editor');
+            const rawHash = window.location.hash.substring(1).toLowerCase() || 'default';
+            const key = resolveKey(rawHash);
+            try {
+                const newData = JSON.parse(editor.value);
+                const saveBtn = document.querySelector('.modal-save');
+                saveBtn.textContent = "保存中...";
+                await window.saveToCloud(key, newData);
+                closeEditModal();
+                saveBtn.textContent = "保存して適用";
+            } catch (e) {
+                alert("JSONエラーまたは通信エラーです。");
+            }
+        };
+
+        window.addEventListener('hashchange', () => {
+            setupFirestoreListener();
+        });
+    </script>
+
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 20px; background: #f4f7f6; text-align: center; color: #333; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { color: #0056b3; }
+        .section-title { color: #0056b3; border-bottom: 3px solid #0056b3; padding-bottom: 5px; margin-top: 30px; }
+        .link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px; }
+        .link-button { display: flex; align-items: center; padding: 20px; background: #e9f0f8; color: #0056b3; text-decoration: none; border-radius: 10px; font-weight: bold; border: 2px solid #b3e0ff; transition: 0.2s; position: relative; }
+        .link-button:hover { background: #d0e0f0; transform: translateY(-2px); }
+        .door-icon { width: 24px; height: 32px; background: #a0522d; border: 2px solid #8B4513; border-radius: 4px 4px 0 0; margin-right: 15px; flex-shrink: 0; transition: 0.5s; transform-origin: left; }
+        .link-button.opening .door-icon { transform: rotateY(-110deg); opacity: 0; }
+        .button-text { flex-grow: 1; text-align: center; }
+        .info-section { margin-top: 40px; padding: 20px; background: #f8f8f8; border-radius: 8px; text-align: left; }
+        .hidden { display: none !important; }
+        #edit-button { background: #3cb371; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #fff; padding: 20px; border-radius: 10px; width: 90%; max-width: 700px; }
+        textarea { width: 100%; height: 300px; font-family: monospace; margin: 10px 0; padding: 10px; box-sizing: border-box; }
+        .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; }
+        .modal-save { background: #0056b3; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .modal-cancel { background: #ccc; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .emergency-section { margin-top: 40px; padding: 20px; border: 4px solid #cc0000; background: #ffe6e6; border-radius: 12px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1><ruby>学<rt>ガク</rt></ruby>トビラ</h1>
-        <p class="subtitle">さあ、学習の扉を開こう！</p>
-
-        <!-- 管理者編集ボタンを追加 -->
+        <h1>学トビラ</h1>
+        <p>クラウド同期で、みんなのポータルを最新に。</p>
         <button id="edit-button" class="hidden" onclick="handleEditClick()">ポータルを編集</button>
 
-        <!-- ------------------------------------- -->
-        <!-- 学習Webアプリセクション (メイン) -->
-        <!-- ------------------------------------- -->
-        <h2 class="section-title" id="main-section-title">📗 いつもの学習の扉</h2>
-        
-        <div class="link-grid" id="link-container">
-            <!-- 動的にリンクが挿入されます -->
-        </div>
+        <h2 class="section-title" id="main-section-title">📗 読み込み中...</h2>
+        <div class="link-grid" id="link-container"></div>
+        <div class="info-section" id="info-section"></div>
 
-        <!-- ------------------------------------- -->
-        <!-- 学校・学年独自の情報セクション -->
-        <!-- ------------------------------------- -->
-        <div class="info-section" id="info-section">
-            <!-- data.infoHtml の内容がここに挿入されます -->
-        </div>
-
-
-        <!-- ------------------------------------- -->
-        <!-- 緊急対応セクション (トラブル回避) - JSで表示/非表示を制御 -->
-        <!-- ------------------------------------- -->
         <div class="emergency-section hidden" id="emergency-section">
-            <h2 class="section-title">🚨 緊急対応の扉：サインインやデータ消失のトラブル時</h2>
-            <p class="emergency-description">
-                **【重要】** OneDriveフォルダやデスクトップアプリ(Teams/Office)にサインインできない場合は、**必ずこのリンク**からWebブラウザ版をご利用ください。
-            </p>
-            
+            <h2 style="color:#cc0000">🚨 緊急対応の扉</h2>
             <div class="link-grid">
-                <!-- Microsoft 365 ポータルにまとめて誘導 -->
-                <a href="https://portal.office.com/" class="link-button emergency-button" target="_blank">
-                    <span class="door-icon"></span><span class="button-text">Microsoftのスタートページ<br>(Web版 Office, Teams, OneDriveはこちら)</span>
-                </a>
-
-                <!-- サインイン手順書 (復旧マニュアル) -->
-                <a href="[サインイン手順書PDFのURLをここに記述]" class="link-button emergency-button" target="_blank">
-                    <span class="door-icon"></span><span class="button-text">サインイン復旧手順書<br>（トラブル解決マニュアル）</span>
-                </a>
+                <a href="https://portal.office.com/" class="link-button" target="_blank" style="border-color:#cc0000"><span class="door-icon" style="background:#cc3333"></span>Microsoft 365 Portal</a>
             </div>
         </div>
-
-        <!-- ------------------------------------- -->
-        <!-- フッター情報 - 削除 -->
-        <!-- ------------------------------------- -->
-        
     </div>
-    
-    <!-- ------------------------------------- -->
-    <!-- JSON編集モーダル (管理画面) -->
-    <!-- ------------------------------------- -->
+
     <div id="edit-modal" class="modal-overlay">
         <div class="modal-content">
-            <h3 class="modal-title" id="modal-title">ポータルデータを編集: #default</h3>
-            <p id="edit-warning" style="color: #cc0000; font-weight: bold; font-size: 0.9em;">
-                ⚠️ JSON形式（`{"title": "...", "links": [...], "infoHtml": "..."}`）を崩さないでください。<br>
-                編集内容はブラウザ（ローカルストレージ）にのみ保存されます。HTMLタグも直接記述可能です。
-            </p>
+            <h3 id="modal-title">ポータル編集</h3>
             <textarea id="json-editor"></textarea>
             <div class="modal-buttons">
                 <button class="modal-cancel" onclick="closeEditModal()">キャンセル</button>
@@ -365,415 +249,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        // ----------------------------------------------------
-        // データを永続化するためのローカルストレージキー
-        // 学年指定に対応するため、キーバージョンを更新します。
-        const LOCAL_STORAGE_KEY = 'gakuTobiraPortalDataV7_GradeSupport'; 
-        
-        // 共通の管理者パスワード (デフォルトページ編集用)
-        const ADMIN_PASSWORD = 'admin123';
-        
-        // 学校固有のパスワードを定義 (学校コードに対応)
-        // 学年別ポータルも、この学校コードのパスワードで編集可能とします。
-        const SCHOOL_PASSWORDS = {
-            '01': 'portal01', 
-            '04': 'portal04', 
-            '07': 'portal07', 
-            '11': 'portal11', 
-            // 他の学校も必要に応じて追加
-        };
-        
-        // 共通の基本リンク構造を定義 (デフォルトページの内容)
-        const defaultLinks = [
-            { name: 'eライブラリ', url: "https://ela.education.ne.jp/students/" },
-            { name: 'ドリルプラネット', url: "https://login.kobun.co.jp/student-login/?code=1134304" },
-            { name: 'NHK for School', url: "https://www.nhk.or.jp/school/" },
-            { name: '文科省 GIGAスクール関連情報', url: "https://www.mext.go.jp/a_menu/other/index_00001.htm" },
-        ];
-
-
-        /**
-         * 階層型ポータル表示用の設定データ (初期値)
-         */
-        const initialPortalData = {};
-        
-        // ----------------------------------------------------
-        // 共通デフォルト設定 (トップページ)
-        // ----------------------------------------------------
-        initialPortalData['default'] = { 
-            title: '学トビラ - 共通学習コンテンツ',
-            links: defaultLinks,
-            infoHtml: '<p style="text-align: center; color: #555; margin-top: 20px;">この共通ポータルは、全ての学校で利用可能な基本的な学習コンテンツを集約しています。</p>'
-        };
-        
-        
-        // --- ここから学校コードと学年別コードの自動生成ロジック ---
-
-        /**
-         * 2桁のコードにパッドするユーティリティ
-         */
-        function pad(num) {
-            return num.toString().padStart(2, '0');
-        }
-
-        /**
-         * 学校番号(1-21)を漢字表記に変換するマッピング
-         */
-        const kanjiMap = {
-            1: '第一', 2: '第二', 3: '第三', 4: '第四', 5: '第五', 6: '第六', 7: '第七', 8: '第八', 9: '第九', 10: '第十',
-            11: '第十一', 12: '第十二', 13: '第十三', 14: '第十四', 15: '第十五', 16: '第十六', 17: '第十七', 18: '第十八', 19: '第十九', 20: '第二十', 21: '第二十一'
-        };
-
-        for (let i = 1; i <= 21; i++) {
-            const code = pad(i);
-            const kanjiPrefix = kanjiMap[i] + '小学校'; // 例: '第四小学校'
-
-            // 1. 基本ポータル (コードのみ: XX) を初期化
-            initialPortalData[code] = {
-                title: `${kanjiPrefix} (全学年共通)`, // 例: '第四小学校 (全学年共通)'
-                links: JSON.parse(JSON.stringify(defaultLinks)),
-                infoHtml: `<h3 style="color: #0056b3;">学校${code}からのお知らせ</h3><p>ここに学校独自のリンクや情報を掲載できます。編集ボタンから内容を変更してください。</p>`
-            };
-
-            // 2. 学年別ポータル (XXgY, 例: 04g2) - 1年から6年までを初期化
-            for (let g = 1; g <= 6; g++) {
-                const gradeKey = `${code}g${g}`;
-                initialPortalData[gradeKey] = {
-                    title: `${kanjiPrefix} ${g}年生`, // 例: '第四小学校 2年生'
-                    // 初期設定では、学年別ポータルも基本リンクをコピーしておく
-                    links: JSON.parse(JSON.stringify(defaultLinks)),
-                    infoHtml: `<h3 style="color: #008000;">第${g}学年より</h3><p>学年独自の課題や連絡事項などをこちらに表示します。</p>`
-                };
-            }
-        }
-
-        // --- 自動生成ロジックの追加終了 ---
-
-        let editablePortalData = {}; 
-        const animationDuration = 500; 
-
-        // ----------------------------------------------------
-        // データロードと永続化のロジック
-        // ----------------------------------------------------
-        function loadPortalData() {
-            let storedData = {};
-            try {
-                const storedJson = localStorage.getItem(LOCAL_STORAGE_KEY);
-                if (storedJson) {
-                    storedData = JSON.parse(storedJson);
-                }
-            } catch (e) {
-                console.error("Error loading or parsing localStorage data. Using initial data as base.", e);
-            }
-
-            // 初期データ (自動生成された全キー) とローカルストレージのデータをマージ
-            const mergedData = { ...initialPortalData };
-            
-            for (const key in storedData) {
-                const initial = initialPortalData[key];
-                const stored = storedData[key];
-
-                if (initial) {
-                    // **【タイトル命名規則の移行処理】**
-                    // 既存のローカルストレージのタイトルが古い自動生成パターン ("学トビラ - 学校 XX 第Y学年") に一致する場合、
-                    // initialPortalDataにある新しいタイトルを強制的に使用する。
-                    if (stored && stored.title && stored.title.startsWith('学トビラ - 学校')) {
-                        // storedDataの他のプロパティ（links, infoHtml）を保持しつつ、titleだけinitialで上書きする
-                        mergedData[key] = { ...initial, ...stored, title: initial.title };
-                    } else {
-                        // ユーザーが手動でタイトルを変更した場合や、変更がない場合はstoredDataを優先
-                        // {...initial}で新しいデフォルト構造を適用し、{...stored}で保存された値を上書きする
-                        mergedData[key] = { ...initial, ...stored };
-                    }
-                } else {
-                    // initialPortalDataにキーが存在しない場合（レガシーデータなど）はstoredDataをそのまま使用
-                    mergedData[key] = stored;
-                }
-            }
-
-            editablePortalData = mergedData;
-            savePortalData(editablePortalData);
-        }
-
-        function savePortalData(data) {
-            try {
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
-                editablePortalData = data; 
-            } catch (e) {
-                console.error("Error saving data to localStorage:", e);
-            }
-        }
-        
-        // ----------------------------------------------------
-        // リンククリック時のアニメーションと遷移を制御する関数
-        // ----------------------------------------------------
-        function handleLinkClick(e) {
-            const url = new URL(this.href, window.location.href);
-            if (url.hash && url.hash.startsWith('#')) {
-                 return;
-            }
-            
-            if (this.href.endsWith('#') || this.href.includes('[')) {
-                return; 
-            }
-
-            e.preventDefault(); 
-
-            const targetUrl = this.href;
-            
-            this.classList.add('opening');
-
-            setTimeout(() => {
-                if (targetUrl.length > 0 && targetUrl !== '#') {
-                    window.open(targetUrl, '_blank');
-                }
-                
-                setTimeout(() => {
-                     this.classList.remove('opening');
-                }, 100);
-
-            }, animationDuration + 50); 
-        }
-
-        function attachAnimationListeners() {
-            const linkButtons = document.querySelectorAll('.link-button');
-            
-            linkButtons.forEach(button => {
-                button.removeEventListener('click', handleLinkClick); 
-                button.addEventListener('click', handleLinkClick);
-            });
-        }
-
-        // ----------------------------------------------------
-        // URLハッシュから対応するデータキーを解決する関数
-        // 優先順位: XXgY > XX > default
-        // ----------------------------------------------------
-        function resolveKey(rawHash) {
-            if (!rawHash) return 'default';
-            
-            // 1. XXgY 形式 (例: 04g2, 4g2) をチェック
-            // \d{1,2}g\d{1} の形式にマッチ
-            const matchXXgY = rawHash.match(/^(\d{1,2})g(\d{1})$/);
-            if (matchXXgY) {
-                const code = pad(parseInt(matchXXgY[1], 10)); // 学校コード (2桁)
-                const grade = matchXXgY[2]; // 学年 (1桁)
-                const gradeKey = `${code}g${grade}`; // 例: '04g2'
-                
-                // 学年別キーが存在すればそれを返す
-                if (editablePortalData[gradeKey]) {
-                    return gradeKey;
-                }
-                // 学年別キーがなければ、基本学校キー (XX) にフォールバック
-                if (editablePortalData[code]) {
-                    return code;
-                }
-            }
-
-            // 2. XX 形式 (例: 04, 4) をチェック
-            const matchXX = rawHash.match(/^(\d{1,2})$/);
-            if (matchXX) {
-                const code = pad(parseInt(rawHash, 10)); // 学校コード (2桁)
-                if (editablePortalData[code]) {
-                    return code;
-                }
-            }
-
-            // 3. 最終フォールバック
-            return 'default';
-        }
-
-
-        // ----------------------------------------------------
-        // URLハッシュに基づいてポータルをレンダリングする関数
-        // ----------------------------------------------------
-        function renderPortal() {
-            loadPortalData(); 
-
-            const rawHash = window.location.hash.substring(1).toLowerCase().replace(/\/+$/, '').trim();
-            const urlParams = new URLSearchParams(window.location.search);
-            const isAdmin = urlParams.has('admin');
-            
-            const editButton = document.getElementById('edit-button');
-            const emergencySection = document.getElementById('emergency-section');
-            
-            editButton.classList.toggle('hidden', !isAdmin); 
-
-            // データキーの解決
-            const currentKey = resolveKey(rawHash);
-            const data = editablePortalData[currentKey];
-            
-            // 緊急対応セクションの表示制御
-            const hashIsCompletelyEmpty = rawHash === '';
-            emergencySection.classList.toggle('hidden', !hashIsCompletelyEmpty);
-
-            // タイトルを更新
-            document.getElementById('main-section-title').textContent = data.title;
-            
-            const linkContainer = document.getElementById('link-container');
-            linkContainer.innerHTML = ''; // 既存のコンテンツをクリア
-            
-            const infoSection = document.getElementById('info-section');
-            // infoHtml の内容を挿入 (HTMLタグがそのまま表示されるように innerHTML を使用)
-            infoSection.innerHTML = data.infoHtml || ''; 
-
-            // リンクを動的に生成
-            data.links.forEach(link => {
-                const linkElement = document.createElement('a');
-                linkElement.href = link.url;
-                linkElement.className = 'link-button';
-                linkElement.innerHTML = `<span class="door-icon"></span><span class="button-text">${link.name}</span>`;
-                linkContainer.appendChild(linkElement);
-            });
-            
-            attachAnimationListeners();
-        }
-
-        // ----------------------------------------------------
-        // 管理者編集機能 (パスワードとモーダル)
-        // ----------------------------------------------------
-        let currentEditingKey = null;
-
-        /**
-         * 現在編集対象のポータルキーを特定する。
-         * XXgY の場合、認証にはベースの XX パスワードを使用する。
-         */
-        function getCurrentEditingKey(rawHash) {
-            const key = resolveKey(rawHash);
-            // resolveKeyの結果をそのまま返す
-            return key;
-        }
-
-        /**
-         * 認証に必要な学校コード (XX) を取得する。
-         * XXgY のキーの場合、XX の部分を抜き出す。
-         */
-        function getAuthCode(editingKey) {
-            if (editingKey === 'default') {
-                return 'default'; // 共通ポータル用
-            }
-            // XXgY または XX の形式から XX (2桁の数字) を抽出
-            const match = editingKey.match(/^(\d{2})[g\d]*$/);
-            return match ? match[1] : null; 
-        }
-
-        function handleEditClick() {
-            const rawHash = window.location.hash.substring(1).toLowerCase().replace(/\/+$/, '').trim();
-            
-            const editingKey = getCurrentEditingKey(rawHash);
-            const authCode = getAuthCode(editingKey);
-            
-            const isSchoolPage = authCode && authCode !== 'default' && SCHOOL_PASSWORDS[authCode];
-            
-            const requiredPassword = isSchoolPage ? SCHOOL_PASSWORDS[authCode] : ADMIN_PASSWORD;
-
-            const password = prompt(`ポータルを編集するにはパスワードを入力してください。\n(対象キー: #${editingKey})`);
-            
-            let authorized = false;
-
-            if (password === requiredPassword) {
-                authorized = true;
-            } else if (password !== null) {
-                console.error(`パスワードが違います。`);
-            }
-
-            if (authorized) {
-                showEditModal(editingKey);
-            } else if (password !== null) {
-                const button = document.getElementById('edit-button');
-                const originalText = button.textContent;
-                button.textContent = "❌ パスワード不正";
-                button.style.backgroundColor = '#cc0000';
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.style.backgroundColor = '#3cb371';
-                }, 1500);
-            }
-        }
-        
-        function showEditModal(editingKey) {
-            currentEditingKey = editingKey;
-            
-            const editor = document.getElementById('json-editor');
-            const modalTitle = document.getElementById('modal-title');
-            const editModal = document.getElementById('edit-modal');
-            
-            modalTitle.textContent = `ポータルデータを編集: #${currentEditingKey}`;
-            
-            const dataToEdit = editablePortalData[currentEditingKey];
-            editor.value = JSON.stringify(dataToEdit, null, 2);
-            
-            editModal.style.display = 'flex';
-        }
-
-        function closeEditModal() {
-            document.getElementById('edit-modal').style.display = 'none';
-        }
-        
-        function saveChanges() {
-            const editor = document.getElementById('json-editor');
-            let newPortalData;
-            
-            try {
-                newPortalData = JSON.parse(editor.value);
-            } catch (e) {
-                console.error("JSON形式が不正です。保存できませんでした。", e);
-                
-                const saveButton = document.querySelector('.modal-save');
-                const originalText = saveButton.textContent;
-                saveButton.textContent = "❌ JSONエラー: カンマや引用符を確認";
-                saveButton.style.backgroundColor = '#cc0000';
-                setTimeout(() => {
-                    saveButton.textContent = originalText;
-                    saveButton.style.backgroundColor = '#0056b3';
-                }, 3000); 
-                return;
-            }
-
-            const updatedDataStore = { ...editablePortalData };
-            // 必要なプロパティ (title, links, infoHtml) がすべて存在するかチェック
-            if (typeof newPortalData === 'object' && newPortalData !== null && 
-                newPortalData.hasOwnProperty('title') && Array.isArray(newPortalData.links) && newPortalData.hasOwnProperty('infoHtml')) {
-                 
-                 // 既存のデータと新しいデータをマージして、不足しているフィールド（将来的な追加フィールドなど）を保持する
-                 const existingData = updatedDataStore[currentEditingKey] || {};
-                 updatedDataStore[currentEditingKey] = {
-                     ...existingData, // 既存のフィールドを保持
-                     title: newPortalData.title,
-                     links: newPortalData.links,
-                     infoHtml: newPortalData.infoHtml
-                 };
-
-            } else {
-                 console.error("保存されたJSONの構造が期待されていませんでした (title, links, infoHtmlのいずれかが不足)。");
-                 const saveButton = document.querySelector('.modal-save');
-                 const originalText = saveButton.textContent;
-                 saveButton.textContent = "❌ 構造エラー: title, links, infoHtmlが必要です";
-                 saveButton.style.backgroundColor = '#cc0000';
-                 setTimeout(() => {
-                     saveButton.textContent = originalText;
-                     saveButton.style.backgroundColor = '#0056b3';
-                 }, 3000); 
-                 return;
-            }
-            
-            savePortalData(updatedDataStore);
-            
-            closeEditModal();
-            renderPortal(); 
-        }
-
-
-        // ページロード時とハッシュ変更時にレンダリング
-        document.addEventListener('DOMContentLoaded', () => {
-             renderPortal();
-        });
-        window.addEventListener('hashchange', renderPortal); 
-        
-        if (window.location.hash) {
-            renderPortal();
-        }
-    </script>
 </body>
 </html>
