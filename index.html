@@ -41,7 +41,7 @@
 
         function setStatus(msg) {
             console.log("Status:", msg);
-            document.getElementById('main-section-title').textContent = msg;
+            document.getElementById('main-title').textContent = msg; // ID変更に伴い修正
         }
 
         const startApp = async () => {
@@ -112,7 +112,7 @@
         }
 
         function generateInitialData(key) {
-            if (key === 'default') return { title: '学トビラ - 共通学習コンテンツ', links: defaultLinks, infoHtml: '共通ポータルです。' };
+            if (key === 'default') return { title: '共通学習コンテンツ', links: defaultLinks, infoHtml: '共通ポータルです。' }; // タイトルから「学トビラ - 」を削除
             const code = key.substring(0, 2);
             const num = parseInt(code, 10);
             const name = (kanjiMap[num] || code) + "小学校";
@@ -125,7 +125,10 @@
 
         function renderPortal(key) {
             const data = portalData[key] || generateInitialData(key);
-            document.getElementById('main-section-title').textContent = data.title;
+            
+            // 変更点 1: H1とH2を統合し、H1に「学トビラ - 」を付けて設定する
+            document.getElementById('main-title').textContent = `学トビラ - ${data.title}`;
+            
             document.getElementById('info-section').innerHTML = data.infoHtml || '';
             
             const container = document.getElementById('link-container');
@@ -216,30 +219,63 @@
 
     <style>
         /* フォントをM PLUS Rounded 1cに変更 */
-        body { font-family: 'M PLUS Rounded 1c', sans-serif; margin: 0; padding: 20px; background: #f4f7f6; text-align: center; color: #333; }
-        .container { max-width: 900px; margin: 0 auto; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        h1 { color: #0056b3; margin-bottom: 20px; }
-        .section-title { color: #0056b3; border-bottom: 3px solid #0056b3; padding-bottom: 5px; margin-top: 30px; min-height: 1.5em; }
-        .link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-top: 20px; } /* ギャップを大きくして扉感を出す */
+        body { 
+            font-family: 'M PLUS Rounded 1c', sans-serif; 
+            margin: 0; 
+            padding: 10px; /* スペース最適化のため縮小 */
+            background: #f4f7f6; 
+            text-align: center; 
+            color: #333; 
+            overflow-y: auto; 
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 15px; /* スペース最適化のため縮小 */
+            background: #fff; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+        
+        /* 変更点 1: H1とH2を統合し、H1（ID: main-title）のみにする */
+        h1 { 
+            color: #0056b3; 
+            margin-bottom: 10px; /* 縮小 */
+            font-size: 1.8rem; /* 少し小さく */
+        }
+        .section-title { 
+            color: #0056b3; 
+            border-bottom: 3px solid #0056b3; 
+            padding-bottom: 5px; 
+            margin-top: 20px; /* 縮小 */
+            min-height: 1.5em; 
+        }
+
+        .link-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* 最小幅を少し縮小 */
+            gap: 15px; /* 縮小 */ 
+            margin-top: 15px; /* 縮小 */ 
+        } 
 
         /* 扉の形状と立体感を出すスタイル */
         .link-button { 
             display: flex; 
-            flex-direction: column; /* 縦並びにする */
+            flex-direction: column; 
             justify-content: center;
             align-items: center;
-            height: 150px; /* 高さを固定 */
-            padding: 10px;
+            height: 120px; /* 縮小 */
+            padding: 8px; /* 縮小 */
             background: #e9f0f8; 
             color: #0056b3; 
             text-decoration: none; 
-            border: 4px solid #0056b3; /* 濃いめの枠線 */
-            border-radius: 15px; /* 全体の角丸 */
-            border-top-left-radius: 50px; /* 上部をアーチ状にする */
-            border-top-right-radius: 50px; /* 上部をアーチ状にする */
+            border: 3px solid #0056b3; /* 枠線も細く */
+            border-radius: 10px; /* 角丸も少し小さく */
+            border-top-left-radius: 40px; /* 上部アーチを小さく */
+            border-top-right-radius: 40px; /* 上部アーチを小さく */
             font-weight: bold; 
-            font-size: 1.25rem;
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); /* 影で立体感を出す */
+            font-size: 1.1rem; /* 文字サイズを小さく */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* 影を弱く */
             transition: 0.3s ease; 
             position: relative; 
             overflow: hidden;
@@ -248,23 +284,23 @@
 
         .link-button:hover { 
             background: #d0e0f0; 
-            transform: translateY(-4px); /* 飛び出すアニメーション */
-            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-3px); /* 飛び出しを小さく */
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.25);
         }
 
         /* 扉中央のアイコン（ノブ）のスタイル */
         .door-icon { 
-            width: 30px; /* サイズを大きく */
-            height: 40px; 
-            background: linear-gradient(to top, #a0522d, #8B4513); /* 扉の木目風グラデーション */
-            border: 3px solid #6b8e23; /* アクセントカラーの枠 */
-            border-radius: 8px 8px 0 0; /* 上部を丸く */
-            margin-bottom: 10px; /* テキストとの間隔 */
+            width: 25px; /* 縮小 */
+            height: 30px; /* 縮小 */
+            background: linear-gradient(to top, #a0522d, #8B4513); 
+            border: 2px solid #6b8e23; /* 枠線も細く */
+            border-radius: 6px 6px 0 0; /* 上部を丸く */
+            margin-bottom: 8px; /* 縮小 */
             flex-shrink: 0; 
             transition: 0.5s ease; 
-            transform-origin: center bottom; /* 下部を中心に回転 */
+            transform-origin: center bottom; 
             position: relative;
-            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5); /* 凹み感 */
+            box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.4); /* 凹み感 */
         }
         
         /* 扉が開くアニメーション（中央から回転） */
@@ -278,10 +314,17 @@
             flex-grow: 0; 
             text-align: center; 
             padding: 0 5px;
+            font-size: 1em; /* 確実に収まるサイズ */
         }
 
         /* 既存のユーティリティスタイル */
-        .info-section { margin-top: 40px; padding: 20px; background: #f8f8f8; border-radius: 8px; text-align: left; }
+        .info-section { 
+            margin-top: 20px; /* 縮小 */ 
+            padding: 15px; /* 縮小 */ 
+            background: #f8f8f8; 
+            border-radius: 8px; 
+            text-align: left; 
+        }
         .hidden { display: none !important; }
         #edit-button { background: #3cb371; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 10px; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
@@ -291,15 +334,29 @@
         .modal-save { background: #0056b3; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
         .modal-save:disabled { opacity: 0.5; cursor: not-allowed; }
         .modal-cancel { background: #ccc; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-        .emergency-section { margin-top: 40px; padding: 20px; border: 4px solid #cc0000; background: #ffe6e6; border-radius: 12px; }
+        .emergency-section { 
+             margin-top: 20px; /* 縮小 */ 
+             padding: 15px; /* 縮小 */
+             border: 3px solid #cc0000; /* 枠線も細く */
+             background: #ffe6e6; 
+             border-radius: 10px; /* 角丸も小さく */
+        }
+
+        /* モバイル対応（さらに詰める） */
+        @media (max-width: 600px) {
+            .container { padding: 10px; }
+            .link-grid { gap: 10px; }
+            .link-button { height: 100px; font-size: 1rem; }
+            .door-icon { height: 25px; width: 20px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>学トビラ</h1>
+        <!-- 変更点 1: H1とH2を統合し、H1のみで表示 -->
+        <h1 id="main-title" class="section-title">⌛ 初期化中...</h1>
         <button id="edit-button" class="hidden" onclick="handleEditClick()">ポータルを編集</button>
 
-        <h2 class="section-title" id="main-section-title">⌛ 初期化中...</h2>
         <div class="link-grid" id="link-container"></div>
         <div class="info-section" id="info-section"></div>
 
