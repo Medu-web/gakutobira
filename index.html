@@ -218,12 +218,12 @@
     </script>
 
     <style>
-        /* フォントをM PLUS Rounded 1cに変更 */
+        /* CUD適合配色: #004a99 (濃い青)をメインに、高輝度差と色の区別性を確保 */
         body { 
             font-family: 'M PLUS Rounded 1c', sans-serif; 
             margin: 0; 
-            padding: 10px; /* スペース最適化のため縮小 */
-            background: #f4f7f6; 
+            padding: 10px; 
+            background: #f9f9f9; /* わずかに明るいオフホワイト */
             text-align: center; 
             color: #333; 
             overflow-y: auto; 
@@ -231,31 +231,32 @@
         .container { 
             max-width: 900px; 
             margin: 0 auto; 
-            padding: 15px; /* スペース最適化のため縮小 */
+            padding: 15px; 
             background: #fff; 
             border-radius: 12px; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
         }
         
-        /* 変更点 1: H1とH2を統合し、H1（ID: main-title）のみにする */
+        /* タイトルとセクション */
         h1 { 
-            color: #0056b3; 
-            margin-bottom: 10px; /* 縮小 */
-            font-size: 1.8rem; /* 少し小さく */
+            color: #004a99; /* 濃い目のアカデミックブルー */
+            margin-bottom: 10px; 
+            font-size: 2.0rem; 
         }
         .section-title { 
-            color: #0056b3; 
-            border-bottom: 3px solid #0056b3; 
+            color: #004a99; /* 濃い目のアカデミックブルー */
+            /* H1の下線は維持し、最も重要な区切りとして強調する */
+            border-bottom: 3px solid #004a99; 
             padding-bottom: 5px; 
-            margin-top: 20px; /* 縮小 */
+            margin-top: 20px; 
             min-height: 1.5em; 
         }
 
         .link-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* 最小幅を少し縮小 */
-            gap: 15px; /* 縮小 */ 
-            margin-top: 15px; /* 縮小 */ 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 15px; 
+            margin-top: 15px; 
         } 
 
         /* 扉の形状と立体感を出すスタイル */
@@ -264,43 +265,47 @@
             flex-direction: column; 
             justify-content: center;
             align-items: center;
-            height: 120px; /* 縮小 */
-            padding: 8px; /* 縮小 */
-            background: #e9f0f8; 
-            color: #0056b3; 
+            height: 120px; 
+            padding: 8px; 
+            /* CUD調整: 背景色を明るいラベンダーグレーに。濃い文字とのコントラスト向上 */
+            background: #f8f8ff; 
+            color: #004a99; /* 濃い目のテキスト色 (文字が一番目立つ) */
             text-decoration: none; 
-            border: 3px solid #0056b3; /* 枠線も細く */
-            border-radius: 10px; /* 角丸も少し小さく */
-            border-top-left-radius: 40px; /* 上部アーチを小さく */
-            border-top-right-radius: 40px; /* 上部アーチを小さく */
+            
+            /* 修正点：枠線の色を薄いグレーに変更し、H1タイトル下線との視覚的競合を避ける */
+            border: 3px solid #ccc; /* 明るいグレーに変更 */
+            border-radius: 10px; 
+            border-top-left-radius: 40px; 
+            border-top-right-radius: 40px; 
             font-weight: bold; 
-            font-size: 1.1rem; /* 文字サイズを小さく */
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* 影を弱く */
+            font-size: 1.1rem; 
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); 
             transition: 0.3s ease; 
             position: relative; 
             overflow: hidden;
-            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+            text-shadow: none; 
         }
 
         .link-button:hover { 
-            background: #d0e0f0; 
-            transform: translateY(-3px); /* 飛び出しを小さく */
+            /* CUD調整: ホバー時にわずかに濃い色（輝度を下げる） */
+            background: #e6e6ff; 
+            transform: translateY(-3px); 
             box-shadow: 0 10px 15px rgba(0, 0, 0, 0.25);
         }
 
         /* 扉中央のアイコン（ノブ）のスタイル */
         .door-icon { 
-            width: 25px; /* 縮小 */
-            height: 30px; /* 縮小 */
+            width: 25px; 
+            height: 30px; 
             background: linear-gradient(to top, #a0522d, #8B4513); 
-            border: 2px solid #6b8e23; /* 枠線も細く */
-            border-radius: 6px 6px 0 0; /* 上部を丸く */
-            margin-bottom: 8px; /* 縮小 */
+            border: 2px solid #6b8e23; 
+            border-radius: 6px 6px 0 0; 
+            margin-bottom: 8px; 
             flex-shrink: 0; 
             transition: 0.5s ease; 
             transform-origin: center bottom; 
             position: relative;
-            box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.4); /* 凹み感 */
+            box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.4); 
         }
         
         /* 扉が開くアニメーション（中央から回転） */
@@ -314,14 +319,14 @@
             flex-grow: 0; 
             text-align: center; 
             padding: 0 5px;
-            font-size: 1em; /* 確実に収まるサイズ */
+            font-size: 1em; 
         }
 
-        /* 既存のユーティリティスタイル */
+        /* その他のセクション */
         .info-section { 
-            margin-top: 20px; /* 縮小 */ 
-            padding: 15px; /* 縮小 */ 
-            background: #f8f8f8; 
+            margin-top: 20px; 
+            padding: 15px; 
+            background: #eeeeee; /* ニュートラルな明るいグレー */
             border-radius: 8px; 
             text-align: left; 
         }
@@ -331,15 +336,31 @@
         .modal-content { background: #fff; padding: 20px; border-radius: 10px; width: 90%; max-width: 700px; }
         textarea { width: 100%; height: 300px; font-family: monospace; margin: 10px 0; padding: 10px; box-sizing: border-box; }
         .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; }
-        .modal-save { background: #0056b3; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .modal-save { background: #004a99; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
         .modal-save:disabled { opacity: 0.5; cursor: not-allowed; }
         .modal-cancel { background: #ccc; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        
+        /* CUD調整: 緊急セクション */
         .emergency-section { 
-             margin-top: 20px; /* 縮小 */ 
-             padding: 15px; /* 縮小 */
-             border: 3px solid #cc0000; /* 枠線も細く */
-             background: #ffe6e6; 
-             border-radius: 10px; /* 角丸も小さく */
+             margin-top: 20px; 
+             padding: 15px; 
+             border: 3px solid #b30000; /* 濃い赤 */
+             background: #fff0f0; /* 非常に明るい赤ピンクで背景との輝度差を強調 */
+             border-radius: 10px; 
+        }
+        .emergency-section h2 {
+            color: #b30000; /* 濃い赤 */
+        }
+        .emergency-section .link-button {
+            border-color: #b30000 !important;
+            background: #ffebeb !important; /* 緊急ボタンの背景も明るく */
+        }
+        .emergency-section .link-button .door-icon {
+            background: linear-gradient(to top, #660000, #993333) !important; 
+            border-color: #b30000 !important;
+        }
+        .emergency-section .link-button .button-text {
+            color: #b30000 !important;
         }
 
         /* モバイル対応（さらに詰める） */
@@ -361,10 +382,11 @@
         <div class="info-section" id="info-section"></div>
 
         <div class="emergency-section hidden" id="emergency-section">
-            <h2 style="color:#cc0000">🚨 緊急対応の扉</h2>
+            <h2>🚨 緊急対応の扉</h2>
             <div class="link-grid">
-                <a href="https://portal.office.com/" class="link-button" target="_blank" style="border-color:#cc0000">
-                    <span class="door-icon" style="background: linear-gradient(to top, #cc3333, #aa0000); border-color:#cc0000;"></span>
+                <a href="https://portal.office.com/" class="link-button" target="_blank">
+                    <!-- 緊急ボタンは濃い赤で目立たせる -->
+                    <span class="door-icon"></span>
                     <span class="button-text">Microsoft 365 Portal</span>
                 </a>
             </div>
