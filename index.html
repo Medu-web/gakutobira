@@ -29,7 +29,6 @@
         let portalData = {};
         let unsubscribeListener = null;
 
-        // --- 武蔵村山市 指定の構成 (学校コード・校名・パスワード) ---
         const SCHOOL_CONFIG = {
             '01': { name: '第一小学校', pw: 'portal01' },
             '02': { name: '第二小学校', pw: 'portal02' },
@@ -73,7 +72,6 @@
             if (!user || !db) return;
             if (unsubscribeListener) unsubscribeListener();
 
-            // ハッシュ部分のみを取得し、パラメータを除去
             const hashOnly = window.location.hash.split('?')[0];
             const rawHash = hashOnly.substring(1).toLowerCase().replace(/\/+$/, '').trim() || 'default';
             const currentKey = resolveKey(rawHash);
@@ -130,7 +128,6 @@
                 container.appendChild(btn);
             });
 
-            // 修正：URLパラメータの取得ロジック（ハッシュの後ろに?adminがつく場合とハッシュの前に付く場合の両方に対応）
             const fullUrl = window.location.href;
             const hasAdminParam = fullUrl.includes('admin=') || fullUrl.includes('?admin') || fullUrl.includes('&admin');
             document.getElementById('edit-button').classList.toggle('hidden', !hasAdminParam);
@@ -169,12 +166,12 @@
     </script>
 
     <style>
-        body { font-family: 'M PLUS Rounded 1c', sans-serif; background: #f0f4f8; margin: 0; padding: 15px; }
-        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); }
+        body { font-family: 'M PLUS Rounded 1c', sans-serif; background: #fdfaf5; margin: 0; padding: 15px; }
+        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 4px 25px rgba(0,0,0,0.08); border: 1px solid #eee; }
         
         h1.section-title { 
-            color: #0056b3; 
-            border-bottom: 3px solid #0056b3; 
+            color: #5d4037; /* 茶系にして全体をまとめ */
+            border-bottom: 4px solid #d4a373; /* 黄土色の下線 */
             padding-bottom: 12px; 
             font-size: 1.8rem; 
             text-align: center;
@@ -195,29 +192,33 @@
             justify-content: center; 
             height: 120px; 
             background: #ffffff; 
-            border: 2px solid #0056b3; 
+            /* 外枠の色を黄土色（少し落ち着いたトーン）に変更 */
+            border: 2px solid #d4a373; 
             border-radius: 12px; 
             border-top-left-radius: 40px; 
             border-top-right-radius: 40px; 
             text-decoration: none; 
-            color: #0056b3; 
+            /* 文字色を濃い茶系にして青いアイコン・枠と分離 */
+            color: #5d4037; 
             font-weight: bold; 
-            transition: 0.3s; 
-            box-shadow: 0 5px 0 #0056b3; 
+            transition: all 0.2s ease; 
+            /* 下の影も黄土色系に */
+            box-shadow: 0 5px 0 #bc8a5f; 
             position: relative;
         }
 
         .link-button:hover { 
             transform: translateY(-4px); 
-            box-shadow: 0 8px 0 #0056b3; 
-            background: #eef6ff; 
+            box-shadow: 0 8px 0 #bc8a5f; 
+            background: #fffcf5; 
+            border-color: #bc8a5f;
         }
 
         .door-icon { 
             width: 26px; 
             height: 36px; 
-            background: #8B4513; 
-            border: 2px solid #5D2E0C; 
+            background: #d4a373; /* ドア自体を黄土色に */
+            border: 2px solid #bc8a5f; 
             border-radius: 4px 4px 0 0; 
             margin-bottom: 8px; 
             transition: 0.4s; 
@@ -233,13 +234,13 @@
             top: 18px;
             width: 4px;
             height: 4px;
-            background: #FFD700;
+            background: #fff;
             border-radius: 50%;
         }
 
         .link-button.opening .door-icon { 
             transform: perspective(500px) rotateY(-110deg); 
-            opacity: 0.6; 
+            opacity: 0.8; 
         }
 
         .button-text {
@@ -251,77 +252,45 @@
         .info-section { 
             margin-top: 35px; 
             padding: 20px; 
-            background: #f8f9fa; 
-            border-left: 5px solid #0056b3;
+            background: #fffcf8; 
+            border: 1px solid #f0e0d0;
+            border-left: 6px solid #d4a373;
             border-radius: 8px; 
             text-align: left; 
             line-height: 1.8; 
+            color: #5d4037;
         }
 
         .hidden { display: none !important; }
 
         #edit-button { 
-            background: #28a745; 
+            background: #8e9eab; 
             color: #fff; 
             border: none; 
-            padding: 12px 24px; 
+            padding: 10px 20px; 
             border-radius: 30px; 
             cursor: pointer; 
             font-weight: bold; 
             margin: 0 auto 20px auto; 
             display: block;
-            box-shadow: 0 3px 0 #1e7e34;
-            transition: 0.2s;
-        }
-
-        #edit-button:active {
-            transform: translateY(2px);
-            box-shadow: none;
+            box-shadow: 0 3px 0 #6d7c89;
         }
 
         .modal-overlay { 
             position: fixed; 
-            top:0; 
-            left:0; 
-            width:100%; 
-            height:100%; 
-            background:rgba(0,0,0,0.7); 
-            display:none; 
-            justify-content:center; 
-            align-items:center; 
+            top:0; left:0; width:100%; height:100%; 
+            background:rgba(0,0,0,0.6); 
+            display:none; justify-content:center; align-items:center; 
             z-index:100; 
         }
 
         .modal-content { 
-            background:#fff; 
-            padding:25px; 
-            border-radius:15px; 
-            width:90%; 
-            max-width:700px; 
+            background:#fff; padding:25px; border-radius:15px; width:90%; max-width:700px; 
         }
 
         textarea { 
-            width:100%; 
-            height:350px; 
-            font-family: 'Courier New', Courier, monospace; 
-            margin-bottom:15px; 
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .modal-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        .modal-buttons button {
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            border: none;
-            font-weight: bold;
+            width:100%; height:350px; font-family: monospace; 
+            margin-bottom:15px; padding: 10px; border: 1px solid #ddd;
         }
     </style>
 </head>
@@ -334,12 +303,11 @@
     </div>
     <div id="edit-modal" class="modal-overlay">
         <div class="modal-content">
-            <h3>ポータル設定の編集 (JSON)</h3>
-            <p style="font-size: 0.8rem; color: #666;">※リンク名やURLを書き換えて「保存」を押してください。</p>
+            <h3>ポータル設定の編集</h3>
             <textarea id="json-editor"></textarea>
-            <div class="modal-buttons">
-                <button style="background: #ccc;" onclick="document.getElementById('edit-modal').style.display='none'">キャンセル</button>
-                <button style="background: #0056b3; color: #fff;" onclick="saveChanges()">保存して更新</button>
+            <div style="text-align:right;">
+                <button onclick="document.getElementById('edit-modal').style.display='none'">キャンセル</button>
+                <button style="background:#d4a373; color:#fff; border:none; padding:10px 20px; border-radius:5px;" onclick="saveChanges()">保存</button>
             </div>
         </div>
     </div>
