@@ -73,7 +73,9 @@
             if (!user || !db) return;
             if (unsubscribeListener) unsubscribeListener();
 
-            const rawHash = window.location.hash.substring(1).toLowerCase().replace(/\/+$/, '').trim() || 'default';
+            // ハッシュ部分のみを取得し、パラメータを除去
+            const hashOnly = window.location.hash.split('?')[0];
+            const rawHash = hashOnly.substring(1).toLowerCase().replace(/\/+$/, '').trim() || 'default';
             const currentKey = resolveKey(rawHash);
             const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'portals', currentKey);
             
@@ -127,15 +129,19 @@
                 };
                 container.appendChild(btn);
             });
-            const urlParams = new URLSearchParams(window.location.search);
-            document.getElementById('edit-button').classList.toggle('hidden', !urlParams.has('admin'));
+
+            // 修正：URLパラメータの取得ロジック（ハッシュの後ろに?adminがつく場合とハッシュの前に付く場合の両方に対応）
+            const fullUrl = window.location.href;
+            const hasAdminParam = fullUrl.includes('admin=') || fullUrl.includes('?admin') || fullUrl.includes('&admin');
+            document.getElementById('edit-button').classList.toggle('hidden', !hasAdminParam);
         }
 
         window.handleEditClick = () => {
-            const rawHash = window.location.hash.substring(1).toLowerCase() || 'default';
+            const hashOnly = window.location.hash.split('?')[0];
+            const rawHash = hashOnly.substring(1).toLowerCase() || 'default';
             const key = resolveKey(rawHash);
             const authCode = key.substring(0, 2);
-            const required = (authCode === 'de') ? ADMIN_PASSWORD : (SCHOOL_CONFIG[authCode] ? SCHOOL_CONFIG[authCode].pw : ADMIN_PASSWORD);
+            const required = (authCode === 'de' || key === 'default') ? ADMIN_PASSWORD : (SCHOOL_CONFIG[authCode] ? SCHOOL_CONFIG[authCode].pw : ADMIN_PASSWORD);
             const pw = prompt(`パスワードを入力 (#${key})`);
             if (pw === required) { showEditModal(key); }
             else if (pw !== null) { alert("認証に失敗しました。"); }
@@ -148,7 +154,8 @@
         }
 
         window.saveChanges = async () => {
-            const key = resolveKey(window.location.hash.substring(1));
+            const hashOnly = window.location.hash.split('?')[0];
+            const key = resolveKey(hashOnly.substring(1));
             try {
                 const newData = JSON.parse(document.getElementById('json-editor').value);
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'portals', key);
@@ -251,7 +258,7 @@
             line-height: 1.8; 
         }
 
-        .hidden { display: none; }
+        .hidden { display: none !important; }
 
         #edit-button { 
             background: #28a745; 
